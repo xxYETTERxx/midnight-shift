@@ -1,0 +1,65 @@
+{
+  "character": {
+    "id": "f77c07a7-ac38-483c-af77-de43bd02c757",
+    "name": "Seedy man in his 30s wearing a black leather jacket and blue jeans",
+    "prompt": "Seedy man in his 30s wearing a black leather jacket and blue jeans",
+    "size": {
+      "width": 68,
+      "height": 68
+    },
+    "template_id": "mannequin",
+    "directions": 8,
+    "view": "low top-down",
+    "created_at": "2026-04-19T16:34:53.999117+00:00"
+  },
+  "frames": {
+    "rotations": {
+      "south": "rotations/south.png",
+      "south-east": "rotations/south-east.png",
+      "east": "rotations/east.png",
+      "north-east": "rotations/north-east.png",
+      "north": "rotations/north.png",
+      "north-west": "rotations/north-west.png",
+      "west": "rotations/west.png",
+      "south-west": "rotations/south-west.png"
+    },
+    "animations": {
+      "animation-105789c8": {
+        "south": [
+          "animations/animation-105789c8/south/frame_000.png",
+          "animations/animation-105789c8/south/frame_001.png",
+          "animations/animation-105789c8/south/frame_002.png",
+          "animations/animation-105789c8/south/frame_003.png",
+          "animations/animation-105789c8/south/frame_004.png",
+          "animations/animation-105789c8/south/frame_005.png"
+        ],
+        "east": [
+          "animations/animation-105789c8/east/frame_000.png",
+          "animations/animation-105789c8/east/frame_001.png",
+          "animations/animation-105789c8/east/frame_002.png",
+          "animations/animation-105789c8/east/frame_003.png",
+          "animations/animation-105789c8/east/frame_004.png",
+          "animations/animation-105789c8/east/frame_005.png"
+        ],
+        "west": [
+          "animations/animation-105789c8/west/frame_000.png",
+          "animations/animation-105789c8/west/frame_001.png",
+          "animations/animation-105789c8/west/frame_002.png",
+          "animations/animation-105789c8/west/frame_003.png",
+          "animations/animation-105789c8/west/frame_004.png",
+          "animations/animation-105789c8/west/frame_005.png"
+        ],
+        "north": [
+          "animations/animation-105789c8/north/frame_000.png",
+          "animations/animation-105789c8/north/frame_001.png",
+          "animations/animation-105789c8/north/frame_002.png",
+          "animations/animation-105789c8/north/frame_003.png",
+          "animations/animation-105789c8/north/frame_004.png",
+          "animations/animation-105789c8/north/frame_005.png"
+        ]
+      }
+    }
+  },
+  "export_version": "2.0",
+  "export_date": "2026-04-28T20:45:59.119109"
+}

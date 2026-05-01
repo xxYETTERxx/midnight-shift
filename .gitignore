@@ -1,0 +1,20 @@
+# Godot 4+ specific ignores
+.godot/
+/android/
+
+# Imported translations (automatically generated from CSV files)
+*.translation
+
+# System/tool-specific ignores
+.DS_Store
+*.swp
+*.swo
+Thumbs.db
+
+# Editor backup files
+*~
+*.bak
+
+# Export artifacts
+/builds/
+/exports/
