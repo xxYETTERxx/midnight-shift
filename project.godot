@@ -17,6 +17,11 @@ config/icon="res://icon.svg"
 
 [autoload]
 
+SaveSystem="*res://scripts/systems/save_system.gd"
+TimeSystem="*res://scripts/systems/time_system.gd"
+InteractionManager="*res://scripts/systems/interaction_manager.gd"
+ScreenFade="*res://scripts/systems/screen_fade.tscn"
+TimeSkipSystem="*res://scripts/systems/time_skip_system.gd"
 RoomManager="*res://scripts/systems/room_manager.gd"
 
 [display]

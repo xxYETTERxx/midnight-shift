@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=3 uid="uid://22oas8bywttm"]
+[gd_scene load_steps=4 format=3 uid="uid://22oas8bywttm"]
 
 [ext_resource type="TileSet" uid="uid://6akbc4rraedn" path="res://art/tilesets/apartment_tileset.tres" id="1_bay75"]
 [ext_resource type="PackedScene" uid="uid://cu0qiy18mj116" path="res://scenes/components/doorway.tscn" id="2_lvxvr"]
+[ext_resource type="PackedScene" uid="uid://yyg1vmqtao4e" path="res://scenes/components/bed.tscn" id="3_gkqkq"]
 
 [node name="ApartmentBedroom" type="Node2D"]
 y_sort_enabled = true
@@ -36,10 +37,13 @@ position = Vector2(367, 277)
 target_room = "res://scenes/rooms/apartment_living.tscn"
 target_spawn = "from_bedroom"
 
+[node name="Bed" parent="Interactables" instance=ExtResource("3_gkqkq")]
+position = Vector2(243, 153)
+
 [node name="SpawnPoints" type="Node2D" parent="."]
 
 [node name="from_living" type="Marker2D" parent="SpawnPoints"]
-position = Vector2(256, 226)
+position = Vector2(395, 227)
 
 [node name="NPCs" type="Node2D" parent="."]
 position = Vector2(8, 8)

@@ -1,0 +1,25 @@
+[gd_scene load_steps=5 format=3 uid="uid://yyg1vmqtao4e"]
+
+[ext_resource type="Script" path="res://scripts/components/bed.gd" id="1_aiwdn"]
+[ext_resource type="Texture2D" uid="uid://5vgvosh3kwvv" path="res://art/objects/single_bed_unkept_lightly_st.png" id="2_6qrhk"]
+[ext_resource type="PackedScene" uid="uid://l6jfg123c1fw" path="res://scenes/components/interactable.tscn" id="3_jigvk"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_1nk3h"]
+size = Vector2(26, 29)
+
+[node name="Bed" type="Node2D"]
+script = ExtResource("1_aiwdn")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(3, -19)
+texture = ExtResource("2_6qrhk")
+
+[node name="Interactable" parent="." instance=ExtResource("3_jigvk")]
+auto_trigger = true
+
+[node name="CollisionShape2D2" type="CollisionShape2D" parent="Interactable"]
+position = Vector2(0, -19.5)
+shape = SubResource("RectangleShape2D_1nk3h")
+
+[node name="WakeSpot" type="Marker2D" parent="."]
+position = Vector2(29, -20)

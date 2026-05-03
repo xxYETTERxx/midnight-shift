@@ -1,7 +1,9 @@
-[gd_scene load_steps=3 format=3 uid="uid://da404duskch4p"]
+[gd_scene load_steps=5 format=3 uid="uid://da404duskch4p"]
 
 [ext_resource type="Script" path="res://scenes/world.gd" id="1_cqg7b"]
 [ext_resource type="PackedScene" uid="uid://cb8eiu5us6cm5" path="res://scenes/player/player.tscn" id="2_5uf1v"]
+[ext_resource type="Script" path="res://scripts/ui/hud.gd" id="3_iit0o"]
+[ext_resource type="Script" path="res://scripts/ui/day_night_tint.gd" id="4_tnun7"]
 
 [node name="World" type="Node2D"]
 script = ExtResource("1_cqg7b")
@@ -9,3 +11,50 @@ script = ExtResource("1_cqg7b")
 [node name="CurrentRoom" type="Node2D" parent="."]
 
 [node name="Player" parent="." instance=ExtResource("2_5uf1v")]
+
+[node name="HUD" type="CanvasLayer" parent="."]
+script = ExtResource("3_iit0o")
+
+[node name="DayNightTint" type="ColorRect" parent="HUD"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 0)
+script = ExtResource("4_tnun7")
+
+[node name="ClockLabel" type="Label" parent="HUD"]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -40.0
+offset_bottom = 23.0
+grow_horizontal = 0
+pivot_offset = Vector2(-8, 8)
+theme_override_colors/font_color = Color(0.858824, 0, 0, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+horizontal_alignment = 2
+
+[node name="StaminaLabel" type="Label" parent="HUD"]
+offset_left = 525.0
+offset_top = 51.0
+offset_right = 640.0
+offset_bottom = 74.0
+horizontal_alignment = 2
+
+[node name="InteractPrompt" type="Label" parent="HUD"]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -20.0
+offset_top = -23.0
+offset_right = 20.0
+grow_horizontal = 2
+grow_vertical = 0
+pivot_offset = Vector2(0, -60)
+horizontal_alignment = 1
+vertical_alignment = 1

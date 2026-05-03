@@ -43,7 +43,7 @@ position = Vector2(-12, 10)
 position = Vector2(251, 141)
 
 [node name="from_bedroom" type="Marker2D" parent="SpawnPoints"]
-position = Vector2(373, 143)
+position = Vector2(390, 216)
 
 [node name="NPCs" type="Node2D" parent="."]
 position = Vector2(11, 8)
