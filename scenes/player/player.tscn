@@ -1,10 +1,11 @@
-[gd_scene load_steps=32 format=3 uid="uid://cb8eiu5us6cm5"]
+[gd_scene load_steps=33 format=3 uid="uid://cb8eiu5us6cm5"]
 
 [ext_resource type="Script" path="res://scenes/player/player.gd" id="1_6aav1"]
 [ext_resource type="Texture2D" uid="uid://dhi3jffh231k3" path="res://art/sprites/player/player_walk_e.png" id="2_c77pq"]
 [ext_resource type="Texture2D" uid="uid://u2mci75r8sew" path="res://art/sprites/player/player_walk_n.png" id="3_q36cb"]
 [ext_resource type="Texture2D" uid="uid://b6oqy6yulg8bp" path="res://art/sprites/player/player_walk_s.png" id="4_dvxcf"]
 [ext_resource type="Texture2D" uid="uid://dpq3lii3ib2kg" path="res://art/sprites/player/player_walk_w.png" id="5_ch73g"]
+[ext_resource type="Script" path="res://scripts/items/inventory.gd" id="6_kn266"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_wmcfn"]
 atlas = ExtResource("2_c77pq")
@@ -216,3 +217,6 @@ shape = SubResource("RectangleShape2D_422xk")
 [node name="Camera2D" type="Camera2D" parent="."]
 zoom = Vector2(1.5, 1.5)
 position_smoothing_enabled = true
+
+[node name="Inventory" type="Node2D" parent="."]
+script = ExtResource("6_kn266")

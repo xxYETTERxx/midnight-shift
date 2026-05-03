@@ -59,6 +59,21 @@ func _input(event: InputEvent) -> void:
 				SaveSystem.save_to_disk()
 			KEY_F10:  # bonus: wipe save
 				SaveSystem.delete_save()
+			KEY_I:
+	# Debug: grant 3 soil bags
+				var soil := ItemRegistry.get_item(&"soil_bag")
+				if soil:
+					var leftover: int = player.inventory.add(soil, 3)
+					print("[Inventory] added 3 soil_bag, leftover: %d" % leftover)
+					print("[Inventory] slot 0: %s" % str(player.inventory.get_slot(0)))
+			KEY_O:
+	# Debug: print inventory state
+				for i in range(player.inventory.max_slots):
+					var stack: ItemStack = player.inventory.get_slot(i)
+					if stack:
+						print("Slot %d: %s x%d" % [i, stack.item.id, stack.count])
+					else:
+						print("Slot %d: empty" % i)
 
 
 func _jump_to_hour(target_hour: int) -> void:

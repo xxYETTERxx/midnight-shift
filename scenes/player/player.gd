@@ -3,6 +3,7 @@ extends CharacterBody2D
 @export var speed: float = 80.0
 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
+@onready var inventory: Inventory = $Inventory
 
 # --- Stamina ---
 @export var stamina_max: float = 100.0
@@ -38,6 +39,16 @@ func _physics_process(_delta: float) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("interact"):
 		InteractionManager.try_interact(self)
+	# Hotbar cycling
+	if event.is_action_pressed("hotbar_prev"):
+		inventory.cycle_active_slot(-1)
+	if event.is_action_pressed("hotbar_next"):
+		inventory.cycle_active_slot(1)
+	# Hotbar direct selection
+	for i in range(12):
+		if event.is_action_pressed("hotbar_slot_%d" % (i + 1)):
+			inventory.set_active_slot(i)
+			break
 
 func _update_animation(input_vector: Vector2) -> void:
 	if input_vector == Vector2.ZERO:
@@ -128,6 +139,7 @@ func save_state() -> Dictionary:
 		"stamina": stamina,
 		"stamina_max": stamina_max,
 		"last_direction": last_direction,
+		"inventory": inventory.save_state(),  # NEW
 	}
 
 
@@ -135,6 +147,6 @@ func load_state(data: Dictionary) -> void:
 	stamina = data.get("stamina", stamina_max)
 	stamina_max = data.get("stamina_max", 100.0)
 	last_direction = data.get("last_direction", "s")
+	if data.has("inventory"):
+		inventory.load_state(data["inventory"])
 	stamina_changed.emit(stamina, stamina_max)
-	# Position and room are handled by World on load — see below.
-	# We can't change rooms from here because RoomManager state is mid-flight.
