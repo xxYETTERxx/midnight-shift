@@ -5,7 +5,7 @@
 [ext_resource type="PackedScene" uid="uid://l6jfg123c1fw" path="res://scenes/components/interactable.tscn" id="3_jigvk"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_1nk3h"]
-size = Vector2(26, 29)
+size = Vector2(19, 29)
 
 [node name="Bed" type="Node2D"]
 script = ExtResource("1_aiwdn")
@@ -18,8 +18,8 @@ texture = ExtResource("2_6qrhk")
 auto_trigger = true
 
 [node name="CollisionShape2D2" type="CollisionShape2D" parent="Interactable"]
-position = Vector2(0, -19.5)
+position = Vector2(-3.5, -19.5)
 shape = SubResource("RectangleShape2D_1nk3h")
 
 [node name="WakeSpot" type="Marker2D" parent="."]
-position = Vector2(29, -20)
+position = Vector2(39, -20)

@@ -28,6 +28,7 @@ func change_room(room_path: String, spawn_name: String) -> void:
 
 	# Free old room
 	if current_room != null:
+		WorldStateSystem.snapshot_room(current_room)
 		slot.remove_child(current_room)
 		current_room.queue_free()
 		current_room = null
@@ -49,4 +50,6 @@ func change_room(room_path: String, spawn_name: String) -> void:
 	else:
 		_player.global_position = spawn_node.global_position
 
+	WorldStateSystem.restore_room(current_room)
+	
 	room_changed.emit(current_room.name)

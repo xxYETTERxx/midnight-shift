@@ -10,6 +10,8 @@ var _is_active: bool = false
 var _style_inactive: StyleBoxFlat
 var _style_active: StyleBoxFlat
 
+signal clicked(slot_index: int, with_shift: bool)
+
 
 func _ready() -> void:
 	_build_styles()
@@ -60,3 +62,8 @@ func _apply_style() -> void:
 		add_theme_stylebox_override("panel", _style_active)
 	else:
 		add_theme_stylebox_override("panel", _style_inactive)
+
+func _gui_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		var with_shift: bool = Input.is_key_pressed(KEY_SHIFT)
+		clicked.emit(slot_index, with_shift)

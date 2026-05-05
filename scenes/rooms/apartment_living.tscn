@@ -47,7 +47,3 @@ position = Vector2(390, 216)
 
 [node name="NPCs" type="Node2D" parent="."]
 position = Vector2(11, 8)
-
-[node name="Player" type="Node2D" parent="."]
-position = Vector2(301, 57)
-scale = Vector2(1.00851, 0.997738)

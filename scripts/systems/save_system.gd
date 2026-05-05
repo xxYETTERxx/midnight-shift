@@ -11,8 +11,15 @@ var _savables: Dictionary = {}
 
 
 func _ready() -> void:
-	# Auto-save when the calendar day rolls over.
-	TimeSystem.day_rolled.connect(_on_day_rolled)
+	# DEFERRED so this runs after same-frame listeners that reposition the
+	# player / restore stamina. Save must capture the post-skip world state
+	TimeSkipSystem.time_skipped.connect(_on_time_skipped, CONNECT_DEFERRED)
+	
+func _on_time_skipped(from_minute: int, _to_minute: int, _context: Dictionary) -> void:
+	# Only autosave if a calendar day actually rolled during this skip.
+	var minutes_per_day := 24 * 60
+	if from_minute / minutes_per_day != _to_minute / minutes_per_day:
+		save_to_disk()
 
 
 # Systems call this in their _ready to register themselves for saving.
@@ -71,15 +78,24 @@ func load_from_disk() -> bool:
 		return false
 
 	var savables_data: Dictionary = data.get("savables", {})
-	for key in savables_data:
-		if not _savables.has(key):
-			push_warning("Save contains unknown key '%s', skipping" % key)
-			continue
+
+	# Iterate the registry order, not the JSON's key order. JSON parsing
+	# doesn't guarantee key order preservation, and load order matters
+	# (e.g., WorldStateSystem must populate before world.load_state triggers
+	# a room change that reads from it).
+	for key in _savables:
+		if not savables_data.has(key):
+			continue  # save predates this savable; skip
 		var node: Node = _savables[key]
 		if not node.has_method("load_state"):
 			push_warning("Savable '%s' has no load_state() method" % key)
 			continue
 		node.load_state(savables_data[key])
+
+	# Warn about save data that has no current registrant.
+	for key in savables_data:
+		if not _savables.has(key):
+			push_warning("Save contains unknown key '%s', skipping" % key)
 
 	print("[Save] loaded save from %s" % SAVE_PATH)
 	return true

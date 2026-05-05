@@ -1,8 +1,11 @@
 extends Node2D
 
-@onready var player: Node2D = $Player
+const PLAYER_SCENE: PackedScene = preload("res://scenes/player/player.tscn")
+var player: Node2D = null
 
 func _ready() -> void:
+	player = PLAYER_SCENE.instantiate()
+	add_child(player)
 	SaveSystem.register_savable("world", self)
 	if SaveSystem.has_save():
 		_load_game()
@@ -38,6 +41,8 @@ func load_state(data: Dictionary) -> void:
 		player.global_position = pos
 	else:
 		_new_game()  # fallback
+	print("[WorldStateSystem] load_state called with %d rooms" % data.get("room_states", {}).size())
+	
 
 func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_accept"):  # Enter key
@@ -74,6 +79,7 @@ func _input(event: InputEvent) -> void:
 						print("Slot %d: %s x%d" % [i, stack.item.id, stack.count])
 					else:
 						print("Slot %d: empty" % i)
+				print(ItemRegistry.get_item(&"pot_basic") is PlaceableItemDef)
 
 
 func _jump_to_hour(target_hour: int) -> void:

@@ -199,9 +199,10 @@ animations = [{
 }]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_422xk"]
-size = Vector2(15, 37)
+size = Vector2(15, 26)
 
 [node name="Player" type="CharacterBody2D" groups=["player"]]
+y_sort_enabled = true
 collision_layer = 2
 script = ExtResource("1_6aav1")
 
@@ -211,7 +212,7 @@ animation = &"walk_e"
 offset = Vector2(0, -24)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(0.5, -16.5)
+position = Vector2(0.5, -13)
 shape = SubResource("RectangleShape2D_422xk")
 
 [node name="Camera2D" type="Camera2D" parent="."]
@@ -220,3 +221,5 @@ position_smoothing_enabled = true
 
 [node name="Inventory" type="Node2D" parent="."]
 script = ExtResource("6_kn266")
+
+[node name="FeetAnchor" type="Marker2D" parent="."]

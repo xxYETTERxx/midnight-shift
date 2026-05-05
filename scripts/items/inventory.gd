@@ -1,8 +1,13 @@
 class_name Inventory
 extends Node
 
-@export var max_slots: int = 12
-@export var initial_slots: int = 12  # currently unlocked slots
+@export var max_slots: int = 24
+@export var initial_slots: int = 24  # currently unlocked slots
+
+const HOTBAR_SLOT_COUNT: int = 12
+var hotbar_offset: int = 0  # 0 = first row is hotbar, 12 = second row is hotbar
+
+signal hotbar_offset_changed(offset: int)
 
 # Array of ItemStack-or-null, length == max_slots.
 var slots: Array = []
@@ -31,7 +36,7 @@ func get_slot(slot: int) -> ItemStack:
 
 
 func get_active_stack() -> ItemStack:
-	return get_slot(active_slot)
+	return get_slot(active_world_slot())
 
 
 func is_full() -> bool:
@@ -95,13 +100,13 @@ func consume_from_slot(slot: int, count: int = 1) -> bool:
 
 # Active-slot convenience: consume one of whatever is held.
 func consume_active(count: int = 1) -> bool:
-	return consume_from_slot(active_slot, count)
+	return consume_from_slot(active_world_slot(), count)
 
 
 # --- Hotbar selection ---
 
 func set_active_slot(slot: int) -> void:
-	if slot < 0 or slot >= max_slots:
+	if slot < 0 or slot >= HOTBAR_SLOT_COUNT:
 		return
 	if slot == active_slot:
 		return
@@ -111,9 +116,9 @@ func set_active_slot(slot: int) -> void:
 
 func cycle_active_slot(direction: int) -> void:
 	# direction: +1 = next, -1 = previous. Wraps around.
-	var new_slot := (active_slot + direction) % max_slots
+	var new_slot := (active_slot + direction) % HOTBAR_SLOT_COUNT
 	if new_slot < 0:
-		new_slot += max_slots
+		new_slot += HOTBAR_SLOT_COUNT
 	set_active_slot(new_slot)
 
 
@@ -129,6 +134,20 @@ func swap_slots(a: int, b: int) -> void:
 	slots[b] = tmp
 	slot_changed.emit(a)
 	slot_changed.emit(b)
+
+func cycle_hotbar_row() -> void:
+	# Cycle through available rows.
+	var rows: int = max_slots / HOTBAR_SLOT_COUNT  # integer division
+	if rows <= 1:
+		return
+	hotbar_offset = (hotbar_offset + HOTBAR_SLOT_COUNT) % max_slots
+	# active_slot is a 0-11 *within* the active row, so it stays as-is.
+	# But the *effective* active slot in world terms changes — re-emit so listeners react.
+	hotbar_offset_changed.emit(hotbar_offset)
+	active_slot_changed.emit(active_slot)
+
+func active_world_slot() -> int:
+	return hotbar_offset + active_slot
 
 
 # --- Saving ---
@@ -159,3 +178,6 @@ func load_state(data: Dictionary) -> void:
 		slot_changed.emit(i)
 	active_slot = data.get("active_slot", 0)
 	active_slot_changed.emit(active_slot)
+
+
+	

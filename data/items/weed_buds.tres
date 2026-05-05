@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="ItemDef" load_steps=3 format=3 uid="uid://d1ciphqy0cmrd"]
+
+[ext_resource type="Script" path="res://scripts/items/item_def.gd" id="1_88k62"]
+[ext_resource type="Texture2D" uid="uid://dnfm0ki6ypsn0" path="res://art/objects/weed_buds3.png" id="1_lg2w4"]
+
+[resource]
+script = ExtResource("1_88k62")
+id = &"weed_buds"
+display_name = "Weed Buds"
+icon = ExtResource("1_lg2w4")
+max_stack = 99
+category = 2
+description = "Raw Harvested Buds"

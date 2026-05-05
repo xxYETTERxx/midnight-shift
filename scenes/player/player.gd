@@ -17,9 +17,19 @@ signal stamina_changed(current: float, maximum: float)
 var last_direction: String = "s"
 
 func _ready() -> void:
-	TimeSkipSystem.time_skipped.connect(_on_time_skipped)
+	TimeSystem.minute_tick.connect(_on_minute_tick)
 	TimeSystem.hour_tick.connect(_on_hour_tick)
+	TimeSkipSystem.time_skipped.connect(_on_time_skipped)
+	stamina_changed.emit(stamina, stamina_max)
 	SaveSystem.register_savable("player", self)
+	# NEW: re-arbitrate interactions when the player's held item changes
+	inventory.active_slot_changed.connect(_on_active_slot_changed)
+	inventory.slot_changed.connect(_on_inventory_slot_changed)
+	inventory.add(ItemRegistry.get_item(&"pot_basic"), 4)
+	inventory.add(ItemRegistry.get_item(&"weed_seed"), 4)
+	inventory.add(ItemRegistry.get_item(&"soil_bag"), 4)
+	inventory.add(ItemRegistry.get_item(&"watering_can"), 1)
+	inventory.add(ItemRegistry.get_item(&"stash_box"), 2)
 
 
 func _physics_process(_delta: float) -> void:
@@ -38,17 +48,21 @@ func _physics_process(_delta: float) -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("interact"):
-		InteractionManager.try_interact(self)
+		if not InteractionManager.try_interact(self):
+			PlacementSystem.try_place_active(self)
 	# Hotbar cycling
 	if event.is_action_pressed("hotbar_prev"):
 		inventory.cycle_active_slot(-1)
 	if event.is_action_pressed("hotbar_next"):
 		inventory.cycle_active_slot(1)
 	# Hotbar direct selection
+	if event.is_action_pressed("hotbar_cycle_row"):
+		inventory.cycle_hotbar_row()
 	for i in range(12):
 		if event.is_action_pressed("hotbar_slot_%d" % (i + 1)):
 			inventory.set_active_slot(i)
 			break
+	
 
 func _update_animation(input_vector: Vector2) -> void:
 	if input_vector == Vector2.ZERO:
@@ -150,3 +164,23 @@ func load_state(data: Dictionary) -> void:
 	if data.has("inventory"):
 		inventory.load_state(data["inventory"])
 	stamina_changed.emit(stamina, stamina_max)
+	
+#---- Inventory------------------------------------------------------
+func _on_active_slot_changed(_slot: int) -> void:
+	InteractionManager.notify_player_state_changed()
+
+func _on_inventory_slot_changed(slot: int) -> void:
+	if slot == inventory.active_slot:
+		InteractionManager.notify_player_state_changed()
+		
+func is_holding(item_id: StringName) -> bool:
+	var stack := inventory.get_active_stack()
+	return stack != null and stack.item != null and stack.item.id == item_id
+
+func is_holding_anything() -> bool:
+	var stack := inventory.get_active_stack()
+	return stack != null and stack.item != null
+
+func is_holding_category(category: int) -> bool:
+	var stack := inventory.get_active_stack()
+	return stack != null and stack.item != null and stack.item.category == category

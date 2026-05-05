@@ -8,18 +8,18 @@ extends CanvasLayer
 func _ready() -> void:
 	_refresh_clock()
 	TimeSystem.minute_tick.connect(_on_minute_tick)
-	var player := get_parent().get_node("Player")
+	await get_tree().process_frame
+	var player := get_tree().get_first_node_in_group("player")
 	player.stamina_changed.connect(_on_stamina_changed)
 	_on_stamina_changed(player.stamina, player.stamina_max)
-	# NEW: interact prompt
-	InteractionManager.active_changed.connect(_on_active_changed)
-	_on_active_changed(InteractionManager.active)
+	# UPDATED: was active_changed, now winner_changed
+	InteractionManager.winner_changed.connect(_on_winner_changed)
+	_on_winner_changed(InteractionManager.active)
 
-func _on_active_changed(interactable: Node) -> void:
+func _on_winner_changed(interactable: Node) -> void:
 	if interactable == null:
 		interact_prompt.visible = false
 		return
-	# Read prompt_text from the interactable; fall back to generic text.
 	var text := "Interact"
 	if "prompt_text" in interactable:
 		text = interactable.prompt_text

@@ -1,6 +1,7 @@
 extends HBoxContainer
 
 const SLOT_SCENE := preload("res://scenes/ui/hotbar_slot.tscn")
+const HOTBAR_DISPLAY_COUNT: int = 12
 
 var _slot_widgets: Array = []  # Array of HotbarSlot instances
 
@@ -13,12 +14,14 @@ func _ready() -> void:
 		push_error("Hotbar: no player found")
 		return
 	var inventory: Inventory = player.inventory
-	_build_slots(inventory.max_slots)
+	var display_count: int = min(HOTBAR_DISPLAY_COUNT, inventory.max_slots)
+	_build_slots(display_count)
 	_render_all(inventory)
 	_highlight_active(inventory.active_slot)
 	# Listen for changes
 	inventory.slot_changed.connect(_on_slot_changed.bind(inventory))
 	inventory.active_slot_changed.connect(_on_active_slot_changed)
+	inventory.hotbar_offset_changed.connect(_on_hotbar_offset_changed.bind(inventory))
 
 
 func _build_slots(count: int) -> void:
@@ -36,13 +39,16 @@ func _build_slots(count: int) -> void:
 
 func _render_all(inventory: Inventory) -> void:
 	for i in range(_slot_widgets.size()):
-		_slot_widgets[i].render(inventory.get_slot(i))
+		var world_slot: int = inventory.hotbar_offset + i
+		_slot_widgets[i].render(inventory.get_slot(world_slot))
 
 
 func _on_slot_changed(slot_index: int, inventory: Inventory) -> void:
-	if slot_index < 0 or slot_index >= _slot_widgets.size():
+	# Translate world slot to hotbar widget index
+	var widget_index: int = slot_index - inventory.hotbar_offset
+	if widget_index < 0 or widget_index >= _slot_widgets.size():
 		return
-	_slot_widgets[slot_index].render(inventory.get_slot(slot_index))
+	_slot_widgets[widget_index].render(inventory.get_slot(slot_index))
 
 
 func _on_active_slot_changed(slot_index: int) -> void:
@@ -52,3 +58,6 @@ func _on_active_slot_changed(slot_index: int) -> void:
 func _highlight_active(active_index: int) -> void:
 	for i in range(_slot_widgets.size()):
 		_slot_widgets[i].set_active(i == active_index)
+
+func _on_hotbar_offset_changed(_offset: int, inventory: Inventory) -> void:
+	_render_all(inventory)
