@@ -34,6 +34,7 @@ var _cursor_source_slot: int = -1
 func _ready() -> void:
 	add_to_group("inventory_panel")
 	visible = false
+	print("[InventoryPanel] cursor_visual: ", cursor_visual)
 	# Defer one frame to find the player (same pattern hotbar.gd uses)
 	await get_tree().process_frame
 	var player := get_tree().get_first_node_in_group("player")
@@ -116,13 +117,7 @@ func _build_slots() -> void:
 		hotbar_row.add_child(slot)
 		_slot_widgets[i] = slot
 		slot.clicked.connect(_on_player_slot_clicked)
-	
-	for i in range(HOTBAR_SLOT_COUNT, _inventory.max_slots):
-		var slot := SLOT_SCENE.instantiate()
-		slot.slot_index = i
-		backpack_grid.add_child(slot)
-		_slot_widgets[i] = slot
-		slot.clicked.connect(_on_player_slot_clicked)
+
 
 	# Build backpack grid (slots 12..max)
 	for i in range(HOTBAR_SLOT_COUNT, _inventory.max_slots):
@@ -130,6 +125,7 @@ func _build_slots() -> void:
 		slot.slot_index = i
 		backpack_grid.add_child(slot)
 		_slot_widgets[i] = slot
+		slot.clicked.connect(_on_player_slot_clicked)
 
 
 func _render_all() -> void:
@@ -217,6 +213,7 @@ func _handle_click(inv: Inventory, slot_index: int) -> void:
 		_cursor_source_slot = slot_index
 		inv.slots[slot_index] = null
 		inv.slot_changed.emit(slot_index)
+		_update_cursor_visual()
 	else:
 		# Cursor has something → place / stack / swap
 		if slot_stack == null:
@@ -268,6 +265,7 @@ func _clear_cursor() -> void:
 
 
 func _update_cursor_visual() -> void:
+	print("[cursor] update; stack: ", _cursor_stack)
 	if _cursor_stack == null or _cursor_stack.item == null:
 		cursor_visual.visible = false
 		return

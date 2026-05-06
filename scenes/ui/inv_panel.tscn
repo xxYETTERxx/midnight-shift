@@ -4,13 +4,20 @@
 
 [node name="InvPanel" type="Control"]
 layout_mode = 3
-anchors_preset = 0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = -1.0
+offset_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 script = ExtResource("1_0vv6v")
 
-[node name="ColorRect" type="ColorRect" parent="."]
+[node name="Background" type="ColorRect" parent="."]
 layout_mode = 0
 offset_right = 467.0
 offset_bottom = 222.0
+mouse_filter = 2
 color = Color(0.32549, 0.396078, 0.490196, 0.854902)
 
 [node name="PanelContainer" type="PanelContainer" parent="."]
@@ -25,6 +32,7 @@ layout_mode = 2
 
 [node name="Title" type="Label" parent="PanelContainer/VBoxContainer"]
 layout_mode = 2
+mouse_filter = 1
 text = "Inventory"
 horizontal_alignment = 1
 
@@ -40,6 +48,7 @@ columns = 12
 
 [node name="StorageTitle" type="Label" parent="PanelContainer/VBoxContainer"]
 layout_mode = 2
+mouse_filter = 1
 text = "Stash Box"
 horizontal_alignment = 1
 
