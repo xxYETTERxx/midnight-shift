@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://byx8mfop0cdqf"
-path="res://.godot/imported/Clara10.png-67263d2aaf136baae478489f64190a56.ctex"
+uid="uid://buckw6ms6nbif"
+path="res://.godot/imported/worried.png-73a7433eb18dba358d5059f90bcb4de5.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Assets/CharacterPortraits/Clara/Clara10.png"
-dest_files=["res://.godot/imported/Clara10.png-67263d2aaf136baae478489f64190a56.ctex"]
+source_file="res://art/portraits/mira/worried.png"
+dest_files=["res://.godot/imported/worried.png-73a7433eb18dba358d5059f90bcb4de5.ctex"]
 
 [params]
 

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://ch2lmr2rv6gpu"
-path="res://.godot/imported/Clara2.png-98175ef4edf97199bb24c34aec361686.ctex"
+uid="uid://c3xvmwwjv7jmf"
+path="res://.godot/imported/happy.png-7d60907b43dc45f0076b8073c79274cc.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Assets/CharacterPortraits/Clara/Clara2.png"
-dest_files=["res://.godot/imported/Clara2.png-98175ef4edf97199bb24c34aec361686.ctex"]
+source_file="res://art/portraits/mira/happy.png"
+dest_files=["res://.godot/imported/happy.png-7d60907b43dc45f0076b8073c79274cc.ctex"]
 
 [params]
 

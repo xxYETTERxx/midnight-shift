@@ -634,7 +634,7 @@ The recommended order to actually build this. Each stage produces a runnable bui
 - Interactable architecture with priority arbitration
 - Screen fade utility
 
-### Stage 3: First Income Loop (Weed) — IN PROGRESS
+### Stage 3: First Income Loop (Weed) — IN PROGRESS✅
 - Inventory system ✅ (Custom Resource ItemDefs, ItemStack, 12-slot hotbar with active outline)
 - Hotbar input (number keys, mouse wheel, controller LB/RB) ✅
 - Placeable items system — IN PROGRESS (see §21)✅
@@ -644,7 +644,7 @@ The recommended order to actually build this. Each stage produces a runnable bui
 - Storage box (purchasable, see §21)✅
 - Packaging (if art exists for baggies)
 
-### Stage 4: Dialogue & First NPC
+### Stage 4: Dialogue & First NPC✅
 - Dialogue system with key-lookup, preconditions, hot-reload
 - One NPC with schedule and idle animation in a fixed location
 - Basic relationship axes (affinity / trust / knows)
@@ -674,7 +674,8 @@ The recommended order to actually build this. Each stage produces a runnable bui
 ### Stage 9: Cast Expansion
 - Fill out remaining 5 NPCs
 - Schedules across locations
-- Hangouts mechanic
+- NPC Behaviors - walking to new schdule location - animation updates depending on locations
+- Hangouts mechanic - MVP -> Teleport to location with NCP and open short dialogue (using push mechanic) -> post MVP actual activites to do (video games, movies, date activites, etc)
 
 ### Stage 10: Neighborhood Progression (NEW)
 - Neighborhood drift tracking system (community score, criminal score)
@@ -911,3 +912,30 @@ For MVP, the goal is to **prove the system works and feels good**, not to author
 ### What this replaces
 
 This system is the game's answer to Stardew's community center bundles. The community center works because it forces engagement with every system, provides visible progress, and gives the player a reason to care about the world beyond personal profit. Neighborhood slots do the same thing: they force cross-system engagement (cash + relationships + specific activities), they're physically visible on the street you walk every day, and they give the player a reason to care about something bigger than the next deal. The difference is that this system also *reflects the player's values back at them* — Stardew's community center has one right answer, but this system has two, and the tension between them is the game's thematic identity.
+
+Dialogue cheat sheet
+
+default                    # absolute fallback (specificity -1)
+mon                        # any single tag (weekday/location/timeofday/weather/flag)
+bodega.mon.rainy           # multiple tags (all must match; specificity = tag count)
+*                          # match anything (specificity 0)
+event:bodega_intro         # one-shot, only fires when queued
+
+# Inline preconditions after `|`, separated by `;`:
+fri | affinity > 40 ; !knows
+mon | trust >= 30 ; has_item baggie
+fri | event_done bodega_intro
+
+# Body markup:
+$h $s $a $w $n             # portrait codes (extend as you add art)
+$b                         # page break
+$q ... $r                  # question block
+%player %name              # substitutions (rendered by 4b runtime)
+
+# Inside a $q block:
+--> "Response text" | affinity +5 ; trust +2
+    Optional follow-up body specific to this response
+--> "Other response" | set first_meeting
+    Effects can also flip flags
+$r
+After $r, body continues with whatever was below the question.

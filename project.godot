@@ -19,13 +19,16 @@ config/icon="res://icon.svg"
 
 SaveSystem="*res://scripts/systems/save_system.gd"
 ItemRegistry="*res://scripts/systems/item_registry.gd"
-WorldStateSystem="*res://scripts/systems/world_state_system.gd"
 TimeSystem="*res://scripts/systems/time_system.gd"
+RelationshipSystem="*res://scripts/systems/relationship_system.gd"
 RoomManager="*res://scripts/systems/room_manager.gd"
 InteractionManager="*res://scripts/systems/interaction_manager.gd"
 PlacementSystem="*res://scripts/systems/placement_system.gd"
 ScreenFade="*res://scripts/systems/screen_fade.tscn"
 TimeSkipSystem="*res://scripts/systems/time_skip_system.gd"
+WorldStateSystem="*res://scripts/systems/world_state_system.gd"
+DialogueDatabase="*res://scripts/systems/dialogue_database.gd"
+DialogueRuntime="*res://scripts/systems/dialogue_runtime.gd"
 
 [display]
 

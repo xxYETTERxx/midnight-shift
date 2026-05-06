@@ -1,0 +1,75 @@
+# mira.dlg — sample dialogue file exercising every feature of Stage 4a's parser.
+# Drop this into res://data/dialogue/ and the self-test in DialogueDatabase
+# will print which line gets picked for each scenario.
+
+# --- Default fallback (lowest priority — fires only when nothing else matches)
+
+default
+    $n How you been?
+
+# --- Bare weekday keys (specificity 1)
+
+mon
+    $h Manic Monday. Nothing on tonight, %name?
+
+wed
+    $n Hump day. Halfway through.
+
+fri
+    $h Friday. Finally.
+
+# --- Higher-specificity keys win automatically
+
+bodega.mon
+    $n Slow at the shop today.
+
+bodega.fri.evening
+    $h Almost off. You sticking around?
+
+apartment.tue
+    $n Didn't expect you here.
+
+# --- Inline preconditions
+
+# When affinity is high enough AND she doesn't know about your activities yet,
+# Friday gets warmer. Otherwise it falls back to the plain `fri` above.
+mon | affinity > 40 ; !knows
+    $h I was hoping I'd see you today.
+
+# A negative-affinity Friday — same key, different precondition.
+fri | affinity < 0
+    $a Whatever it is, no.
+
+# --- Knows-aware variant on a Monday
+
+mon | knows
+    $w You're not bringing trouble through here, are you?
+
+# --- Wildcard with precondition (any context, but only when this flag set)
+
+* | first_meeting
+    $n You must be the new neighbor. Mira.
+    $b
+    Don't break anything.
+
+# --- Question / response branch
+
+greeting | trust < 20
+    $w You really came back?
+    $q
+    --> "I missed you" | affinity +5 ; trust +2
+        $h You did?
+    --> "Just passing" | affinity -2
+        $s Right. Of course.d
+    --> "..."
+    $r
+    Anyway. What can I do for you.
+
+# --- One-shot event (delivered via push_dialogue, not normal lookup)
+
+event:bodega_intro
+    $w We need to talk.
+    $b
+    Things at the shop... they've been getting bad. The guys come every Thursday.
+    $b
+    $s I don't know who else to ask.

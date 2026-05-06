@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cigs6m8w68nhg"
-path="res://.godot/imported/MaleTest2.png-399cbd573f61765225242bada5d22c08.ctex"
+uid="uid://b7aqk4fvch1o4"
+path="res://.godot/imported/angry.png-122cc195fe4ae86c07576d4e65a5aaaf.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Assets/CharacterSprites/MaleTest2/MaleTest2.png"
-dest_files=["res://.godot/imported/MaleTest2.png-399cbd573f61765225242bada5d22c08.ctex"]
+source_file="res://art/portraits/mira/angry.png"
+dest_files=["res://.godot/imported/angry.png-122cc195fe4ae86c07576d4e65a5aaaf.ctex"]
 
 [params]
 

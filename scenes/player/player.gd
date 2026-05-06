@@ -33,6 +33,9 @@ func _ready() -> void:
 
 
 func _physics_process(_delta: float) -> void:
+	if not TimeSystem.is_running():
+		return
+	
 	var input_vector := Vector2(
 		Input.get_axis("move_left", "move_right"),
 		Input.get_axis("move_up", "move_down")
@@ -47,6 +50,18 @@ func _physics_process(_delta: float) -> void:
 	_update_animation(input_vector)
 
 func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventKey and event.pressed and not event.echo:
+		if event.keycode == KEY_F1:
+			RelationshipSystem.push_dialogue("mira", "bodega_intro")
+			print("[debug] queued bodega_intro for mira")
+		elif event.keycode == KEY_F2:
+			RelationshipSystem.set_global_flag("greeting", true)
+			RelationshipSystem.set_trust("mira", 0)
+			print("[debug] set greeting flag + trust=0")
+		elif event.keycode == KEY_F3:
+			RelationshipSystem.set_global_flag("greeting", false)
+			print("[debug] cleared greeting flag")
+	
 	if event.is_action_pressed("interact"):
 		if not InteractionManager.try_interact(self):
 			PlacementSystem.try_place_active(self)
@@ -64,7 +79,6 @@ func _unhandled_input(event: InputEvent) -> void:
 			break
 	if event.is_action_pressed("alt_interact"):
 		PlacementSystem.try_pickup_targeted(self)
-	
 
 func _update_animation(input_vector: Vector2) -> void:
 	if input_vector == Vector2.ZERO:
