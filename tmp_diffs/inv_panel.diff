@@ -1,0 +1,36 @@
+diff --git a/scenes/ui/inv_panel.tscn b/scenes/ui/inv_panel.tscn
+index 5195a7d..f44761b 100644
+--- a/scenes/ui/inv_panel.tscn
++++ b/scenes/ui/inv_panel.tscn
+@@ -5,12 +5,13 @@
+ [node name="InvPanel" type="Control"]
+ layout_mode = 3
+ anchors_preset = 0
++mouse_filter = 1
+ script = ExtResource("1_0vv6v")
+ 
+ [node name="ColorRect" type="ColorRect" parent="."]
+ layout_mode = 0
+ offset_right = 467.0
+-offset_bottom = 222.0
++offset_bottom = 283.0
+ color = Color(0.32549, 0.396078, 0.490196, 0.854902)
+ 
+ [node name="PanelContainer" type="PanelContainer" parent="."]
+@@ -18,7 +19,7 @@ layout_mode = 0
+ offset_left = 12.0
+ offset_top = 11.0
+ offset_right = 454.0
+-offset_bottom = 210.0
++offset_bottom = 270.0
+ 
+ [node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer"]
+ layout_mode = 2
+@@ -30,6 +31,7 @@ horizontal_alignment = 1
+ 
+ [node name="HotbarRow" type="HBoxContainer" parent="PanelContainer/VBoxContainer"]
+ layout_mode = 2
++alignment = 1
+ 
+ [node name="HSeparator" type="HSeparator" parent="PanelContainer/VBoxContainer"]
+ layout_mode = 2

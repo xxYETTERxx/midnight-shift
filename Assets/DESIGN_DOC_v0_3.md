@@ -502,7 +502,7 @@ Sleep is not "the player goes to bed." Sleep is **a special case of time-skip**,
 The pattern:
 
 ```
-TimeSkipSystem.skip_to(target_minute, context: Dictionary)
+TimeSkipSystem.skipi_to(target_minute, context: Dictionary)
   → fade out
   → TimeSystem.advance_to(target_minute)
   → emit time_skipped(from, to, context)

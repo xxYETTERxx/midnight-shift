@@ -1,0 +1,19 @@
+diff --git a/scenes/world.tscn b/scenes/world.tscn
+index 54de610..566bbdb 100644
+--- a/scenes/world.tscn
++++ b/scenes/world.tscn
+@@ -26,6 +26,8 @@ mouse_filter = 2
+ color = Color(0, 0, 0, 0)
+ script = ExtResource("4_tnun7")
+ 
++[node name="InvPanel" parent="HUD" instance=ExtResource("5_ddauf")]
++
+ [node name="ClockLabel" type="Label" parent="HUD"]
+ anchors_preset = 1
+ anchor_left = 1.0
+@@ -74,5 +76,3 @@ grow_horizontal = 2
+ grow_vertical = 0
+ theme_override_constants/separation = 4
+ script = ExtResource("5_17trp")
+-
+-[node name="InvPanel" parent="HUD" instance=ExtResource("5_ddauf")]
