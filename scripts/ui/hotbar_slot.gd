@@ -1,3 +1,4 @@
+class_name HotbarSlot
 extends PanelContainer
 
 @onready var icon: TextureRect = $Icon
@@ -10,13 +11,17 @@ var _is_active: bool = false
 var _style_inactive: StyleBoxFlat
 var _style_active: StyleBoxFlat
 
-signal clicked(slot_index: int, with_shift: bool)
+signal clicked(slot_index: int, action: int)
+signal hover_entered(slot_index: int)
+
+enum Action { INTERACT, SPLIT, TRANSFER }
 
 
 func _ready() -> void:
 	_build_styles()
 	_apply_style()
 	render(null)
+	mouse_entered.connect(func(): hover_entered.emit(slot_index))
 
 
 func _build_styles() -> void:
@@ -63,7 +68,25 @@ func _apply_style() -> void:
 	else:
 		add_theme_stylebox_override("panel", _style_inactive)
 
-func _gui_input(event: InputEvent) -> void: 
-	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-		var with_shift: bool = Input.is_key_pressed(KEY_SHIFT)
-		clicked.emit(slot_index, with_shift)
+func _gui_input(event: InputEvent) -> void:
+	if not (event is InputEventMouseButton):
+		return
+	if not event.pressed:
+		return
+	match event.button_index:
+		MOUSE_BUTTON_LEFT:
+			if Input.is_key_pressed(KEY_SHIFT):
+				clicked.emit(slot_index, Action.TRANSFER)
+			else:
+				clicked.emit(slot_index, Action.INTERACT)
+		MOUSE_BUTTON_RIGHT:
+			clicked.emit(slot_index, Action.SPLIT)
+
+# Called when the panel wants to highlight this slot as the selection.
+func set_hovered(is_hovered: bool) -> void:
+	if is_hovered:
+		add_theme_stylebox_override("panel", _style_active)  # reuse active style
+	elif _is_active:
+		add_theme_stylebox_override("panel", _style_active)
+	else:
+		add_theme_stylebox_override("panel", _style_inactive)

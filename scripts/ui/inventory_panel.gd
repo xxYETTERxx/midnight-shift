@@ -18,6 +18,10 @@ var _slot_widgets: Array = []  # length == inventory.max_slots
 var _inventory: Inventory = null
 var _is_open: bool = false
 
+var _selected_widget: HotbarSlot = null  # currently highlighted slot widget
+var _selected_inventory: Inventory = null  # which inventory the selection is in
+var _selected_slot_index: int = -1
+
 # When the player picks up a stack, it lives "on the cursor" until placed.
 # null means cursor is empty.
 var _cursor_stack: ItemStack = null
@@ -53,9 +57,32 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("inventory_toggle"):
 		toggle()
 		get_viewport().set_input_as_handled()
-	# Allow ESC to close when open
-	elif _is_open and event.is_action_pressed("ui_cancel"):
+		return
+	
+	if not _is_open:
+		return  # other inputs only consumed while open
+	
+	# Cancel — return cursor to source if held, then close
+	if event.is_action_pressed("ui_cancel"):
 		close()
+		get_viewport().set_input_as_handled()
+		return
+	
+	# Verb actions on the currently-selected slot
+	if _selected_widget != null:
+		if event.is_action_pressed("interact"):
+			_handle_action(_selected_inventory, _selected_slot_index, HotbarSlot.Action.INTERACT)
+			get_viewport().set_input_as_handled()
+		elif event.is_action_pressed("inventory_split"):
+			_handle_action(_selected_inventory, _selected_slot_index, HotbarSlot.Action.SPLIT)
+			get_viewport().set_input_as_handled()
+		elif event.is_action_pressed("inventory_transfer"):
+			_handle_action(_selected_inventory, _selected_slot_index, HotbarSlot.Action.TRANSFER)
+			get_viewport().set_input_as_handled()
+	
+	# Eat all other input while panel is open — prevents player movement, etc.
+	# Anything not explicitly handled above also gets consumed.
+	if event is InputEventKey or event is InputEventJoypadButton or event is InputEventJoypadMotion:
 		get_viewport().set_input_as_handled()
 
 
@@ -116,7 +143,8 @@ func _build_slots() -> void:
 		slot.slot_index = i
 		hotbar_row.add_child(slot)
 		_slot_widgets[i] = slot
-		slot.clicked.connect(_on_player_slot_clicked)
+		slot.hover_entered.connect(_on_player_slot_hovered)
+		slot.clicked.connect(_on_slot_clicked.bind(_inventory))
 
 
 	# Build backpack grid (slots 12..max)
@@ -125,7 +153,8 @@ func _build_slots() -> void:
 		slot.slot_index = i
 		backpack_grid.add_child(slot)
 		_slot_widgets[i] = slot
-		slot.clicked.connect(_on_player_slot_clicked)
+		slot.hover_entered.connect(_on_player_slot_hovered)
+		slot.clicked.connect(_on_slot_clicked.bind(_inventory))
 
 
 func _render_all() -> void:
@@ -142,6 +171,47 @@ func _on_slot_changed(slot_index: int) -> void:
 func _on_active_slot_changed(_slot_index: int) -> void:
 	_apply_active_highlight()
 
+func _on_player_slot_hovered(slot_index: int) -> void:
+	if slot_index < 0 or slot_index >= _slot_widgets.size():
+		return
+	_set_selection(_inventory, slot_index, _slot_widgets[slot_index])
+	
+func _on_storage_slot_hovered(slot_index: int) -> void:
+	if _viewing_container == null:
+		return
+	if slot_index < 0 or slot_index >= _storage_widgets.size():
+		return
+	_set_selection(_viewing_container.storage, slot_index, _storage_widgets[slot_index])
+	
+func _set_selection(inv: Inventory, slot_index: int, widget: HotbarSlot) -> void:
+	if _selected_widget != null:
+		_selected_widget.set_hovered(false)
+	_selected_widget = widget
+	_selected_inventory = inv
+	_selected_slot_index = slot_index
+	widget.set_hovered(true)
+
+func _on_slot_clicked(slot_index: int, action: int, inv: Inventory) -> void:
+	_handle_action(inv, slot_index, action)
+	
+func _handle_action(inv: Inventory, slot_index: int, action: int) -> void:
+	match action:
+		HotbarSlot.Action.INTERACT:
+			_handle_interact(inv, slot_index)
+		HotbarSlot.Action.SPLIT:
+			_handle_split(inv, slot_index)
+		HotbarSlot.Action.TRANSFER:
+			var other: Inventory = _other_inventory(inv)
+			if other != null:
+				_handle_transfer(inv, slot_index, other)
+
+
+func _other_inventory(inv: Inventory) -> Inventory:
+	if _viewing_container == null:
+		return null
+	if inv == _inventory:
+		return _viewing_container.storage
+	return _inventory
 
 func _apply_active_highlight() -> void:
 	var active_world_slot: int = _inventory.active_world_slot()
@@ -171,7 +241,8 @@ func _build_storage_slots() -> void:
 		slot.slot_index = i
 		storage_grid.add_child(slot)
 		_storage_widgets.append(slot)
-		slot.clicked.connect(_on_storage_slot_clicked)
+		slot.clicked.connect(_on_slot_clicked.bind(_viewing_container.storage))
+		slot.hover_entered.connect(_on_storage_slot_hovered)
 
 func _render_storage_all() -> void:
 	if _viewing_container == null:
@@ -184,24 +255,9 @@ func _on_storage_slot_changed(slot_index: int) -> void:
 		return
 	_storage_widgets[slot_index].render(_viewing_container.storage.get_slot(slot_index))
 
-func _on_player_slot_clicked(slot_index: int, with_shift: bool) -> void:
-	if with_shift:
-		_shift_transfer(_inventory, slot_index, _viewing_container.storage if _viewing_container else null)
-	else:
-		_handle_click(_inventory, slot_index)
-
-
-func _on_storage_slot_clicked(slot_index: int, with_shift: bool) -> void:
-	if _viewing_container == null:
-		return
-	if with_shift:
-		_shift_transfer(_viewing_container.storage, slot_index, _inventory)
-	else:
-		_handle_click(_viewing_container.storage, slot_index)
-
 
 # Core pickup-place-swap logic.
-func _handle_click(inv: Inventory, slot_index: int) -> void:
+func _handle_interact(inv: Inventory, slot_index: int) -> void:
 	var slot_stack: ItemStack = inv.get_slot(slot_index)
 
 	if _cursor_stack == null:
@@ -244,7 +300,7 @@ func _handle_click(inv: Inventory, slot_index: int) -> void:
 
 
 # Shift+click: transfer the whole stack to the other inventory.
-func _shift_transfer(from_inv: Inventory, slot_index: int, to_inv: Inventory) -> void:
+func _handle_transfer(from_inv: Inventory, slot_index: int, to_inv: Inventory) -> void:
 	if to_inv == null or _cursor_stack != null:
 		return  # no target, or cursor in use
 	var stack: ItemStack = from_inv.get_slot(slot_index)
@@ -255,6 +311,39 @@ func _shift_transfer(from_inv: Inventory, slot_index: int, to_inv: Inventory) ->
 		# Some moved; remove what was taken
 		from_inv.consume_from_slot(slot_index, stack.count - leftover)
 	# If leftover > 0, partial transfer; the source still has the leftover.
+
+func _handle_split(inv: Inventory, slot_index: int) -> void:
+	# If cursor is empty, split the slot's stack in half — cursor takes ceil(half).
+	# If cursor holds something, drop one of the held stack into the slot.
+	var slot_stack := inv.get_slot(slot_index)
+	
+	if _cursor_stack == null:
+		if slot_stack == null or slot_stack.count <= 1:
+			return  # nothing to split
+		var taken: int = (slot_stack.count + 1) / 2  # ceil(half)
+		_cursor_stack = ItemStack.new(slot_stack.item, taken)
+		_cursor_source_inventory = inv
+		_cursor_source_slot = slot_index
+		slot_stack.count -= taken
+		if slot_stack.count <= 0:
+			inv.slots[slot_index] = null
+		inv.slot_changed.emit(slot_index)
+		_update_cursor_visual()
+	else:
+		# Drop one onto the slot
+		if slot_stack == null:
+			inv.slots[slot_index] = ItemStack.new(_cursor_stack.item, 1)
+			_cursor_stack.count -= 1
+			inv.slot_changed.emit(slot_index)
+		elif slot_stack.item == _cursor_stack.item and not slot_stack.is_full():
+			slot_stack.count += 1
+			_cursor_stack.count -= 1
+			inv.slot_changed.emit(slot_index)
+		# else: different item or full slot → no-op
+		if _cursor_stack.count <= 0:
+			_clear_cursor()
+		else:
+			_update_cursor_visual()
 
 
 func _clear_cursor() -> void:

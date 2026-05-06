@@ -46,3 +46,11 @@ func save_state() -> Dictionary:
 # Subclasses override to restore their own fields.
 func load_state(data: Dictionary) -> void:
 	global_position = Vector2(data.get("x", 0.0), data.get("y", 0.0))
+	
+static func find_owning_placeable(from_node: Node) -> Placeable:
+	var n: Node = from_node
+	while n != null:
+		if n is Placeable:
+			return n
+		n = n.get_parent()
+	return null

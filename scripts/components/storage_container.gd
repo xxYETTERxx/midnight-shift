@@ -16,16 +16,13 @@ var is_open: bool = false
 
 
 func _ready() -> void:
-	print("[StorageContainer] _ready called, instance: ", get_instance_id())
 	storage.max_slots = STORAGE_SIZE
 	interactable.interacted.connect(_on_interacted)
-	print("[StorageContainer] connections: ", interactable.interacted.get_connections())
 	_refresh_visual()
 
 
 func _on_interacted(player: Node) -> void:
 	# Toggle open state and request the UI to display.
-	print("[StorageContainer] _on_interacted fired")
 	if is_open:
 		_close()
 	else:
@@ -66,6 +63,16 @@ func notify_panel_closed() -> void:
 func _find_inventory_panel() -> Node:
 	# The panel lives at World/HUD/InventoryPanel. Group lookup is more robust.
 	return get_tree().get_first_node_in_group("inventory_panel")
+
+func can_pickup() -> bool:
+	for stack in storage.slots:
+		if stack != null:
+			return false
+	return true
+
+
+func pickup_refusal_reason() -> String:
+	return "Empty the container first."
 
 
 # --- Save/load ---

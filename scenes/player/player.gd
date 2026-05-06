@@ -62,6 +62,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		if event.is_action_pressed("hotbar_slot_%d" % (i + 1)):
 			inventory.set_active_slot(i)
 			break
+	if event.is_action_pressed("alt_interact"):
+		PlacementSystem.try_pickup_targeted(self)
 	
 
 func _update_animation(input_vector: Vector2) -> void:

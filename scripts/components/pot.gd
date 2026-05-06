@@ -105,6 +105,9 @@ func would_accept(player: Node) -> bool:
 	if plant_stage == PlantStage.FLOWERING and not player.is_holding_anything():
 		return true
 	
+	if container_state == ContainerState.EMPTY and plant_stage == PlantStage.NONE and not player.is_holding_anything():
+		return true
+	
 	return false
 
 

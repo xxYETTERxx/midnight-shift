@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=3 uid="uid://b2heaegbwwe3q"]
+[gd_scene load_steps=4 format=3 uid="uid://b2heaegbwwe3q"]
 
 [ext_resource type="TileSet" uid="uid://6akbc4rraedn" path="res://art/tilesets/apartment_tileset.tres" id="1_xfkbi"]
 [ext_resource type="PackedScene" uid="uid://cu0qiy18mj116" path="res://scenes/components/doorway.tscn" id="2_yy64l"]
+[ext_resource type="PackedScene" uid="uid://bx1yvsln0woyb" path="res://scenes/npcs/test_male.tscn" id="3_tvb15"]
 
 [node name="ApartmentLiving" type="Node2D"]
 y_sort_enabled = true
@@ -47,3 +48,6 @@ position = Vector2(390, 216)
 
 [node name="NPCs" type="Node2D" parent="."]
 position = Vector2(11, 8)
+
+[node name="TestMale" parent="." instance=ExtResource("3_tvb15")]
+position = Vector2(369, 137)

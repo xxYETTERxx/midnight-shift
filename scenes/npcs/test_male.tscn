@@ -1,0 +1,30 @@
+[gd_scene load_steps=5 format=3 uid="uid://bx1yvsln0woyb"]
+
+[ext_resource type="Texture2D" uid="uid://bjos1mujb780a" path="res://art/sprites/NPCs/TestMale1/MaleTest3.png" id="1_vtgsn"]
+[ext_resource type="PackedScene" uid="uid://l6jfg123c1fw" path="res://scenes/components/interactable.tscn" id="2_8i747"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_qivp7"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_vtgsn")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_nia5j"]
+size = Vector2(18, 4)
+
+[node name="TestMale" type="CharacterBody2D"]
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+sprite_frames = SubResource("SpriteFrames_qivp7")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, 1)
+shape = SubResource("RectangleShape2D_nia5j")
+
+[node name="Interactable" parent="." instance=ExtResource("2_8i747")]
+position = Vector2(0, 1)

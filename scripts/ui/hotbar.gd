@@ -61,3 +61,7 @@ func _highlight_active(active_index: int) -> void:
 
 func _on_hotbar_offset_changed(_offset: int, inventory: Inventory) -> void:
 	_render_all(inventory)
+	
+func _toggle_highlight():
+	for i in range(_slot_widgets.size()):
+		_slot_widgets[i].visible = !_slot_widgets[i].visible

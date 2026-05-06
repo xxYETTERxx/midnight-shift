@@ -268,15 +268,14 @@ Y-sort origin on plant sprites must point to the *container's base*, not the pla
 
 ### Quality factors (MVP keeps simple, but architect for §21 quality system)
 
-- Watering consistency (missed days reduce yield) — implemented in MVP
+- Watering consistency (missed days prevent growth) — implemented in MVP
 - Light source (basic lamp = baseline, grow lamp = +quality, requires upgrade) — Stage 4+
 - Strain-specific requirements (post-MVP — see §21)
 
 Each plant tracks a `modifiers` array — "events that affect quality." MVP only adds `water_missed` modifiers. Post-MVP adds: wrong light hours, wrong indoor/outdoor, spacing violations, etc. Quality at harvest is a function over this array.
 
 ### Selling pipeline
-- Raw buds → fence at base price
-- **Packaging (in MVP if time permits):** raw buds + baggies → packaged product, sells at higher margin via pager dealing. This is what makes pager dealing meaningfully more profitable than wholesaling, justifying its complexity.
+- **Packaging (in MVP if time permits):** raw buds + baggies → packaged product, sells at higher margin via pager dealing.
 - Curing, edibles, multi-strain — post-MVP
 
 ### Mechanic style
@@ -638,11 +637,11 @@ The recommended order to actually build this. Each stage produces a runnable bui
 ### Stage 3: First Income Loop (Weed) — IN PROGRESS
 - Inventory system ✅ (Custom Resource ItemDefs, ItemStack, 12-slot hotbar with active outline)
 - Hotbar input (number keys, mouse wheel, controller LB/RB) ✅
-- Placeable items system — IN PROGRESS (see §21)
-- Per-room state persistence — UPCOMING
-- Plant container system (1-slot pot, multi-slot expansion path)
-- Soil/seed/water/harvest cycle
-- Storage box (purchasable, see §21)
+- Placeable items system — IN PROGRESS (see §21)✅
+- Per-room state persistence — ✅
+- Plant container system (1-slot pot, multi-slot expansion path)✅
+- Soil/seed/water/harvest cycle✅
+- Storage box (purchasable, see §21)✅
 - Packaging (if art exists for baggies)
 
 ### Stage 4: Dialogue & First NPC
@@ -651,12 +650,12 @@ The recommended order to actually build this. Each stage produces a runnable bui
 - Basic relationship axes (affinity / trust / knows)
 
 ### Stage 5: Economy Closure
-- The Fence (sells weed wholesale)
+- The Fence (buys stolen goods)
 - Money in/out
 - Rent
 
 ### Stage 6: Pager & Buyers
-- Pager system (timing, codes)
+- Pager system (timing, customer generation)
 - Payphone interactables
 - 2-3 buyer archetypes
 - Retail dealing pipeline
@@ -696,7 +695,7 @@ The MVP is "done" when a new player can:
 
 1. Wake up in the apartment, learn the basic loop in their first in-game day
 2. Grow weed from seed to harvest over an in-game week
-3. Sell wholesale to the fence
+3. Sell stolen goods to a fence
 4. Receive a page, return the call, and complete a deal
 5. Develop a recurring buyer relationship over multiple successful deals
 6. Pickpocket at least one NPC successfully and unsuccessfully
