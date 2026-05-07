@@ -62,7 +62,6 @@ func snapshot_room(room: Node) -> void:
 # Restore the placeable state of a room. Called by RoomManager after
 # instancing a room and positioning the player.
 func restore_room(room: Node) -> void:
-	print("[restore_room] called for ", room.scene_file_path, " | _room_states keys: ", _room_states.keys())
 	if room == null:
 		return
 	var room_path: String = room.scene_file_path

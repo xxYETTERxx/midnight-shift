@@ -38,7 +38,6 @@ var _cursor_source_slot: int = -1
 func _ready() -> void:
 	add_to_group("inventory_panel")
 	visible = false
-	print("[InventoryPanel] cursor_visual: ", cursor_visual)
 	# Defer one frame to find the player (same pattern hotbar.gd uses)
 	await get_tree().process_frame
 	var player := get_tree().get_first_node_in_group("player")
@@ -354,7 +353,6 @@ func _clear_cursor() -> void:
 
 
 func _update_cursor_visual() -> void:
-	print("[cursor] update; stack: ", _cursor_stack)
 	if _cursor_stack == null or _cursor_stack.item == null:
 		cursor_visual.visible = false
 		return

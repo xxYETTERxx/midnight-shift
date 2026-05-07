@@ -11,3 +11,5 @@ icon = ExtResource("1_nfnmv")
 max_stack = 5
 category = 2
 description = "A 25-pound bag of potting soil"
+base_value = 5
+sellable = false

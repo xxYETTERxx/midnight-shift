@@ -14,6 +14,7 @@ func _ready() -> void:
 		
 func _new_game() -> void:
 	RoomManager.register_world(self, player)
+	CustomerRoster.seed_starter_customer()
 	
 func _load_game() -> void:
 	# Initialize RoomManager with our world reference but DON'T load the
@@ -80,6 +81,28 @@ func _input(event: InputEvent) -> void:
 					else:
 						print("Slot %d: empty" % i)
 				print(ItemRegistry.get_item(&"pot_basic") is PlaceableItemDef)
+			KEY_X:
+	# Debug: bump DEX by 10 (TIER_THRESHOLDS = [0, 25, 75, 150, 300])
+				DealerExperience.adjust(10)
+				print("[Debug] DEX=%d (tier %d)" %
+					[DealerExperience.xp, DealerExperience.current_tier()])
+			KEY_C:
+				# Debug: dump roster
+				CustomerRoster.debug_print()
+			KEY_P:
+				# Debug: force a page from a random active customer
+				PagerSystem.debug_force_page()
+			KEY_M:
+	# Debug: print meeting + spot state
+				MeetingManager.debug_print()
+			KEY_N:
+				# Debug: force a page from active customer + immediately schedule meeting
+				# (skips the payphone visit — useful for testing meeting flow in isolation)
+				var active = CustomerRoster.active_customers()
+				if not active.is_empty():
+					var c = active[0]
+					var qty = randi_range(c.quantity_min, c.quantity_max)
+					MeetingManager.schedule_meeting(c, qty)
 
 
 func _jump_to_hour(target_hour: int) -> void:

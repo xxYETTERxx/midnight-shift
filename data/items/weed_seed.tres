@@ -11,3 +11,5 @@ icon = ExtResource("1_hdxll")
 max_stack = 99
 category = 1
 description = "A single seed"
+base_value = 10
+sellable = false

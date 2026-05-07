@@ -1,0 +1,12 @@
+[gd_scene load_steps=3 format=3 uid="uid://hw82pd7bflqo"]
+
+[ext_resource type="Texture2D" uid="uid://wtkrdt5qun1h" path="res://art/objects/PayPhoneStyle1.png" id="1_js0cm"]
+[ext_resource type="PackedScene" uid="uid://l6jfg123c1fw" path="res://scenes/components/interactable.tscn" id="2_dkgso"]
+
+[node name="Payphone" type="Node2D"]
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("1_js0cm")
+
+[node name="Interactable" parent="Sprite2D" instance=ExtResource("2_dkgso")]
+prompt_text = "Use Phone"

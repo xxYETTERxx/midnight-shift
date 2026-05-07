@@ -1,0 +1,29 @@
+[gd_scene load_steps=6 format=3 uid="uid://citlrvhb0bdsr"]
+
+[ext_resource type="Script" path="res://scripts/components/vendor_interactable.gd" id="1_sru6e"]
+[ext_resource type="Texture2D" uid="uid://bjos1mujb780a" path="res://art/sprites/NPCs/TestMale1/MaleTest3.png" id="2_5dn4a"]
+[ext_resource type="PackedScene" uid="uid://l6jfg123c1fw" path="res://scenes/components/interactable.tscn" id="3_1ymp5"]
+[ext_resource type="Script" path="res://scripts/items/inventory.gd" id="4_htdjf"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_e0lax"]
+size = Vector2(20, 9)
+
+[node name="Fence" type="Node2D"]
+y_sort_enabled = true
+script = ExtResource("1_sru6e")
+vendor_name = "The Fence"
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_5dn4a")
+
+[node name="Interactable" parent="." instance=ExtResource("3_1ymp5")]
+prompt_text = "Sell"
+
+[node name="Stock" type="Node" parent="."]
+script = ExtResource("4_htdjf")
+
+[node name="StaticBody2D" type="StaticBody2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D"]
+position = Vector2(0, -1)
+shape = SubResource("RectangleShape2D_e0lax")

@@ -1,3 +1,4 @@
+@tool
 extends Node2D
 
 # Attach to the root of an NPC scene (e.g., your TestMale scene).
@@ -18,6 +19,12 @@ extends Node2D
 
 @onready var _interactable: Interactable = $Interactable
 
+@export var sprite_frames: SpriteFrames:
+	set(value):
+		sprite_frames = value
+		if is_inside_tree() and has_node("AnimatedSprite2D"):
+			$AnimatedSprite2D.sprite_frames = value
+
 
 func _ready() -> void:
 	if npc_id == "":
@@ -28,7 +35,14 @@ func _ready() -> void:
 	if _interactable == null:
 		push_error("NPC '%s' has no Interactable child" % name)
 		return
-
+	
+	if has_node("AnimatedSprite2D"):
+			var sprite: AnimatedSprite2D = $AnimatedSprite2D
+			if sprite_frames != null:
+				sprite.sprite_frames = sprite_frames
+			if sprite.sprite_frames and sprite.sprite_frames.has_animation("idle"):
+				sprite.play("idle")
+	
 	_interactable.prompt_text = prompt_text
 	_interactable.interact_priority = 40  # NPC tier per design doc
 	_interactable.interacted.connect(_on_interacted)

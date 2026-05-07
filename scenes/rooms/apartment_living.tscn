@@ -1,8 +1,11 @@
-[gd_scene load_steps=4 format=3 uid="uid://b2heaegbwwe3q"]
+[gd_scene load_steps=7 format=3 uid="uid://b2heaegbwwe3q"]
 
 [ext_resource type="TileSet" uid="uid://6akbc4rraedn" path="res://art/tilesets/apartment_tileset.tres" id="1_xfkbi"]
 [ext_resource type="PackedScene" uid="uid://cu0qiy18mj116" path="res://scenes/components/doorway.tscn" id="2_yy64l"]
-[ext_resource type="PackedScene" uid="uid://bx1yvsln0woyb" path="res://scenes/npcs/test_male.tscn" id="3_tvb15"]
+[ext_resource type="PackedScene" uid="uid://bx1yvsln0woyb" path="res://scenes/npcs/NPC.tscn" id="3_tvb15"]
+[ext_resource type="SpriteFrames" uid="uid://b8uicm2atni3n" path="res://art/npc_frames/mira.tres" id="4_058ip"]
+[ext_resource type="PackedScene" uid="uid://hw82pd7bflqo" path="res://scenes/components/payphone.tscn" id="5_jppg0"]
+[ext_resource type="Script" path="res://scripts/dealing/meet_spot.gd" id="6_wg7bm"]
 
 [node name="ApartmentLiving" type="Node2D"]
 y_sort_enabled = true
@@ -47,7 +50,17 @@ position = Vector2(251, 141)
 position = Vector2(390, 216)
 
 [node name="NPCs" type="Node2D" parent="."]
-position = Vector2(11, 8)
+y_sort_enabled = true
+position = Vector2(11, 10)
 
-[node name="TestMale" parent="." instance=ExtResource("3_tvb15")]
-position = Vector2(369, 137)
+[node name="NPC" parent="NPCs" instance=ExtResource("3_tvb15")]
+position = Vector2(295, 259)
+npc_id = "mira"
+display_name = "Mira"
+sprite_frames = ExtResource("4_058ip")
+
+[node name="Payphone" parent="." instance=ExtResource("5_jppg0")]
+position = Vector2(360, 102)
+
+[node name="MeetSpot" type="Node2D" parent="."]
+script = ExtResource("6_wg7bm")

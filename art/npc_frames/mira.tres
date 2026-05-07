@@ -1,0 +1,14 @@
+[gd_resource type="SpriteFrames" load_steps=2 format=3 uid="uid://b8uicm2atni3n"]
+
+[ext_resource type="Texture2D" uid="uid://ddlkmlsb3w5hw" path="res://art/sprites/NPCs/Mira/face_S.png" id="1_ennc2"]
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_ennc2")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 1.0
+}]

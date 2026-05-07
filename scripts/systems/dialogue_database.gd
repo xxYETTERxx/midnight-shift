@@ -28,8 +28,8 @@ func _ready() -> void:
 	reload()
 	if OS.is_debug_build():
 		_setup_hot_reload()
-	if _SELF_TEST_ON_READY:
-		call_deferred("_print_self_test")
+	#if _SELF_TEST_ON_READY:
+		#call_deferred("_print_self_test")
 
 
 # --- Loading ---

@@ -1,0 +1,58 @@
+[gd_scene load_steps=2 format=3 uid="uid://5eqojybanbut"]
+
+[ext_resource type="Script" path="res://scripts/ui/vendor_panel.gd" id="1_y5e6c"]
+
+[node name="VendorPanel" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_y5e6c")
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+layout_mode = 0
+offset_left = 2.0
+offset_right = 137.0
+offset_bottom = 93.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer"]
+layout_mode = 2
+
+[node name="PlayerTitle" type="Label" parent="PanelContainer/VBoxContainer"]
+layout_mode = 2
+text = "Player"
+horizontal_alignment = 1
+
+[node name="PlayerGrid" type="GridContainer" parent="PanelContainer/VBoxContainer"]
+layout_mode = 2
+columns = 12
+
+[node name="VendorTitle" type="Label" parent="PanelContainer/VBoxContainer"]
+layout_mode = 2
+horizontal_alignment = 1
+
+[node name="VendorGrid" type="GridContainer" parent="PanelContainer/VBoxContainer"]
+layout_mode = 2
+columns = 12
+
+[node name="InfoRow" type="HBoxContainer" parent="PanelContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="BalanceLabel" type="Label" parent="PanelContainer/VBoxContainer/InfoRow"]
+layout_mode = 2
+
+[node name="NetLabel" type="Label" parent="PanelContainer/VBoxContainer/InfoRow"]
+layout_mode = 2
+
+[node name="ButtonRow" type="HBoxContainer" parent="PanelContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="ConfirmButton" type="Button" parent="PanelContainer/VBoxContainer/ButtonRow"]
+layout_mode = 2
+text = "Confirm"
+
+[node name="CancelButton" type="Button" parent="PanelContainer/VBoxContainer/ButtonRow"]
+layout_mode = 2
+text = "Cancel"

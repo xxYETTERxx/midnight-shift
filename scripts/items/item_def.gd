@@ -18,6 +18,14 @@ extends Resource
 # Optional flavor text shown on hover/long-press.
 @export_multiline var description: String = ""
 
+# Canonical worth in dollars. Vendors apply their own multipliers.
+# 0 = effectively unsellable/unbuyable regardless of `sellable`.
+@export var base_value: int = 0
+
+# Whether wholesale buyers (the Fence, etc.) will accept this item.
+# Tools, keys, and quest items typically should NOT be sellable.
+@export var sellable: bool = false
+
 
 enum Category {
 	TOOL,        # watering can, lockpicks, axes — never consumed on use

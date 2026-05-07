@@ -1,8 +1,9 @@
-[gd_scene load_steps=4 format=3 uid="uid://22oas8bywttm"]
+[gd_scene load_steps=5 format=3 uid="uid://22oas8bywttm"]
 
 [ext_resource type="TileSet" uid="uid://6akbc4rraedn" path="res://art/tilesets/apartment_tileset.tres" id="1_bay75"]
 [ext_resource type="PackedScene" uid="uid://cu0qiy18mj116" path="res://scenes/components/doorway.tscn" id="2_lvxvr"]
 [ext_resource type="PackedScene" uid="uid://yyg1vmqtao4e" path="res://scenes/components/bed.tscn" id="3_gkqkq"]
+[ext_resource type="PackedScene" uid="uid://citlrvhb0bdsr" path="res://scenes/npcs/fence.tscn" id="4_8ue42"]
 
 [node name="ApartmentBedroom" type="Node2D"]
 y_sort_enabled = true
@@ -46,7 +47,11 @@ position = Vector2(243, 153)
 position = Vector2(395, 227)
 
 [node name="NPCs" type="Node2D" parent="."]
-position = Vector2(8, 8)
+y_sort_enabled = true
+position = Vector2(49, -54)
+
+[node name="Fence" parent="NPCs" instance=ExtResource("4_8ue42")]
+position = Vector2(263, 258)
 
 [node name="Player" type="Node2D" parent="."]
 position = Vector2(20, 1)

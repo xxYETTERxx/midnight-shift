@@ -15,3 +15,5 @@ icon = ExtResource("1_46aqs")
 max_stack = 4
 category = 2
 description = ""
+base_value = 30
+sellable = false

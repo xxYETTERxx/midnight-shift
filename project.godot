@@ -18,6 +18,8 @@ config/icon="res://icon.svg"
 [autoload]
 
 SaveSystem="*res://scripts/systems/save_system.gd"
+Wallet="*res://scripts/systems/wallet.gd"
+RentSystem="*res://scripts/systems/rent_system.gd"
 ItemRegistry="*res://scripts/systems/item_registry.gd"
 TimeSystem="*res://scripts/systems/time_system.gd"
 RelationshipSystem="*res://scripts/systems/relationship_system.gd"
@@ -29,6 +31,10 @@ TimeSkipSystem="*res://scripts/systems/time_skip_system.gd"
 WorldStateSystem="*res://scripts/systems/world_state_system.gd"
 DialogueDatabase="*res://scripts/systems/dialogue_database.gd"
 DialogueRuntime="*res://scripts/systems/dialogue_runtime.gd"
+DealerExperience="*res://scripts/dealing/dealer_experience.gd"
+CustomerRoster="*res://scripts/dealing/customer_roster.gd"
+PagerSystem="*res://scripts/dealing/pager_system.gd"
+MeetingManager="*res://scripts/dealing/meeting_manager.gd"
 
 [display]
 

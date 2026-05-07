@@ -683,7 +683,7 @@ The recommended order to actually build this. Each stage produces a runnable bui
 - Scripted events to surface slot choices (tied to NPC relationships and pager rep thresholds)
 - Visual state changes on the street (tile swaps, NPC spawns, ambient changes)
 - At least one slot with full community + criminal paths implemented end-to-end
-- Pawn shop stock and catalogue gated by pager rep + neighborhood drift
+- Pawn shop stock, catalogue, hardwoodstore gated by pager rep + neighborhood drift
 
 ### Stage 11: Polish & MVP Definition of Done
 See §20.

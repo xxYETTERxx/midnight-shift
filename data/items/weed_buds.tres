@@ -11,3 +11,5 @@ icon = ExtResource("1_lg2w4")
 max_stack = 99
 category = 2
 description = "Raw Harvested Buds"
+base_value = 15
+sellable = true

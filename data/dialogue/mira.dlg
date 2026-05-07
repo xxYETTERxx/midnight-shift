@@ -55,12 +55,12 @@ mon | knows
 # --- Question / response branch
 
 greeting | trust < 20
-    $w You really came back?
+    $w You grow weed?
     $q
-    --> "I missed you" | affinity +5 ; trust +2
-        $h You did?
-    --> "Just passing" | affinity -2
-        $s Right. Of course.d
+    --> "Yeah!" | affinity +5 ; trust +2
+        $h Awesome!
+    --> "Nope, those are tomatoes" | affinity -2
+        $s Right. Of course
     --> "..."
     $r
     Anyway. What can I do for you.
