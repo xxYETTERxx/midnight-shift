@@ -1,0 +1,43 @@
+[gd_scene load_steps=12 format=3 uid="uid://1eeu67d0d6nu"]
+
+[ext_resource type="Script" path="res://scripts/components/vendor_interactable.gd" id="1_w0snx"]
+[ext_resource type="Texture2D" uid="uid://cnpkfc42d1d3s" path="res://art/sprites/NPCs/Oliver/Oliver_static.png" id="2_3gos4"]
+[ext_resource type="Resource" uid="uid://cnmxe5xvbhi1v" path="res://data/items/pot_basic.tres" id="2_4fvir"]
+[ext_resource type="PackedScene" uid="uid://l6jfg123c1fw" path="res://scenes/components/interactable.tscn" id="3_qj50d"]
+[ext_resource type="Resource" uid="uid://crawqx1nri2v6" path="res://data/items/soil_bag.tres" id="3_wdi0a"]
+[ext_resource type="Script" path="res://scripts/items/inventory.gd" id="4_6ljp2"]
+[ext_resource type="Resource" uid="uid://b8aeskkp8dgtx" path="res://data/items/stash_box.tres" id="4_csu73"]
+[ext_resource type="Resource" uid="uid://prmkaetah4q4" path="res://data/items/watering_can.tres" id="5_waxli"]
+[ext_resource type="Resource" uid="uid://oarmelcb0vo5" path="res://data/items/weed_seed.tres" id="6_eajlt"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_wm8wc"]
+size = Vector2(30, 42)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_e0lax"]
+size = Vector2(20, 9)
+
+[node name="Oliver" type="Node2D"]
+y_sort_enabled = true
+script = ExtResource("1_w0snx")
+vendor_name = "The Fence"
+initial_stock = Array[Resource("res://scripts/items/item_def.gd")]([ExtResource("2_4fvir"), ExtResource("3_wdi0a"), ExtResource("4_csu73"), ExtResource("5_waxli"), ExtResource("6_eajlt")])
+initial_stock_counts = Array[int]([1, 1, 1, 1, 1])
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_3gos4")
+
+[node name="Interactable" parent="." instance=ExtResource("3_qj50d")]
+prompt_text = "Sell"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Interactable"]
+position = Vector2(-1, 0)
+shape = SubResource("RectangleShape2D_wm8wc")
+
+[node name="Stock" type="Node" parent="."]
+script = ExtResource("4_6ljp2")
+
+[node name="StaticBody2D" type="StaticBody2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D"]
+position = Vector2(0, -1)
+shape = SubResource("RectangleShape2D_e0lax")

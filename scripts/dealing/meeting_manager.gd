@@ -4,7 +4,7 @@ extends Node
 # (spot, time) pair when a callback is returned, listens for the time window
 # to elapse, and fires status transitions. Spawning the meet NPC is chunk 4.
 
-const MIN_HOURS_OUT: int = 12
+const MIN_HOURS_OUT: int = 3
 const RANDOM_HOUR_JITTER: int = 6
 const MEETING_WINDOW_MINUTES: int = 60
 const MAX_SEARCH_HOURS: int = 48

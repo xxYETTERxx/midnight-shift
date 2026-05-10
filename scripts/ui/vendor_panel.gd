@@ -5,10 +5,11 @@ const SLOT_SCENE := preload("res://scenes/ui/hotbar_slot.tscn")
 @onready var vendor_title: Label = $PanelContainer/VBoxContainer/VendorTitle
 @onready var player_grid: GridContainer = $PanelContainer/VBoxContainer/PlayerGrid
 @onready var vendor_grid: GridContainer = $PanelContainer/VBoxContainer/VendorGrid
-@onready var net_label: Label = $PanelContainer/VBoxContainer/InfoRow/NetLabel
+@onready var net_label: Label = $PanelContainer/VBoxContainer/ButtonRow/NetLabel
 @onready var balance_label: Label = $PanelContainer/VBoxContainer/InfoRow/BalanceLabel
 @onready var confirm_button: Button = $PanelContainer/VBoxContainer/ButtonRow/ConfirmButton
 @onready var cancel_button: Button = $PanelContainer/VBoxContainer/ButtonRow/CancelButton
+@onready var price_label: Label = $PanelContainer/VBoxContainer/InfoRow/PriceLabel
 
 var _is_open: bool = false
 var _vendor: VendorInteractable = null
@@ -33,6 +34,7 @@ func _ready() -> void:
 	confirm_button.pressed.connect(_on_confirm)
 	cancel_button.pressed.connect(_on_cancel)
 	Wallet.balance_changed.connect(_on_wallet_changed)
+	price_label.text = ""
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -110,6 +112,8 @@ func _build_grids() -> void:
 		player_grid.add_child(slot)
 		_player_slot_widgets.append(slot)
 		slot.clicked.connect(_on_player_slot_clicked)
+		slot.hovered.connect(_on_player_slot_hovered)
+		slot.unhovered.connect(_on_slot_unhovered)
 
 	for i in range(_vendor_shadow.max_slots):
 		var slot := SLOT_SCENE.instantiate()
@@ -117,6 +121,8 @@ func _build_grids() -> void:
 		vendor_grid.add_child(slot)
 		_vendor_slot_widgets.append(slot)
 		slot.clicked.connect(_on_vendor_slot_clicked)
+		slot.hovered.connect(_on_vendor_slot_hovered)
+		slot.unhovered.connect(_on_slot_unhovered)
 
 
 func _render_all() -> void:
@@ -162,6 +168,30 @@ func _on_vendor_slot_clicked(slot_index: int, _with_shift: bool) -> void:
 	var moved: int = stack.count - leftover
 	if moved > 0:
 		_vendor_shadow.consume_from_slot(slot_index, moved)
+
+func _on_player_slot_hovered(slot_index: int) -> void:
+	var stack := _player_shadow.get_slot(slot_index)
+	if stack == null or stack.item == null:
+		price_label.text = ""
+		return
+	if not stack.item.sellable or _vendor.sell_multiplier <= 0:
+		price_label.text = "%s — won't buy" % stack.item.display_name
+		return
+	var unit_price := _vendor.quote_sell_to_vendor(stack.item, 1)
+	price_label.text = "%s — sells for $%d" % [stack.item.display_name, unit_price]
+
+
+func _on_vendor_slot_hovered(slot_index: int) -> void:
+	var stack := _vendor_shadow.get_slot(slot_index)
+	if stack == null or stack.item == null:
+		price_label.text = ""
+		return
+	var unit_price := _vendor.quote_buy_from_vendor(stack.item, 1)
+	price_label.text = "%s — costs $%d" % [stack.item.display_name, unit_price]
+
+
+func _on_slot_unhovered(_slot_index: int) -> void:
+	price_label.text = ""
 
 
 # --- Net calculation ---

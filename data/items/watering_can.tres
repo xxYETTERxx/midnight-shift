@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="ItemDef" load_steps=3 format=3 uid="uid://prmkaetah4q4"]
 
-[ext_resource type="Texture2D" uid="uid://c2jm6a3k8cnx" path="res://art/objects/watering_can.png" id="1_byrcw"]
+[ext_resource type="Texture2D" uid="uid://c2jm6a3k8cnx" path="res://art/objects/Items/Tools/watering_can.png" id="1_byrcw"]
 [ext_resource type="Script" path="res://scripts/items/item_def.gd" id="1_klx1g"]
 
 [resource]
@@ -11,3 +11,5 @@ icon = ExtResource("1_byrcw")
 max_stack = 1
 category = 0
 description = "Keeps Plants Alive"
+base_value = 35
+sellable = false

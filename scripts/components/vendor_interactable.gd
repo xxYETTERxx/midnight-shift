@@ -18,10 +18,14 @@ extends Node2D
 @onready var interactable: Interactable = $Interactable
 @onready var stock: Inventory = $Stock
 
+@export var initial_stock: Array[ItemDef] = []
+@export var initial_stock_counts: Array[int] = []
+
 
 func _ready() -> void:
 	stock.max_slots = stock_size
 	interactable.interacted.connect(_on_interacted)
+	_populate_initial_stock()
 
 
 func _on_interacted(player: Node) -> void:
@@ -44,3 +48,22 @@ func quote_buy_from_vendor(item: ItemDef, count: int) -> int:
 	if item == null or count <= 0:
 		return 0
 	return int(round(item.base_value * buy_multiplier)) * count
+
+func _populate_initial_stock() -> void:
+	if initial_stock.is_empty():
+		return
+	# Only populate if stock is empty — preserves in-session changes from purchases.
+	# (For now, also populates on every load. Restock-on-day-rollover is a future tweak.)
+	if not _stock_is_empty():
+		return
+	for i in range(initial_stock.size()):
+		var item: ItemDef = initial_stock[i]
+		var count: int = initial_stock_counts[i] if i < initial_stock_counts.size() else 1
+		if item != null and count > 0:
+			stock.add(item, count)
+			
+func _stock_is_empty() -> bool:
+	for i in range(stock.max_slots):
+		if stock.get_slot(i) != null:
+			return false
+	return true

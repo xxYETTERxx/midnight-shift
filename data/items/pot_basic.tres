@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="PlaceableItemDef" load_steps=4 format=3 uid="uid://cnmxe5xvbhi1v"]
 
-[ext_resource type="Texture2D" uid="uid://w5oswoihex8l" path="res://art/objects/EmptyPot32.png" id="1_46aqs"]
+[ext_resource type="Texture2D" uid="uid://w5oswoihex8l" path="res://art/objects/Placeables/Interactable/EmptyPot32.png" id="1_46aqs"]
 [ext_resource type="PackedScene" uid="uid://tomsw2vi2igv" path="res://scenes/components/pot.tscn" id="2_e4sri"]
 [ext_resource type="Script" path="res://scripts/items/placeable_item_def.gd" id="3_t5ns8"]
 
@@ -15,5 +15,5 @@ icon = ExtResource("1_46aqs")
 max_stack = 4
 category = 2
 description = ""
-base_value = 30
+base_value = 20
 sellable = false

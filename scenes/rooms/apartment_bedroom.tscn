@@ -1,4 +1,4 @@
-[gd_scene load_steps=6 format=3 uid="uid://22oas8bywttm"]
+[gd_scene load_steps=6 format=3 uid="uid://bpjtijvwt6ld4"]
 
 [ext_resource type="TileSet" uid="uid://6akbc4rraedn" path="res://data/tilesets/apartment_tileset.tres" id="1_bay75"]
 [ext_resource type="PackedScene" uid="uid://cu0qiy18mj116" path="res://scenes/components/doorway.tscn" id="2_lvxvr"]

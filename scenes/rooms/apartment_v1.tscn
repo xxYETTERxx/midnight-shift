@@ -66,11 +66,10 @@ animations = [{
 "speed": 5.0
 }]
 
-[node name="ApartementV1" type="Node2D"]
+[node name="ApartementV1" type="Node2D" groups=["placement_allowed"]]
 y_sort_enabled = true
 
 [node name="WallsTop" type="TileMap" parent="."]
-z_index = 1
 y_sort_enabled = true
 tile_set = ExtResource("2_0vbor")
 format = 2

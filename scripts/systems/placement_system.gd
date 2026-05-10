@@ -121,6 +121,9 @@ func try_place_active(player: Node) -> bool:
 	if not (stack.item is PlaceableItemDef):
 		return false
 
+	if not _placement_allowed_in_current_room():
+		return false
+
 	var item: PlaceableItemDef = stack.item
 	if item.placeable_scene == null:
 		push_warning("PlaceableItemDef '%s' has no placeable_scene" % item.id)
@@ -130,13 +133,13 @@ func try_place_active(player: Node) -> bool:
 	if container == null:
 		return false
 
-	var target := tile_in_front_of(player)
-	if not _is_placement_valid(item, target):
+	var target_pos := PlacementSystem.tile_in_front_of(player)
+	if _is_tile_occupied(target_pos):
 		return false
 
 	var instance: Placeable = item.placeable_scene.instantiate()
 	container.add_child(instance)
-	instance.global_position = PlacementSystem.tile_in_front_of(player)
+	instance.global_position = target_pos
 	instance.on_placed(item)
 
 	inv.consume_active(1)
@@ -150,14 +153,16 @@ func _update_preview() -> void:
 	if not _player_holds_placeable(player):
 		_hide_preview()
 		return
+	if not _placement_allowed_in_current_room():
+		_hide_preview()
+		return
 	var preview := _ensure_preview()
 	if preview == null:
 		return
 	preview.global_position = tile_in_front_of(player)
 	preview.visible = true
-	var stack : ItemStack = player.inventory.get_active_stack()
-	var item: PlaceableItemDef = stack.item as PlaceableItemDef
-	preview.set_valid(_is_placement_valid(item, preview.global_position))
+	# Sub-chunk 5 will compute validity properly. For now, always valid.
+	preview.set_valid(true)
 
 
 func _ensure_preview() -> PlacementPreview:
@@ -226,3 +231,21 @@ func _world_to_tile_coords(world_pos: Vector2) -> Vector2i:
 		int(floor(world_pos.x / TILE_SIZE)),
 		int(floor(world_pos.y / TILE_SIZE)),
 	)
+
+func _placement_allowed_in_current_room() -> bool:
+	var room := RoomManager.current_room
+	if room == null:
+		return false
+	return room.is_in_group("placement_allowed")
+	
+func _is_tile_occupied(tile_center: Vector2) -> bool:
+	var container := _get_placeables_container()
+	if container == null:
+		return false
+	for child in container.get_children():
+		if child is Placeable:
+			# Tile centers always land on .5 offsets thanks to snap_to_tile,
+			# so an exact-position match is reliable for single-tile items.
+			if child.global_position.is_equal_approx(tile_center):
+				return true
+	return false

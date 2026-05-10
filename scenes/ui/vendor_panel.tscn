@@ -43,7 +43,7 @@ layout_mode = 2
 [node name="BalanceLabel" type="Label" parent="PanelContainer/VBoxContainer/InfoRow"]
 layout_mode = 2
 
-[node name="NetLabel" type="Label" parent="PanelContainer/VBoxContainer/InfoRow"]
+[node name="PriceLabel" type="Label" parent="PanelContainer/VBoxContainer/InfoRow"]
 layout_mode = 2
 
 [node name="ButtonRow" type="HBoxContainer" parent="PanelContainer/VBoxContainer"]
@@ -56,3 +56,8 @@ text = "Confirm"
 [node name="CancelButton" type="Button" parent="PanelContainer/VBoxContainer/ButtonRow"]
 layout_mode = 2
 text = "Cancel"
+
+[node name="NetLabel" type="Label" parent="PanelContainer/VBoxContainer/ButtonRow"]
+layout_mode = 2
+horizontal_alignment = 2
+vertical_alignment = 2

@@ -14,6 +14,9 @@ var _style_active: StyleBoxFlat
 signal clicked(slot_index: int, action: int)
 signal hover_entered(slot_index: int)
 
+signal hovered(slot_index: int)
+signal unhovered(slot_index: int)
+
 enum Action { INTERACT, SPLIT, TRANSFER }
 
 
@@ -22,6 +25,8 @@ func _ready() -> void:
 	_apply_style()
 	render(null)
 	mouse_entered.connect(func(): hover_entered.emit(slot_index))
+	mouse_entered.connect(_on_mouse_entered)
+	mouse_exited.connect(_on_mouse_exited)
 
 
 func _build_styles() -> void:
@@ -90,3 +95,9 @@ func set_hovered(is_hovered: bool) -> void:
 		add_theme_stylebox_override("panel", _style_active)
 	else:
 		add_theme_stylebox_override("panel", _style_inactive)
+
+func _on_mouse_entered() -> void:
+	hovered.emit(slot_index)
+	
+func _on_mouse_exited() -> void:
+	unhovered.emit(slot_index)
