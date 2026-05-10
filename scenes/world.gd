@@ -15,6 +15,7 @@ func _ready() -> void:
 func _new_game() -> void:
 	RoomManager.register_world(self, player)
 	CustomerRoster.seed_starter_customer()
+	CarSpawner._materialize_cars_for_current_scene()
 	
 func _load_game() -> void:
 	# Initialize RoomManager with our world reference but DON'T load the

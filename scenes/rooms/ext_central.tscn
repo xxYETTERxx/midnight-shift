@@ -1,4 +1,4 @@
-[gd_scene load_steps=39 format=3 uid="uid://d04jjxj7h6l1p"]
+[gd_scene load_steps=41 format=3 uid="uid://d04jjxj7h6l1p"]
 
 [ext_resource type="TileSet" uid="uid://0w8lw4ppxio0" path="res://data/tilesets/ext_city.tres" id="1_tv6qr"]
 [ext_resource type="PackedScene" uid="uid://cu0qiy18mj116" path="res://scenes/components/doorway.tscn" id="4_bfwhg"]
@@ -7,6 +7,8 @@
 [ext_resource type="PackedScene" uid="uid://citlrvhb0bdsr" path="res://scenes/npcs/fence.tscn" id="5_qfbcf"]
 [ext_resource type="PackedScene" uid="uid://hw82pd7bflqo" path="res://scenes/components/payphone.tscn" id="6_qs6rr"]
 [ext_resource type="PackedScene" uid="uid://ctijaiye5o1y2" path="res://scenes/components/meet_spot.tscn" id="7_2aqov"]
+[ext_resource type="PackedScene" uid="uid://cdymw0jnxmehk" path="res://scenes/components/vehicle.tscn" id="8_wirsu"]
+[ext_resource type="Script" path="res://scripts/components/car_spawn_point.gd" id="9_23t1f"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_ak34a"]
 atlas = ExtResource("4_byuh8")
@@ -319,3 +321,34 @@ display_name = "Beside gas station"
 position = Vector2(134, 86)
 spot_id = &"apartment"
 display_name = "Beside your place"
+
+[node name="Vehicle" parent="." instance=ExtResource("8_wirsu")]
+position = Vector2(1697, 310)
+
+[node name="VehicleSpawns" type="Node2D" parent="."]
+
+[node name="FrontApartment1" type="Node2D" parent="VehicleSpawns"]
+position = Vector2(57, 194)
+script = ExtResource("9_23t1f")
+spawn_id = &"apartment1"
+
+[node name="FrontApartment2" type="Node2D" parent="VehicleSpawns"]
+position = Vector2(531, 196)
+script = ExtResource("9_23t1f")
+spawn_id = &"apartment2"
+
+[node name="BodegaN" type="Node2D" parent="VehicleSpawns"]
+position = Vector2(1907, 312)
+script = ExtResource("9_23t1f")
+spawn_id = &"bodegaN"
+orientation = 2
+
+[node name="BodegaE" type="Node2D" parent="VehicleSpawns"]
+position = Vector2(2015, 455)
+script = ExtResource("9_23t1f")
+spawn_id = &"bodegaE"
+
+[node name="HardwoodN" type="Node2D" parent="VehicleSpawns"]
+position = Vector2(-605, 955)
+script = ExtResource("9_23t1f")
+spawn_id = &"hardwoodN"

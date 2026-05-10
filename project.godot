@@ -19,6 +19,7 @@ config/icon="res://icon.svg"
 [autoload]
 
 SaveSystem="*res://scripts/systems/save_system.gd"
+NotificationSystem="*res://scripts/systems/notification_system.gd"
 Wallet="*res://scripts/systems/wallet.gd"
 RentSystem="*res://scripts/systems/rent_system.gd"
 ItemRegistry="*res://scripts/systems/item_registry.gd"
@@ -38,6 +39,7 @@ PagerSystem="*res://scripts/dealing/pager_system.gd"
 MeetingManager="*res://scripts/dealing/meeting_manager.gd"
 MeetingSpawner="*res://scripts/dealing/meeting_spawner.gd"
 CriminalExperience="*res://scenes/player/criminal_experience.gd"
+CarSpawner="*res://scripts/systems/car_spawner.gd"
 
 [display]
 

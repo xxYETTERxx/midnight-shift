@@ -78,8 +78,10 @@ func _cancel_action() -> void:
 
 
 func _complete_action() -> void:
+	
 	var player := _action_player
 	_cancel_action()
+	
 	if player == null or loot_table == null:
 		_mark_looted()
 		return
@@ -93,10 +95,12 @@ func _complete_action() -> void:
 		var item: ItemDef = drop["item"]
 		var count: int = drop["count"]
 		if inv != null and item != null:
-			# Add to inventory; if no room, the leftover just falls on the floor
-			# (literally — we'll wire dropped-item pickup later. For now leftover
-			# is silently lost. Not ideal but acceptable for MVP.)
-			inv.add(item, count)
+			var leftover: int = inv.add(item, count)
+			var added: int = count - leftover
+			if added > 0:
+				NotificationSystem.loot(item, added)
+			if leftover > 0:
+				NotificationSystem.warn("Couldn't fit %d %s" % [leftover, item.display_name])
 
 	# Award criminal XP for the act, regardless of loot quality.
 	if tier >= 0 and tier < CRIM_XP_PER_TIER.size():

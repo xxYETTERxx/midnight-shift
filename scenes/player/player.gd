@@ -30,6 +30,7 @@ func _ready() -> void:
 	inventory.add(ItemRegistry.get_item(&"soil_bag"), 4)
 	inventory.add(ItemRegistry.get_item(&"watering_can"), 1)
 	inventory.add(ItemRegistry.get_item(&"stash_box"), 2)
+	NotificationSystem.info("Game started! Have fun!")
 
 
 func _physics_process(_delta: float) -> void:
