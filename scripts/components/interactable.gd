@@ -33,6 +33,7 @@ signal interacted(player: Node)
 func _ready() -> void:
 	body_entered.connect(_on_body_entered)
 	body_exited.connect(_on_body_exited)
+	_validate_shape()
 
 
 func _on_body_entered(body: Node) -> void:
@@ -72,3 +73,10 @@ func _player_holds_category(player: Node, cat: int) -> bool:
 	if inv == null: return false
 	var stack = inv.get_active_stack()
 	return stack != null and stack.item != null and stack.item.category == cat
+
+func _validate_shape() -> void:
+	for child in get_children():
+		if child is CollisionShape2D and child.shape != null:
+			return
+	push_warning("Interactable on '%s' has no CollisionShape2D — interaction won't fire" %
+		(owner.name if owner else name))

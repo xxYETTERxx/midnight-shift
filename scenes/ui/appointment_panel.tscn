@@ -1,0 +1,28 @@
+[gd_scene load_steps=2 format=3 uid="uid://sdrb2mo8mqmm"]
+
+[ext_resource type="Script" path="res://scripts/ui/appointment_panel.gd" id="1_4si78"]
+
+[node name="AppointmentPanel" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_4si78")
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="PanelContainer/VBoxContainer"]
+layout_mode = 2
+text = "Appointments"
+horizontal_alignment = 1
+
+[node name="AppointmentList" type="VBoxContainer" parent="PanelContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="CloseButton" type="Button" parent="PanelContainer/VBoxContainer"]
+layout_mode = 2
+text = "Close"

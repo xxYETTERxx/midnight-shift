@@ -1,8 +1,5 @@
 extends Control
 
-# Always visible. Holds on the "off" texture when idle, alternates between
-# off and on textures while there are pending pages.
-
 @export var blink_period_seconds: float = 0.6
 @export var off_texture: Texture2D
 @export var on_texture: Texture2D
@@ -17,6 +14,8 @@ var _blink_on: bool = false
 
 func _ready() -> void:
 	count_label.visible = false
+	icon.mouse_filter = Control.MOUSE_FILTER_STOP
+	icon.gui_input.connect(_on_icon_gui_input)
 	PagerSystem.page_received.connect(_on_page_received)
 	PagerSystem.queue_changed.connect(_refresh)
 	_refresh()
@@ -24,13 +23,21 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	if PagerSystem.pending_count() <= 0:
-		# Idle: hold on the off texture, don't tick the blink timer.
 		return
 	_blink_timer += delta
 	if _blink_timer >= blink_period_seconds:
 		_blink_timer = 0.0
 		_blink_on = not _blink_on
 		icon.texture = on_texture if _blink_on else off_texture
+
+
+func _on_icon_gui_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.pressed \
+	and event.button_index == MOUSE_BUTTON_LEFT:
+		var panel := get_tree().get_first_node_in_group("appointment_panel")
+		if panel != null:
+			panel.toggle()
+		get_viewport().set_input_as_handled()
 
 
 func _on_page_received(_page: PendingPage) -> void:
@@ -49,7 +56,6 @@ func _refresh() -> void:
 		icon.texture = off_texture
 		_blink_on = false
 	else:
-		# New pages: start the blink visibly "on" so it pulses on arrival.
 		icon.texture = on_texture
 		_blink_on = true
 		_blink_timer = 0.0

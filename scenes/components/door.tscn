@@ -1,0 +1,33 @@
+[gd_scene load_steps=6 format=3 uid="uid://cbl82j3yw8xvq"]
+
+[ext_resource type="Script" path="res://scripts/components/door.gd" id="1_4s7dp"]
+[ext_resource type="PackedScene" uid="uid://l6jfg123c1fw" path="res://scenes/components/interactable.tscn" id="5_yktkg"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_p7263"]
+size = Vector2(5.5, 14.75)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_4sksx"]
+size = Vector2(11, 8.76316)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_d1rmo"]
+size = Vector2(18, 6)
+
+[node name="Door" type="StaticBody2D"]
+y_sort_enabled = true
+scale = Vector2(2, 2)
+script = ExtResource("1_4s7dp")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+
+[node name="Interactable" parent="." instance=ExtResource("5_yktkg")]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Interactable"]
+position = Vector2(0, 13.875)
+shape = SubResource("RectangleShape2D_p7263")
+
+[node name="CollisionShape2D2" type="CollisionShape2D" parent="Interactable"]
+position = Vector2(0, -20.1184)
+shape = SubResource("RectangleShape2D_4sksx")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_d1rmo")

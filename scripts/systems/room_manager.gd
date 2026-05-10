@@ -3,7 +3,7 @@ extends Node
 # Emitted just after a room is loaded and the player is positioned.
 signal room_changed(room_name: String)
 
-@export var initial_room: String = "res://scenes/rooms/apartment_living.tscn"
+@export var initial_room: String = "res://scenes/rooms/apartment_v1.tscn"
 @export var initial_spawn: String = "default"
 
 var current_room: Node = null

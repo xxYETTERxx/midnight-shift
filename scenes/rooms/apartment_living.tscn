@@ -1,6 +1,6 @@
 [gd_scene load_steps=7 format=3 uid="uid://b2heaegbwwe3q"]
 
-[ext_resource type="TileSet" uid="uid://6akbc4rraedn" path="res://art/tilesets/apartment_tileset.tres" id="1_xfkbi"]
+[ext_resource type="TileSet" uid="uid://6akbc4rraedn" path="res://data/tilesets/apartment_tileset.tres" id="1_xfkbi"]
 [ext_resource type="PackedScene" uid="uid://cu0qiy18mj116" path="res://scenes/components/doorway.tscn" id="2_yy64l"]
 [ext_resource type="PackedScene" uid="uid://bx1yvsln0woyb" path="res://scenes/npcs/NPC.tscn" id="3_tvb15"]
 [ext_resource type="SpriteFrames" uid="uid://b8uicm2atni3n" path="res://art/npc_frames/mira.tres" id="4_058ip"]
@@ -43,9 +43,6 @@ target_spawn = "from_living"
 [node name="SpawnPoints" type="Node2D" parent="."]
 position = Vector2(-12, 10)
 
-[node name="default" type="Marker2D" parent="SpawnPoints"]
-position = Vector2(251, 141)
-
 [node name="from_bedroom" type="Marker2D" parent="SpawnPoints"]
 position = Vector2(390, 216)
 
@@ -63,4 +60,7 @@ sprite_frames = ExtResource("4_058ip")
 position = Vector2(360, 102)
 
 [node name="MeetSpot" type="Node2D" parent="."]
+position = Vector2(243, 191)
 script = ExtResource("6_wg7bm")
+spot_id = &"livingroom"
+display_name = "Living Room"

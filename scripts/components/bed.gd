@@ -1,5 +1,7 @@
 extends Node2D
 
+
+
 @onready var interactable: Interactable = $Interactable
 @onready var wake_spot: Marker2D = $WakeSpot
 

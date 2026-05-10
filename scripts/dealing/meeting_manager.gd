@@ -136,15 +136,28 @@ func _is_in_sleep_window(minute: int) -> bool:
 
 func _on_minute_tick(_total: int) -> void:
 	var now: int = TimeSystem.total_minutes
+	var to_start: Array = []
 	var to_miss: Array = []
 	for m in _meetings.values():
 		if m.status != Meeting.Status.SCHEDULED:
 			continue
 		if now >= m.scheduled_minute + m.window_minutes:
 			to_miss.append(m)
+		elif now >= m.scheduled_minute and now < m.scheduled_minute + m.window_minutes:
+			# Still scheduled but the window has just opened. We re-emit each
+			# minute it's open — MeetingSpawner dedupes so only the first does
+			# real work. This keeps spawn logic robust to room changes mid-window.
+			to_start.append(m)
+	for m in to_start:
+		meeting_started.emit(m)
 	for m in to_miss:
 		_mark_missed(m)
 
+func is_meeting_active_now(meeting_id: StringName) -> bool:
+	var m: Meeting = get_meeting(meeting_id)
+	if m == null:
+		return false
+	return m.is_active_at(TimeSystem.total_minutes)
 
 func _mark_missed(m: Meeting) -> void:
 	m.status = Meeting.Status.MISSED
@@ -172,6 +185,8 @@ func mark_completed(meeting_id: StringName) -> void:
 	DealerExperience.award_for_sale(m.quantity_requested)
 	meeting_completed.emit(m)
 
+func get_meeting(id: StringName) -> Meeting:
+	return _meetings.get(String(id), null)
 
 # --- Queries ---
 

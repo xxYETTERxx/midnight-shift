@@ -1,0 +1,129 @@
+[gd_scene load_steps=13 format=3 uid="uid://dhr0c3n5df5qq"]
+
+[ext_resource type="TileSet" uid="uid://bjb71lebq7nab" path="res://data/tilesets/InteriorWall.tres" id="2_0vbor"]
+[ext_resource type="TileSet" uid="uid://c25juxu377jw" path="res://data/tilesets/InteriorFloor.tres" id="3_iuhad"]
+[ext_resource type="TileSet" uid="uid://6akbc4rraedn" path="res://data/tilesets/apartment_tileset.tres" id="4_mly8a"]
+[ext_resource type="PackedScene" uid="uid://yyg1vmqtao4e" path="res://scenes/components/bed.tscn" id="5_f5k1h"]
+[ext_resource type="Texture2D" uid="uid://cf7vr1eg1sjq5" path="res://art/objects/Interactables/Doors/Interior4.png" id="6_l4eva"]
+[ext_resource type="PackedScene" uid="uid://cu0qiy18mj116" path="res://scenes/components/doorway.tscn" id="6_txc16"]
+[ext_resource type="PackedScene" uid="uid://cbl82j3yw8xvq" path="res://scenes/components/door.tscn" id="7_66ocw"]
+[ext_resource type="PackedScene" uid="uid://citlrvhb0bdsr" path="res://scenes/npcs/fence.tscn" id="7_g1oys"]
+[ext_resource type="Texture2D" uid="uid://dguppxekethma" path="res://art/objects/Interactables/Doors/Interior3.png" id="7_vr86a"]
+[ext_resource type="Texture2D" uid="uid://cyi48130t18ek" path="res://art/objects/Interactables/Doors/Interior2.png" id="8_h6tbt"]
+[ext_resource type="Texture2D" uid="uid://cs2lb004trp5o" path="res://art/objects/Interactables/Doors/Interior1.png" id="9_q42vy"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_kkbnh"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("6_l4eva")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_vr86a")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_h6tbt")
+}, {
+"duration": 1.0,
+"texture": ExtResource("9_q42vy")
+}],
+"loop": false,
+"name": &"close",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("9_q42vy")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_h6tbt")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_vr86a")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_l4eva")
+}],
+"loop": false,
+"name": &"default",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("9_q42vy")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_h6tbt")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_vr86a")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_l4eva")
+}],
+"loop": false,
+"name": &"open",
+"speed": 5.0
+}]
+
+[node name="ApartementV1" type="Node2D"]
+y_sort_enabled = true
+
+[node name="WallsTop" type="TileMap" parent="."]
+z_index = 1
+y_sort_enabled = true
+tile_set = ExtResource("2_0vbor")
+format = 2
+layer_0/y_sort_enabled = true
+layer_0/y_sort_origin = 1
+layer_0/tile_data = PackedInt32Array(-65526, 393219, 0, -65525, 393219, 0, -65527, 458755, 14, 9, 327683, 14, 65545, 327683, 14, 131081, 917507, 14, 196617, 720899, 14, -65524, 524291, 14, 12, 262147, 14, 65548, 262147, 14, 131084, 786435, 14, 196620, 196611, 6, 196618, 786435, 13, 327689, 196611, 6, 131085, 458755, 1, 131086, 458755, 1, 131087, 458755, 1, 131088, 458755, 1, 131089, 458755, 1, 131090, 524291, 14, 196626, 262147, 14, 262162, 262147, 14, 327698, 262147, 14, 393234, 655363, 14, 393229, 65539, 14, 393230, 3, 14, 393231, 3, 14, 393232, 3, 14, 393233, 3, 14, 458765, 655363, 14, 458764, 3, 14, 458762, 3, 14, 458761, 3, 14, 458760, 3, 14, 458759, 3, 14, 458758, 3, 14, 458757, 3, 14, 458756, 3, 14, 393219, 327683, 14, 327683, 327683, 14, 262147, 327683, 14, 196611, 327683, 14, 131075, 327683, 14, 458755, 589827, 14, 262153, 720899, 14, 131080, 131075, 0, 131079, 131075, 7, 6, 131075, 0, 5, 131075, 0, 4, 131075, 0, 7, 524291, 14, 3, 458755, 14, 65539, 327683, 14, 65543, 262147, 14, 524301, 393219, 14, 524300, 393219, 14, 524299, 393219, 14, 524298, 393219, 14, 524297, 393219, 14, 524296, 393219, 14, 524295, 393219, 14, 524294, 393219, 14, 524293, 393219, 14, 524292, 393219, 14, 524291, 393219, 14, 524290, 393219, 14, 458754, 393219, 14, 393218, 393219, 14, 327682, 393219, 14, 262146, 393219, 14, 196610, 393219, 14, 131074, 393219, 14, 65538, 393219, 14, 2, 393219, 14, -65534, 393219, 14, -65533, 393219, 14, -65532, 393219, 14, -65531, 393219, 14, -65530, 393219, 14, -65529, 393219, 14, -65528, 393219, 14, 8, 393219, 14, 65544, 393219, 14, -131069, 393219, 14, -131068, 393219, 14, -131067, 393219, 14, -131066, 393219, 14, -131065, 393219, 14, -131064, 393219, 14, -131063, 393219, 14, -131062, 393219, 14, -131061, 393219, 14, -131060, 393219, 14, -131059, 393219, 14, -65523, 393219, 14, 13, 393219, 14, 65549, 393219, 14, -65522, 393219, 14, 14, 393219, 14, 65550, 393219, 14, -65521, 393219, 14, -65520, 393219, 14, -65519, 393219, 14, -65518, 393219, 14, 18, 393219, 14, 65554, 393219, 14, 65553, 393219, 14, 65552, 393219, 14, 65551, 393219, 14, 15, 393219, 14, 16, 393219, 14, 17, 393219, 14, -65517, 393219, 14, 19, 393219, 14, 65555, 393219, 14, 131091, 393219, 14, 196627, 393219, 14, 262163, 393219, 14, 327699, 393219, 14, 393235, 393219, 14, 458771, 393219, 14, 458770, 393219, 14, 458769, 393219, 14, 458768, 393219, 14, 458767, 393219, 14, 458766, 393219, 14, 524307, 393219, 14, 524306, 393219, 14, 524305, 393219, 14, 524304, 393219, 14, 524303, 393219, 14, 524302, 393219, 14, -131070, 393219, 14, 131082, 131075, 14)
+
+[node name="WallsBase" type="TileMap" parent="."]
+y_sort_enabled = true
+tile_set = ExtResource("2_0vbor")
+format = 2
+layer_0/y_sort_enabled = true
+layer_0/tile_data = PackedInt32Array(10, 2, 0, 11, 2, 0, 65540, 327682, 7, 65541, 327682, 7, 65542, 327682, 7, 196615, 327682, 7, 196616, 327682, 7, 262154, 131074, 11, 262156, 131074, 11, 393225, 131074, 11, 196621, 196610, 3, 196622, 196610, 3, 196623, 196610, 3, 196624, 196610, 3, 196625, 196610, 3)
+
+[node name="Floor" type="TileMap" parent="."]
+tile_set = ExtResource("3_iuhad")
+format = 2
+layer_0/tile_data = PackedInt32Array(262148, 196608, 7, 327686, 196608, 7, 458760, 65536, 7, 458756, 65536, 7, 393221, 196608, 7, 262152, 131072, 7, 196614, 196608, 7, 262151, 196608, 7, 262150, 196608, 7, 327687, 196608, 7, 327688, 196608, 7, 393224, 196608, 7, 393223, 196608, 7, 393222, 196608, 7, 327685, 0, 7, 262149, 196608, 7, 327684, 196608, 7, 393220, 196608, 7, 458757, 196608, 7, 458758, 196608, 7, 458759, 196608, 7, 196613, 196608, 7, 196612, 196608, 7, 131076, 196608, 7, 131077, 196608, 7, 131078, 65536, 7, 458761, 65536, 5, 458762, 65536, 5, 393226, 65536, 5, 327690, 65536, 5, 327691, 65536, 5, 393227, 65536, 5, 458763, 65536, 5, 262155, 65536, 5, 327692, 65536, 5, 393228, 65536, 5, 458764, 65536, 5, 262157, 196608, 0, 262159, 196608, 0, 262160, 196608, 0, 262161, 196608, 0, 327693, 196608, 0, 327694, 65536, 0, 327695, 196608, 0, 327696, 196608, 0, 327697, 0, 0, 393229, 196608, 0, 393230, 196608, 0, 393231, 196608, 0, 393232, 196608, 0, 393233, 196608, 0, 65546, 196608, 2, 131082, 196608, 2, 196618, 196608, 2, 196619, 196608, 2, 65547, 196608, 2, 131083, 196608, 2, 262158, 131072, 0)
+
+[node name="Decoration" type="TileMap" parent="."]
+y_sort_enabled = true
+tile_set = ExtResource("4_mly8a")
+format = 2
+layer_0/y_sort_enabled = true
+
+[node name="Interactables" type="Node2D" parent="."]
+y_sort_enabled = true
+
+[node name="Doorway" parent="Interactables" instance=ExtResource("6_txc16")]
+position = Vector2(368, 257)
+target_room = "res://scenes/rooms/apartment_hallway.tscn"
+target_spawn = "from_apartment"
+
+[node name="Door" parent="Interactables" instance=ExtResource("7_66ocw")]
+position = Vector2(368, 102)
+scale = Vector2(1.9, 1.9)
+sprite_frames = SubResource("SpriteFrames_kkbnh")
+
+[node name="Bed" parent="Interactables" instance=ExtResource("5_f5k1h")]
+position = Vector2(273, 165)
+
+[node name="SpawnPoints" type="Node2D" parent="."]
+position = Vector2(5, 16)
+
+[node name="default" type="Marker2D" parent="SpawnPoints"]
+position = Vector2(302, 164)
+
+[node name="from_hall" type="Marker2D" parent="SpawnPoints"]
+position = Vector2(362, 204)
+
+[node name="NPCs" type="Node2D" parent="."]
+y_sort_enabled = true
+position = Vector2(4, -9)
+
+[node name="Fence" parent="NPCs" instance=ExtResource("7_g1oys")]
+position = Vector2(330, 33)

@@ -1,9 +1,10 @@
-[gd_scene load_steps=5 format=3 uid="uid://22oas8bywttm"]
+[gd_scene load_steps=6 format=3 uid="uid://22oas8bywttm"]
 
-[ext_resource type="TileSet" uid="uid://6akbc4rraedn" path="res://art/tilesets/apartment_tileset.tres" id="1_bay75"]
+[ext_resource type="TileSet" uid="uid://6akbc4rraedn" path="res://data/tilesets/apartment_tileset.tres" id="1_bay75"]
 [ext_resource type="PackedScene" uid="uid://cu0qiy18mj116" path="res://scenes/components/doorway.tscn" id="2_lvxvr"]
 [ext_resource type="PackedScene" uid="uid://yyg1vmqtao4e" path="res://scenes/components/bed.tscn" id="3_gkqkq"]
 [ext_resource type="PackedScene" uid="uid://citlrvhb0bdsr" path="res://scenes/npcs/fence.tscn" id="4_8ue42"]
+[ext_resource type="Script" path="res://scripts/dealing/meet_spot.gd" id="5_43lkx"]
 
 [node name="ApartmentBedroom" type="Node2D"]
 y_sort_enabled = true
@@ -53,6 +54,8 @@ position = Vector2(49, -54)
 [node name="Fence" parent="NPCs" instance=ExtResource("4_8ue42")]
 position = Vector2(263, 258)
 
-[node name="Player" type="Node2D" parent="."]
-position = Vector2(20, 1)
-scale = Vector2(1.00851, 0.997738)
+[node name="MeetSpot" type="Node2D" parent="."]
+position = Vector2(359, 136)
+script = ExtResource("5_43lkx")
+spot_id = &"bedroom"
+display_name = "Bed Room"

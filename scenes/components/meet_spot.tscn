@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://ctijaiye5o1y2"]
+
+[ext_resource type="Script" path="res://scripts/dealing/meet_spot.gd" id="1_cwlov"]
+
+[node name="MeetSpot" type="Node2D"]
+script = ExtResource("1_cwlov")

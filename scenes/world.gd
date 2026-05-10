@@ -103,6 +103,18 @@ func _input(event: InputEvent) -> void:
 					var c = active[0]
 					var qty = randi_range(c.quantity_min, c.quantity_max)
 					MeetingManager.schedule_meeting(c, qty)
+			KEY_V:
+	# Debug: dump live NPC state
+				print("[Spawner] %d live NPCs" % MeetingSpawner._live_npcs.size())
+				for k in MeetingSpawner._live_npcs:
+					var npc = MeetingSpawner._live_npcs[k]
+					print("  %s @ (%.0f, %.0f)" % [k, npc.global_position.x, npc.global_position.y])
+			KEY_B:
+				# Debug: grant 5 raw_bud so you can actually complete a deal
+				var bud := ItemRegistry.get_item(&"weed_buds")
+				if bud:
+					var leftover: int = (get_tree().get_first_node_in_group("player").inventory.add(bud, 5))
+					print("[Debug] +5 raw_bud, leftover %d" % leftover)
 
 
 func _jump_to_hour(target_hour: int) -> void:

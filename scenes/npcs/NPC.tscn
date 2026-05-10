@@ -9,6 +9,8 @@ size = Vector2(18, 4)
 [node name="NPC" type="CharacterBody2D"]
 y_sort_enabled = true
 script = ExtResource("1_3gsjp")
+npc_id = "npc"
+display_name = "NPC"
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 
@@ -18,3 +20,5 @@ shape = SubResource("RectangleShape2D_nia5j")
 
 [node name="Interactable" parent="." instance=ExtResource("2_8i747")]
 position = Vector2(0, 1)
+prompt_text = "Talk"
+interact_priority = 40

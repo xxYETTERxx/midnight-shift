@@ -35,6 +35,7 @@ DealerExperience="*res://scripts/dealing/dealer_experience.gd"
 CustomerRoster="*res://scripts/dealing/customer_roster.gd"
 PagerSystem="*res://scripts/dealing/pager_system.gd"
 MeetingManager="*res://scripts/dealing/meeting_manager.gd"
+MeetingSpawner="*res://scripts/dealing/meeting_spawner.gd"
 
 [display]
 
