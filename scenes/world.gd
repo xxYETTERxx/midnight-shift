@@ -64,7 +64,7 @@ func _input(event: InputEvent) -> void:
 				await ScreenFade.fade_in(1)
 			KEY_F9:
 				SaveSystem.save_to_disk()
-			KEY_F10:  # bonus: wipe save
+			KEY_F11:  # bonus: wipe save
 				SaveSystem.delete_save()
 			KEY_I:
 	# Debug: grant 3 soil bags

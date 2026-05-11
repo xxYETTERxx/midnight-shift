@@ -163,7 +163,7 @@ size = Vector2(15, 35)
 y_sort_enabled = true
 collision_layer = 2
 script = ExtResource("1_6aav1")
-speed = 140.0
+speed = 250.0
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 position = Vector2(0, -24)

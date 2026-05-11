@@ -1,10 +1,9 @@
-[gd_scene load_steps=41 format=3 uid="uid://d04jjxj7h6l1p"]
+[gd_scene load_steps=40 format=3 uid="uid://d04jjxj7h6l1p"]
 
 [ext_resource type="TileSet" uid="uid://0w8lw4ppxio0" path="res://data/tilesets/ext_city.tres" id="1_tv6qr"]
 [ext_resource type="PackedScene" uid="uid://cu0qiy18mj116" path="res://scenes/components/doorway.tscn" id="4_bfwhg"]
 [ext_resource type="Texture2D" uid="uid://bq3yygdq1yf8" path="res://art/objects/Interactables/Doors/Condo_Door_32x32_4.png" id="4_byuh8"]
 [ext_resource type="PackedScene" uid="uid://cbl82j3yw8xvq" path="res://scenes/components/door.tscn" id="5_n33n2"]
-[ext_resource type="PackedScene" uid="uid://citlrvhb0bdsr" path="res://scenes/npcs/fence.tscn" id="5_qfbcf"]
 [ext_resource type="PackedScene" uid="uid://hw82pd7bflqo" path="res://scenes/components/payphone.tscn" id="6_qs6rr"]
 [ext_resource type="PackedScene" uid="uid://ctijaiye5o1y2" path="res://scenes/components/meet_spot.tscn" id="7_2aqov"]
 [ext_resource type="PackedScene" uid="uid://cdymw0jnxmehk" path="res://scenes/components/vehicle.tscn" id="8_wirsu"]
@@ -277,9 +276,6 @@ position = Vector2(-680, 1297)
 [node name="NPCs" type="Node2D" parent="."]
 y_sort_enabled = true
 position = Vector2(1, 2)
-
-[node name="Fence" parent="." instance=ExtResource("5_qfbcf")]
-position = Vector2(383, 198)
 
 [node name="Interactables" type="Node2D" parent="."]
 y_sort_enabled = true

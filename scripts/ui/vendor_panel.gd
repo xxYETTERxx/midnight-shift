@@ -147,25 +147,27 @@ func _on_vendor_shadow_changed(i: int) -> void:
 
 
 # Click on a player-side slot → stage a sell (move stack to vendor shadow).
-func _on_player_slot_clicked(slot_index: int, _with_shift: bool) -> void:
+func _on_player_slot_clicked(slot_index: int, action: int) -> void:
 	var stack := _player_shadow.get_slot(slot_index)
 	if stack == null or stack.item == null:
 		return
 	if not stack.item.sellable:
 		return
-	var leftover := _vendor_shadow.add(stack.item, stack.count)
-	var moved: int = stack.count - leftover
+	var to_move: int = 1 if action == HotbarSlot.Action.MOVE_ONE else stack.count
+	var leftover := _vendor_shadow.add(stack.item, to_move)
+	var moved: int = to_move - leftover
 	if moved > 0:
 		_player_shadow.consume_from_slot(slot_index, moved)
 
 
 # Click on a vendor-side slot → stage a buy (move stack to player shadow).
-func _on_vendor_slot_clicked(slot_index: int, _with_shift: bool) -> void:
+func _on_vendor_slot_clicked(slot_index: int, action: int) -> void:
 	var stack := _vendor_shadow.get_slot(slot_index)
 	if stack == null or stack.item == null:
 		return
-	var leftover := _player_shadow.add(stack.item, stack.count)
-	var moved: int = stack.count - leftover
+	var to_move: int = 1 if action == HotbarSlot.Action.MOVE_ONE else stack.count
+	var leftover := _player_shadow.add(stack.item, to_move)
+	var moved: int = to_move - leftover
 	if moved > 0:
 		_vendor_shadow.consume_from_slot(slot_index, moved)
 

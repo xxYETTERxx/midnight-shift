@@ -5,11 +5,20 @@ extends Node2D
 # loot table; locked state determines whether a slim jim is required (future)
 # and how long the action takes. Looted state persists until daily reset.
 
-const ACTION_DURATION_UNLOCKED: float = 2.0
-const ACTION_DURATION_LOCKED: float = 5.0
+const ACTION_DURATION_UNLOCKED: float = 1.0
+
+# Base lockpick duration in seconds, indexed by car tier.
+# Lockpicking skill scales this down by up to 60% at L50.
+const BASE_DURATION_LOCKED: Array[float] = [4.0, 6.0, 9.0]
+
+# Lock probability per car tier — used by the spawner at car init.
+const LOCK_PROBABILITY_BY_TIER: Array[float] = [0.20, 0.60, 0.98]
 
 # CRIM_XP gain per successful loot. Tier scales the reward.
 const CRIM_XP_PER_TIER: Array[int] = [3, 6, 12]
+
+# Flat lockpicking XP per successful locked pick.
+const LOCKPICK_XP_PER_SUCCESS: int = 3
 
 @export var tier: int = 0
 @export var is_locked: bool = true
@@ -63,10 +72,19 @@ func _on_interacted(player: Node) -> void:
 		return
 	if _action_player != null:
 		return  # already in progress
-	# TODO: when slim jim is implemented, gate locked cars on tool possession.
+	
+	if is_locked:
+		var inv: Inventory = player.get("inventory")
+		if inv == null or not inv.has_item(&"slim_jim"):
+			NotificationSystem.warn("You need a slim jim to pry this open.")
+			return
+		var base: float = BASE_DURATION_LOCKED[clampi(tier, 0, BASE_DURATION_LOCKED.size() - 1)]
+		_action_duration = base * PlayerSkills.lockpick_duration_multiplier()
+	else:
+		_action_duration = ACTION_DURATION_UNLOCKED
+	
 	_action_player = player
 	_action_elapsed = 0.0
-	_action_duration = ACTION_DURATION_LOCKED if is_locked else ACTION_DURATION_UNLOCKED
 	progress_bar.visible = true
 	progress_bar.value = 0.0
 
@@ -105,6 +123,8 @@ func _complete_action() -> void:
 	# Award criminal XP for the act, regardless of loot quality.
 	if tier >= 0 and tier < CRIM_XP_PER_TIER.size():
 		CriminalExperience.adjust(CRIM_XP_PER_TIER[tier])
+	if is_locked:
+		PlayerSkills.adjust(&"lockpicking", LOCKPICK_XP_PER_SUCCESS)
 
 	looted.emit(drops)
 	_mark_looted()
@@ -123,7 +143,7 @@ func _refresh_visual_state() -> void:
 		interactable.set_process_mode(Node.PROCESS_MODE_DISABLED)
 	else:
 		modulate = Color.WHITE
-		interactable.prompt_text = "Pry Open" if is_locked else "Search"
+		interactable.prompt_text = "Slim Jim" if is_locked else "Search"
 		interactable.set_process_mode(Node.PROCESS_MODE_INHERIT)
 
 
@@ -147,3 +167,7 @@ func from_state(state: Dictionary) -> void:
 	is_looted = state.get("is_looted", false)
 	global_position = Vector2(state.get("position_x", 0.0), state.get("position_y", 0.0))
 	_refresh_visual_state()
+
+static func roll_locked_for_tier(car_tier: int, rng: RandomNumberGenerator) -> bool:
+	var t: int = clampi(car_tier, 0, LOCK_PROBABILITY_BY_TIER.size() - 1)
+	return rng.randf() < LOCK_PROBABILITY_BY_TIER[t]

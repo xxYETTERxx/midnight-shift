@@ -21,7 +21,7 @@ y_sort_enabled = true
 script = ExtResource("1_w0snx")
 vendor_name = "The Fence"
 initial_stock = Array[Resource("res://scripts/items/item_def.gd")]([ExtResource("2_4fvir"), ExtResource("3_wdi0a"), ExtResource("4_csu73"), ExtResource("5_waxli"), ExtResource("6_eajlt")])
-initial_stock_counts = Array[int]([1, 1, 1, 1, 1])
+initial_stock_counts = Array[int]([4, 5, 1, 1, 10])
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 texture = ExtResource("2_3gos4")

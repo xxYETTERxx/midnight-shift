@@ -95,7 +95,6 @@ func _load_loot_tables() -> void:
 
 func register_spawn_point(id: StringName, scene_path: String, world_pos: Vector2,orientation: int = CarSpawnPoint.Orientation.SOUTH) -> void:
 	if id == &"":
-		print("registration sucess")
 		return
 	_spawn_points[String(id)] = {
 		"scene_path": scene_path,
@@ -103,7 +102,6 @@ func register_spawn_point(id: StringName, scene_path: String, world_pos: Vector2
 		"y": world_pos.y,
 		"orientation": orientation,
 	}
-	print(_spawn_points)
 
 
 func unregister_spawn_point(id: StringName) -> void:
@@ -160,7 +158,6 @@ func _materialize_cars_for_current_scene() -> void:
 	if room == null:
 		return
 	var scene_path: String = room.scene_file_path
-	print("[CarSpawner] materializing for scene: '%s'" % scene_path)
 	# Find or create a Cars container in this room.
 	var container: Node = room.get_node_or_null("Cars")
 	if container == null:
@@ -174,7 +171,6 @@ func _materialize_cars_for_current_scene() -> void:
 	# Spawn cars whose state says they belong here.
 	for car_id in _car_states:
 		var state: Dictionary = _car_states[car_id]
-		print("  car %s stored scene: '%s'" % [car_id, state.get("scene_path", "")])
 		if state.get("scene_path", "") != scene_path:
 			continue
 		_instantiate_car(container, state)
@@ -188,6 +184,7 @@ func _instantiate_car(parent: Node, state: Dictionary) -> void:
 	if tier >= 0 and tier < _loot_tables.size():
 		car.loot_table = _loot_tables[tier]
 	_apply_sprite(car, state)
+	car.is_locked = LootableCar.roll_locked_for_tier(car.tier,_rng)
 	car.looted.connect(func(_drops): _on_car_looted(car.car_id))
 
 func _apply_sprite(car: LootableCar, state: Dictionary) -> void:
@@ -224,14 +221,12 @@ func _ensure_scene_generated() -> void:
 
 func _generate_cars_for_scene(scene_path: String) -> void:
 	# Find spawn points in this scene.
-	print("spawn car 1")
 	var sp_ids: Array = []
 	for sp_id in _spawn_points:
 		var sp: Dictionary = _spawn_points[sp_id]
 		if sp.get("scene_path", "") == scene_path:
 			sp_ids.append(sp_id)
 	if sp_ids.is_empty():
-		print("sp_ids empty")
 		return
 	sp_ids.shuffle()
 	var target_count: int = _rng.randi_range(CARS_PER_SCENE_MIN, CARS_PER_SCENE_MAX)

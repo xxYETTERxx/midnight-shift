@@ -22,6 +22,7 @@ func _ready() -> void:
 	inventory.slot_changed.connect(_on_slot_changed.bind(inventory))
 	inventory.active_slot_changed.connect(_on_active_slot_changed)
 	inventory.hotbar_offset_changed.connect(_on_hotbar_offset_changed.bind(inventory))
+	inventory.capacity_changed.connect(_on_capacity_changed.bind(inventory))
 
 
 func _build_slots(count: int) -> void:
@@ -65,3 +66,9 @@ func _on_hotbar_offset_changed(_offset: int, inventory: Inventory) -> void:
 func _toggle_highlight():
 	for i in range(_slot_widgets.size()):
 		_slot_widgets[i].visible = !_slot_widgets[i].visible
+		
+func _on_capacity_changed(_new_max: int, inventory: Inventory) -> void:
+	var display_count: int = min(HOTBAR_DISPLAY_COUNT, inventory.max_slots)
+	_build_slots(display_count)
+	_render_all(inventory)
+	_highlight_active(inventory.active_slot)

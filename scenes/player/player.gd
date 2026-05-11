@@ -25,15 +25,12 @@ func _ready() -> void:
 	# NEW: re-arbitrate interactions when the player's held item changes
 	inventory.active_slot_changed.connect(_on_active_slot_changed)
 	inventory.slot_changed.connect(_on_inventory_slot_changed)
-	inventory.add(ItemRegistry.get_item(&"pot_basic"), 4)
 	inventory.add(ItemRegistry.get_item(&"weed_seed"), 4)
-	inventory.add(ItemRegistry.get_item(&"soil_bag"), 4)
 	inventory.add(ItemRegistry.get_item(&"watering_can"), 1)
-	inventory.add(ItemRegistry.get_item(&"stash_box"), 2)
-	NotificationSystem.info("Game started! Have fun!")
+	inventory.add(ItemRegistry.get_item(&"slim_jim"), 1)
 
 
-func _physics_process(_delta: float) -> void:
+func _physics_process(delta: float) -> void:
 	if not TimeSystem.is_running():
 		return
 	
@@ -45,8 +42,16 @@ func _physics_process(_delta: float) -> void:
 	if input_vector.length() > 1.0:
 		input_vector = input_vector.normalized()
 
-	velocity = input_vector * speed
+	velocity = input_vector * speed * PlayerSkills.speed_multiplier()
 	move_and_slide()
+
+	# Athletics XP from distance actually moved (post-collision velocity).
+	var dist := velocity.length() * delta
+	if dist > 0.0:
+		PlayerSkills.adjust_f(&"athletics", dist * PlayerSkills.ATHLETICS_XP_PER_PIXEL)
+		var load: int = inventory.filled_slot_count()
+		if load > 0:
+			PlayerSkills.adjust_f(&"strength", dist * load * PlayerSkills.STRENGTH_XP_PER_PIXEL_PER_SLOT)
 
 	_update_animation(input_vector)
 
@@ -62,6 +67,23 @@ func _unhandled_input(event: InputEvent) -> void:
 		elif event.keycode == KEY_F3:
 			RelationshipSystem.set_global_flag("greeting", false)
 			print("[debug] cleared greeting flag")
+		elif event.keycode == KEY_F4:
+			PlayerSkills.adjust(&"athletics", 200)
+			print("[debug] +200 athletics XP -> ", PlayerSkills.value(&"athletics"),
+				" (L", PlayerSkills.tier(&"athletics"), ")")
+		elif event.keycode == KEY_F5:
+			PlayerSkills.adjust(&"athletics", -PlayerSkills.value(&"athletics"))
+			print("[debug] reset athletics")
+		elif event.keycode == KEY_F6:
+			PlayerSkills.adjust(&"strength", 200)
+			print("[debug] +200 strength XP -> ", PlayerSkills.value(&"strength"),
+				" (L", PlayerSkills.tier(&"strength"), ", slots=",
+				PlayerSkills.inventory_slot_count(), ")")
+		elif event.keycode == KEY_F7:
+			PlayerSkills.adjust(&"lockpicking", 50)
+			print("[debug] +50 lockpicking XP -> ", PlayerSkills.value(&"lockpicking"),
+				" (L", PlayerSkills.tier(&"lockpicking"),
+				", mult=%.2f)" % PlayerSkills.lockpick_duration_multiplier())
 	
 	if event.is_action_pressed("interact"):
 		if not InteractionManager.try_interact(self):

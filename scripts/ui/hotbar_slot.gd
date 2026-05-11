@@ -17,7 +17,7 @@ signal hover_entered(slot_index: int)
 signal hovered(slot_index: int)
 signal unhovered(slot_index: int)
 
-enum Action { INTERACT, SPLIT, TRANSFER }
+enum Action { INTERACT, SPLIT, TRANSFER, MOVE_ONE }
 
 
 func _ready() -> void:
@@ -80,10 +80,13 @@ func _gui_input(event: InputEvent) -> void:
 		return
 	match event.button_index:
 		MOUSE_BUTTON_LEFT:
-			if Input.is_key_pressed(KEY_SHIFT):
+			# CTRL wins over SHIFT if both held.
+			if Input.is_key_pressed(KEY_CTRL):
+				clicked.emit(slot_index, Action.INTERACT)
+			elif Input.is_key_pressed(KEY_SHIFT):
 				clicked.emit(slot_index, Action.TRANSFER)
 			else:
-				clicked.emit(slot_index, Action.INTERACT)
+				clicked.emit(slot_index, Action.MOVE_ONE)
 		MOUSE_BUTTON_RIGHT:
 			clicked.emit(slot_index, Action.SPLIT)
 

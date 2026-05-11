@@ -50,6 +50,7 @@ func _ready() -> void:
 	# Refresh slots when inventory changes
 	_inventory.slot_changed.connect(_on_slot_changed)
 	_inventory.active_slot_changed.connect(_on_active_slot_changed)
+	_inventory.capacity_changed.connect(_on_capacity_changed)
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -170,6 +171,12 @@ func _on_slot_changed(slot_index: int) -> void:
 func _on_active_slot_changed(_slot_index: int) -> void:
 	_apply_active_highlight()
 
+func _on_capacity_changed(_new_max: int) -> void:
+	_build_slots()
+	_render_all()
+	if _is_open:
+		_apply_active_highlight()
+
 func _on_player_slot_hovered(slot_index: int) -> void:
 	if slot_index < 0 or slot_index >= _slot_widgets.size():
 		return
@@ -203,6 +210,8 @@ func _handle_action(inv: Inventory, slot_index: int, action: int) -> void:
 			var other: Inventory = _other_inventory(inv)
 			if other != null:
 				_handle_transfer(inv, slot_index, other)
+		HotbarSlot.Action.MOVE_ONE:
+			_handle_move_one_pickup(inv, slot_index)
 
 
 func _other_inventory(inv: Inventory) -> Inventory:
@@ -339,6 +348,36 @@ func _handle_split(inv: Inventory, slot_index: int) -> void:
 			_cursor_stack.count -= 1
 			inv.slot_changed.emit(slot_index)
 		# else: different item or full slot → no-op
+		if _cursor_stack.count <= 0:
+			_clear_cursor()
+		else:
+			_update_cursor_visual()
+			
+func _handle_move_one_pickup(inv: Inventory, slot_index: int) -> void:
+	var slot_stack := inv.get_slot(slot_index)
+	
+	if _cursor_stack == null:
+		if slot_stack == null:
+			return
+		_cursor_stack = ItemStack.new(slot_stack.item, 1)
+		_cursor_source_inventory = inv
+		_cursor_source_slot = slot_index
+		slot_stack.count -= 1
+		if slot_stack.count <= 0:
+			inv.slots[slot_index] = null
+		inv.slot_changed.emit(slot_index)
+		_update_cursor_visual()
+	else:
+		# Drop one onto the slot (same as split's drop branch).
+		if slot_stack == null:
+			inv.slots[slot_index] = ItemStack.new(_cursor_stack.item, 1)
+			_cursor_stack.count -= 1
+			inv.slot_changed.emit(slot_index)
+		elif slot_stack.item == _cursor_stack.item and not slot_stack.is_full():
+			slot_stack.count += 1
+			_cursor_stack.count -= 1
+			inv.slot_changed.emit(slot_index)
+		# else: different item, full slot — no-op (don't swap on a single click)
 		if _cursor_stack.count <= 0:
 			_clear_cursor()
 		else:

@@ -116,3 +116,9 @@ offset_right = 420.0
 offset_bottom = 43.0
 mouse_filter = 2
 script = ExtResource("10_61ul8")
+
+[node name="SkillDebug" type="Label" parent="HUD"]
+offset_left = 3.0
+offset_top = 1.0
+offset_right = 207.0
+offset_bottom = 65.0

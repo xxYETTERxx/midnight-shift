@@ -5,6 +5,7 @@ extends CanvasLayer
 @onready var interact_prompt: Label = $InteractPrompt
 @onready var cash_label: Label = $CashLabel
 @onready var rent_label: Label = $RentDueLabel
+@onready var skill_debug: Label = $SkillDebug
 
 var timer: int = 0
 
@@ -23,6 +24,9 @@ func _ready() -> void:
 	_on_winner_changed(InteractionManager.active)
 	RentSystem.rent_due_warning.connect(_fire_rent_warning)
 	rent_label.visible = false
+	skill_debug.visible = false
+	PlayerSkills.skill_changed.connect(_on_skill_debug_refresh)
+	_refresh_skill_debug()
 
 func _on_winner_changed(interactable: Node) -> void:
 	if interactable == null:
@@ -66,3 +70,28 @@ func _on_balance_changed(_pool: String, _new_balance: int) -> void:
 func _fire_rent_warning(amount: int) -> void:
 	rent_label.visible = true
 	timer += 30
+
+func _on_skill_debug_refresh(_skill_id: StringName, _new_xp: int) -> void:
+	_refresh_skill_debug()
+
+
+func _refresh_skill_debug() -> void:
+	if not skill_debug.visible:
+		return
+	skill_debug.text = "ATH xp=%d L=%d mult=%.3f  |  STR xp=%d L=%d slots=%d  |  LCK xp=%d L=%d mult=%.2f" % [
+		PlayerSkills.value(&"athletics"),
+		PlayerSkills.tier(&"athletics"),
+		PlayerSkills.speed_multiplier(),
+		PlayerSkills.value(&"strength"),
+		PlayerSkills.tier(&"strength"),
+		PlayerSkills.inventory_slot_count(),
+		PlayerSkills.value(&"lockpicking"),
+		PlayerSkills.tier(&"lockpicking"),
+		PlayerSkills.lockpick_duration_multiplier(),
+	]
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventKey and event.pressed and not event.echo:
+		if event.keycode == KEY_F10:
+			skill_debug.visible = not skill_debug.visible
+			_refresh_skill_debug()

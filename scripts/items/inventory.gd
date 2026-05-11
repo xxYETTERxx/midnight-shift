@@ -1,8 +1,8 @@
 class_name Inventory
 extends Node
 
-@export var max_slots: int = 24
-@export var initial_slots: int = 24  # currently unlocked slots
+@export var max_slots: int = 6
+@export var initial_slots: int = 6  # currently unused, kept for compatibility
 
 const HOTBAR_SLOT_COUNT: int = 12
 var hotbar_offset: int = 0  # 0 = first row is hotbar, 12 = second row is hotbar
@@ -19,12 +19,22 @@ signal slot_changed(slot_index: int)
 # Emitted when the active hotbar selection changes.
 signal active_slot_changed(slot_index: int)
 
+signal capacity_changed(new_max: int)
+
 
 func _ready() -> void:
-	# Initialize all slots to null
+	# Reconcile starting size against earned strength progression. Handles
+	# the case where the player loads into the scene after their strength
+	# level should have already granted more slots (signal won't re-fire
+	# retroactively).
+	print("[inv _ready start] max_slots=", max_slots)
+	var expected: int = PlayerSkills.inventory_slot_count()
+	if expected > max_slots:
+		max_slots = expected
 	slots.resize(max_slots)
 	for i in range(max_slots):
 		slots[i] = null
+	PlayerSkills.level_up.connect(_on_skill_level_up)
 
 
 # --- Querying ---
@@ -38,6 +48,11 @@ func get_slot(slot: int) -> ItemStack:
 func get_active_stack() -> ItemStack:
 	return get_slot(active_world_slot())
 
+func has_item(item_id: StringName) -> bool:
+	for stack in slots:
+		if stack != null and stack.item != null and stack.item.id == item_id:
+			return true
+	return false
 
 func is_full() -> bool:
 	# True if no slot can accept any more of any item.
@@ -149,6 +164,33 @@ func cycle_hotbar_row() -> void:
 func active_world_slot() -> int:
 	return hotbar_offset + active_slot
 
+func filled_slot_count() -> int:
+	var count: int = 0
+	for stack in slots:
+		if stack != null:
+			count += 1
+	return count
+
+
+func expand_slots(new_max: int) -> void:
+	if new_max <= max_slots:
+		return
+	var old_max: int = max_slots
+	max_slots = new_max
+	slots.resize(max_slots)
+	for i in range(old_max, max_slots):
+		slots[i] = null
+		slot_changed.emit(i)
+	capacity_changed.emit(max_slots)
+
+
+func _on_skill_level_up(skill_id: StringName, _new_level: int) -> void:
+	if skill_id != &"strength":
+		return
+	var new_count: int = PlayerSkills.inventory_slot_count()
+	if new_count > max_slots:
+		expand_slots(new_count)
+
 
 # --- Saving ---
 
@@ -167,7 +209,13 @@ func save_state() -> Dictionary:
 
 
 func load_state(data: Dictionary) -> void:
-	max_slots = data.get("max_slots", 12)
+	# max_slots reconciles between saved size and PlayerSkills-derived size.
+	# Larger wins so earned strength slots are never lost AND vendor/storage
+	# inventories (which can be far larger than the player's) aren't clamped
+	# to the player's carrying capacity.
+	var saved_max: int = data.get("max_slots", 6)
+	var expected: int = PlayerSkills.inventory_slot_count()
+	max_slots = max(saved_max, expected)
 	slots.resize(max_slots)
 	var saved_slots: Array = data.get("slots", [])
 	for i in range(max_slots):
@@ -176,6 +224,7 @@ func load_state(data: Dictionary) -> void:
 		else:
 			slots[i] = null
 		slot_changed.emit(i)
+	capacity_changed.emit(max_slots)
 	active_slot = data.get("active_slot", 0)
 	active_slot_changed.emit(active_slot)
 
