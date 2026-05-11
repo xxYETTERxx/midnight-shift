@@ -91,7 +91,7 @@ func add(item: ItemDef, count: int) -> int:
 		if slots[i] != null:
 			continue
 		var to_add: int = min(item.max_stack, remaining)
-		slots[i] = ItemStack.new(item, to_add)
+		slots[i] = ItemStack.new(item, to_add, item.initial_stack_data())
 		remaining -= to_add
 		slot_changed.emit(i)
 	return remaining
@@ -228,5 +228,16 @@ func load_state(data: Dictionary) -> void:
 	active_slot = data.get("active_slot", 0)
 	active_slot_changed.emit(active_slot)
 
-
+func add_with_data(item: ItemDef, count: int, data: Dictionary) -> int:
+	var remaining := count
+	for i in range(slots.size()):
+		if remaining <= 0:
+			break
+		if slots[i] != null:
+			continue
+		var to_add: int = min(item.max_stack, remaining)
+		slots[i] = ItemStack.new(item, to_add, data.duplicate(true))
+		remaining -= to_add
+		slot_changed.emit(i)
+	return remaining
 	

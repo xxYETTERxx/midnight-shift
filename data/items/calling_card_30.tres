@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="CallingCardDef" load_steps=3 format=3 uid="uid://bp42lp8ylxupe"]
+
+[ext_resource type="Texture2D" uid="uid://devgefcrmf1wg" path="res://art/objects/Items/Consumable/calling_card.png" id="1_v4e8m"]
+[ext_resource type="Script" path="res://scripts/items/calling_card_def.gd" id="1_xffd0"]
+
+[resource]
+script = ExtResource("1_xffd0")
+initial_minutes = 30
+id = &"calling_card_30"
+display_name = "30-min Calling Card"
+icon = ExtResource("1_v4e8m")
+max_stack = 1
+category = 6
+description = "No change required"
+base_value = 5
+sellable = true

@@ -41,6 +41,7 @@ MeetingSpawner="*res://scripts/dealing/meeting_spawner.gd"
 CriminalExperience="*res://scenes/player/criminal_experience.gd"
 CarSpawner="*res://scripts/systems/car_spawner.gd"
 PlayerSkills="*res://scripts/systems/player_skills.gd"
+CallingCardSystem="*res://scripts/systems/calling_card_system.gd"
 
 [display]
 

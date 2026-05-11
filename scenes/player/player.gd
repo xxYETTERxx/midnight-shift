@@ -28,6 +28,7 @@ func _ready() -> void:
 	inventory.add(ItemRegistry.get_item(&"weed_seed"), 4)
 	inventory.add(ItemRegistry.get_item(&"watering_can"), 1)
 	inventory.add(ItemRegistry.get_item(&"slim_jim"), 1)
+	inventory.add_with_data(ItemRegistry.get_item(&"calling_card_30"), 1, {"minutes": 20})
 
 
 func _physics_process(delta: float) -> void:
@@ -57,7 +58,7 @@ func _physics_process(delta: float) -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo:
-		if event.keycode == KEY_F1:
+		if event.keycode == KEY_F12:
 			RelationshipSystem.push_dialogue("mira", "bodega_intro")
 			print("[debug] queued bodega_intro for mira")
 		elif event.keycode == KEY_F2:
@@ -84,6 +85,10 @@ func _unhandled_input(event: InputEvent) -> void:
 			print("[debug] +50 lockpicking XP -> ", PlayerSkills.value(&"lockpicking"),
 				" (L", PlayerSkills.tier(&"lockpicking"),
 				", mult=%.2f)" % PlayerSkills.lockpick_duration_multiplier())
+		elif event.keycode == KEY_F1:
+			CallingCardSystem.try_spend(1)
+			print("[debug] burned 1 minute -> total=", CallingCardSystem.total_minutes(),
+				", cards=", CallingCardSystem.card_count())
 	
 	if event.is_action_pressed("interact"):
 		if not InteractionManager.try_interact(self):

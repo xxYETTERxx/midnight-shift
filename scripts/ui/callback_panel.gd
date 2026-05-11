@@ -74,6 +74,8 @@ func _rebuild_list() -> void:
 
 
 func _on_return_call_pressed(page: PendingPage) -> void:
+	if not CallingCardSystem.try_spend(1):
+		return
 	var customer: Customer = page.get_customer()
 	if customer == null:
 		return

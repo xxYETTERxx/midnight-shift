@@ -36,3 +36,8 @@ enum Category {
 	KEY,         # quest items, keys to specific locations
 	MISC,
 }
+
+# Override in subclasses to provide initial per-stack data when a fresh
+# stack of this item is created. Most items return empty.
+func initial_stack_data() -> Dictionary:
+	return {}
