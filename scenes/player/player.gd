@@ -10,6 +10,16 @@ extends CharacterBody2D
 @export var passive_drain_per_minute: float = 0.07
 @export var movement_drain_per_minute: float = 0.05
 
+# --- Vault ---
+const VAULT_DURATION: float = 0.5
+const VAULT_DURATION_PER_EXTRA_TILE: float = 0.12
+const MAX_VAULT_RUN: int = 8
+const TILE_SIZE: int = 32
+const VAULT_STAMINA_COST: float = 2.0
+const VAULT_XP_BY_TIER: Array[int] = [5, 10, 20]
+
+var _is_vaulting: bool = false
+
 var stamina: float = 100.0
 
 signal stamina_changed(current: float, maximum: float)
@@ -33,6 +43,8 @@ func _ready() -> void:
 
 func _physics_process(delta: float) -> void:
 	if not TimeSystem.is_running():
+		return
+	if _is_vaulting:
 		return
 	
 	var input_vector := Vector2(
@@ -101,6 +113,8 @@ func _unhandled_input(event: InputEvent) -> void:
 	# Hotbar direct selection
 	if event.is_action_pressed("hotbar_cycle_row"):
 		inventory.cycle_hotbar_row()
+	if event.is_action_pressed("vault"):
+			_try_vault()
 	for i in range(12):
 		if event.is_action_pressed("hotbar_slot_%d" % (i + 1)):
 			inventory.set_active_slot(i)
@@ -228,3 +242,94 @@ func is_holding_anything() -> bool:
 func is_holding_category(category: int) -> bool:
 	var stack := inventory.get_active_stack()
 	return stack != null and stack.item != null and stack.item.category == category
+	
+# --- Vault ---
+
+func _try_vault() -> void:
+	if _is_vaulting:
+		return
+	if RoomManager.current_room == null:
+		return
+	var layer = RoomManager.current_room.find_child("Vaultables", false, false)
+	if layer == null:
+		return
+	var dir_vec := _direction_vector(last_direction)
+	var current_tile: Vector2i = layer.local_to_map(layer.to_local(global_position))
+	
+	# Scan forward through contiguous vault tiles. Run ends at the first
+	# non-vault tile. Highest tier in the run gates capability.
+	var max_tier: int = -1
+	var run_length: int = 0
+	for step in range(1, MAX_VAULT_RUN + 1):
+		var check_tile: Vector2i = current_tile + dir_vec * step
+		var tile_data: TileData = layer.get_cell_tile_data(0, check_tile)
+		if tile_data == null:
+			print("breaking")
+			break
+		var t: int = tile_data.get_custom_data("vault_tier")
+		max_tier = max(max_tier, t)
+		run_length = step
+	
+	if run_length == 0:
+		return  # no vault tile in front; silent no-op
+	
+	print("vaulting")
+	var capability: StringName = _capability_for_tier(max_tier)
+	if capability == &"" or not PlayerSkills.has_capability(capability):
+		NotificationSystem.warn("You can't get over that yet.")
+		return
+	
+	# Land 1 tile past the run.
+	_begin_vault(dir_vec, max_tier, run_length + 1)
+
+
+func _begin_vault(dir_vec: Vector2i, tier: int, landing_distance: int) -> void:
+	_is_vaulting = true
+	velocity = Vector2.ZERO
+	
+	var end_pos := global_position + Vector2(dir_vec) * (TILE_SIZE * landing_distance)
+	
+	var collision := find_child("CollisionShape2D", false, false) as CollisionShape2D
+	if collision != null:
+		collision.disabled = true
+	
+	var anim_name := "vault_" + last_direction
+	if sprite.sprite_frames != null and sprite.sprite_frames.has_animation(anim_name):
+		sprite.play(anim_name)
+	
+	# Duration: base 0.5s for a single-tile vault (2-tile movement), grows
+	# with run length so longer vaults don't feel zoomy. Eased so start and
+	# end aren't abrupt.
+	var duration: float = VAULT_DURATION + max(0, landing_distance - 2) * VAULT_DURATION_PER_EXTRA_TILE
+	
+	var tween := create_tween()
+	tween.set_ease(Tween.EASE_IN_OUT)
+	tween.set_trans(Tween.TRANS_SINE)
+	tween.tween_property(self, "global_position", end_pos, duration)
+	tween.tween_callback(_complete_vault.bind(tier, collision))
+
+
+func _complete_vault(tier: int, collision: CollisionShape2D) -> void:
+	if collision != null:
+		collision.disabled = false
+	_is_vaulting = false
+	spend_stamina(VAULT_STAMINA_COST)
+	if tier >= 0 and tier < VAULT_XP_BY_TIER.size():
+		PlayerSkills.adjust(&"athletics", VAULT_XP_BY_TIER[tier])
+
+
+func _direction_vector(dir: String) -> Vector2i:
+	match dir:
+		"n": return Vector2i(0, -1)
+		"s": return Vector2i(0, 1)
+		"e": return Vector2i(1, 0)
+		"w": return Vector2i(-1, 0)
+		_: return Vector2i(0, 1)
+
+
+func _capability_for_tier(tier: int) -> StringName:
+	match tier:
+		0: return &"vault_low"
+		1: return &"vault_medium"
+		2: return &"vault_high"
+		_: return &""
