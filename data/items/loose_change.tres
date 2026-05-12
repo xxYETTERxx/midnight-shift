@@ -1,6 +1,6 @@
-[gd_resource type="Resource" script_class="ItemDef" load_steps=3 format=3 uid="uid://m1dymf8u7d1"]
+[gd_resource type="Resource" script_class="ItemDef" format=3 uid="uid://m1dymf8u7d1"]
 
-[ext_resource type="Script" path="res://scripts/items/item_def.gd" id="1_n1c20"]
+[ext_resource type="Script" uid="uid://2ndmr7htrd8w" path="res://scripts/items/item_def.gd" id="1_n1c20"]
 [ext_resource type="Texture2D" uid="uid://b0xr7qm6oopkn" path="res://art/objects/Items/Loot/loose_change.png" id="1_vkeb5"]
 
 [resource]
@@ -8,8 +8,6 @@ script = ExtResource("1_n1c20")
 id = &"loose_change"
 display_name = "Loose Change"
 icon = ExtResource("1_vkeb5")
-max_stack = 99
-category = 2
 description = "money"
 base_value = 1
 sellable = true

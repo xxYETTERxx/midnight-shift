@@ -1,6 +1,6 @@
-[gd_scene load_steps=2 format=3 uid="uid://bq1pu0mh1l32r"]
+[gd_scene format=3 uid="uid://bq1pu0mh1l32r"]
 
-[ext_resource type="Script" path="res://scripts/components/car_spawn_point.gd" id="1_m8e4u"]
+[ext_resource type="Script" uid="uid://co6tm1fqapbpq" path="res://scripts/components/car_spawn_point.gd" id="1_m8e4u"]
 
-[node name="VehicleSpawn" type="Node2D"]
+[node name="VehicleSpawn" type="Node2D" unique_id=1129964773]
 script = ExtResource("1_m8e4u")

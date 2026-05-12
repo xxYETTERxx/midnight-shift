@@ -1,14 +1,14 @@
-[gd_scene load_steps=3 format=3 uid="uid://cu0qiy18mj116"]
+[gd_scene format=3 uid="uid://cu0qiy18mj116"]
 
-[ext_resource type="Script" path="res://scenes/components/doorway.gd" id="1_ufdwq"]
+[ext_resource type="Script" uid="uid://413xdyu0aolw" path="res://scenes/components/doorway.gd" id="1_ufdwq"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_7f0ap"]
 size = Vector2(9, 10)
 
-[node name="Doorway" type="Area2D"]
+[node name="Doorway" type="Area2D" unique_id=2084805160]
 collision_layer = 16
 collision_mask = 2
 script = ExtResource("1_ufdwq")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=2137170677]
 shape = SubResource("RectangleShape2D_7f0ap")

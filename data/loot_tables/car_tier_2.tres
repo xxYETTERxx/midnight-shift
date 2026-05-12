@@ -1,27 +1,20 @@
-[gd_resource type="Resource" script_class="LootTable" load_steps=7 format=3 uid="uid://ep7xfdhib5c1"]
+[gd_resource type="Resource" script_class="LootTable" format=3 uid="uid://ep7xfdhib5c1"]
 
-[ext_resource type="Script" path="res://scripts/items/loot_table.gd" id="1_4efj5"]
+[ext_resource type="Script" uid="uid://bhvj6yn2k0c8b" path="res://scripts/items/loot_table.gd" id="1_4efj5"]
 [ext_resource type="Resource" uid="uid://m1dymf8u7d1" path="res://data/items/loose_change.tres" id="1_yl25p"]
-[ext_resource type="Script" path="res://scripts/items/loot_table_entry.gd" id="2_qrkiu"]
+[ext_resource type="Script" uid="uid://dndj8rbs0qhgm" path="res://scripts/items/loot_table_entry.gd" id="2_qrkiu"]
 [ext_resource type="Resource" uid="uid://b8aeskkp8dgtx" path="res://data/items/stash_box.tres" id="3_yjtih"]
 
 [sub_resource type="Resource" id="Resource_dhwgv"]
 script = ExtResource("2_qrkiu")
 item = ExtResource("1_yl25p")
-count_min = 1
 count_max = 2
 weight = 1.5
 
 [sub_resource type="Resource" id="Resource_menfs"]
 script = ExtResource("2_qrkiu")
 item = ExtResource("3_yjtih")
-count_min = 1
-count_max = 1
-weight = 1.0
 
 [resource]
 script = ExtResource("1_4efj5")
 entries = Array[ExtResource("2_qrkiu")]([SubResource("Resource_dhwgv"), SubResource("Resource_menfs")])
-rolls_min = 1
-rolls_max = 2
-empty_chance = 0.0

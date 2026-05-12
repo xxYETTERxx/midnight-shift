@@ -1,0 +1,23 @@
+[gd_scene format=3 uid="uid://citlrvhb0bdsr"]
+
+[ext_resource type="Script" uid="uid://cany6bgvisems" path="res://scripts/components/vendor_interactable.gd" id="1_s2er3"]
+[ext_resource type="PackedScene" uid="uid://l6jfg123c1fw" path="res://scenes/components/interactable.tscn" id="2_7j6on"]
+[ext_resource type="Script" uid="uid://c40xv63xv46i2" path="res://scripts/items/inventory.gd" id="3_tsdqa"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_wm8wc"]
+size = Vector2(30, 42)
+
+[node name="Vendor" type="Node2D" unique_id=1592916993]
+y_sort_enabled = true
+script = ExtResource("1_s2er3")
+vendor_name = "The Fence"
+
+[node name="Interactable" parent="." unique_id=943757981 instance=ExtResource("2_7j6on")]
+prompt_text = "Sell"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Interactable" unique_id=224235904]
+position = Vector2(-1, 0)
+shape = SubResource("RectangleShape2D_wm8wc")
+
+[node name="Stock" type="Node" parent="." unique_id=849929404]
+script = ExtResource("3_tsdqa")

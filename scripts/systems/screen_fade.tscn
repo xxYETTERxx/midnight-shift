@@ -1,12 +1,12 @@
-[gd_scene load_steps=2 format=3 uid="uid://chx1e0doabrch"]
+[gd_scene format=3 uid="uid://chx1e0doabrch"]
 
-[ext_resource type="Script" path="res://scripts/systems/screen_fade.gd" id="1_ubpmb"]
+[ext_resource type="Script" uid="uid://blfmlssmo35vg" path="res://scripts/systems/screen_fade.gd" id="1_ubpmb"]
 
-[node name="ScreenFade" type="CanvasLayer"]
+[node name="ScreenFade" type="CanvasLayer" unique_id=1615162131]
 layer = 100
 script = ExtResource("1_ubpmb")
 
-[node name="Black" type="ColorRect" parent="."]
+[node name="Black" type="ColorRect" parent="." unique_id=1832898881]
 offset_right = 639.0
 offset_bottom = 358.0
 mouse_filter = 2

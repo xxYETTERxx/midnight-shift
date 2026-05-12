@@ -1,7 +1,7 @@
-[gd_resource type="Resource" script_class="ItemDef" load_steps=3 format=3 uid="uid://c4vygdwpfondj"]
+[gd_resource type="Resource" script_class="ItemDef" format=3 uid="uid://c4vygdwpfondj"]
 
 [ext_resource type="Texture2D" uid="uid://cs2sa8sgxx1x7" path="res://art/objects/Items/Tools/slim_jim.png" id="1_4tgbj"]
-[ext_resource type="Script" path="res://scripts/items/item_def.gd" id="1_xe5oh"]
+[ext_resource type="Script" uid="uid://2ndmr7htrd8w" path="res://scripts/items/item_def.gd" id="1_xe5oh"]
 
 [resource]
 script = ExtResource("1_xe5oh")
@@ -11,5 +11,3 @@ icon = ExtResource("1_4tgbj")
 max_stack = 1
 category = 0
 description = "When you lost your key"
-base_value = 0
-sellable = false

@@ -1,15 +1,13 @@
-[gd_resource type="Resource" script_class="ItemDef" load_steps=3 format=3 uid="uid://d3d1fny61k4im"]
+[gd_resource type="Resource" script_class="ItemDef" format=3 uid="uid://d3d1fny61k4im"]
 
 [ext_resource type="Texture2D" uid="uid://diw2u6i2kccdq" path="res://art/objects/Items/Loot/cigarette_pack.png" id="1_8mqqe"]
-[ext_resource type="Script" path="res://scripts/items/item_def.gd" id="1_w8a44"]
+[ext_resource type="Script" uid="uid://2ndmr7htrd8w" path="res://scripts/items/item_def.gd" id="1_w8a44"]
 
 [resource]
 script = ExtResource("1_w8a44")
 id = &"cigarette_pack"
 display_name = "Cigarette Pack"
 icon = ExtResource("1_8mqqe")
-max_stack = 99
 category = 3
-description = ""
 base_value = 4
 sellable = true

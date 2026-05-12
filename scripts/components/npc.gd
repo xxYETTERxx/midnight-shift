@@ -1,4 +1,5 @@
 @tool
+class_name NPC
 extends Node2D
 
 # Attach to the root of an NPC scene (e.g., your TestMale scene).

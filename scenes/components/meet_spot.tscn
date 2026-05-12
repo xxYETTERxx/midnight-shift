@@ -1,6 +1,6 @@
-[gd_scene load_steps=2 format=3 uid="uid://ctijaiye5o1y2"]
+[gd_scene format=3 uid="uid://ctijaiye5o1y2"]
 
-[ext_resource type="Script" path="res://scripts/dealing/meet_spot.gd" id="1_cwlov"]
+[ext_resource type="Script" uid="uid://chulqp6xolk2d" path="res://scripts/dealing/meet_spot.gd" id="1_cwlov"]
 
-[node name="MeetSpot" type="Node2D"]
+[node name="MeetSpot" type="Node2D" unique_id=2059674490]
 script = ExtResource("1_cwlov")

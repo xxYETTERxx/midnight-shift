@@ -1,27 +1,27 @@
-[gd_scene load_steps=11 format=3 uid="uid://da404duskch4p"]
+[gd_scene format=3 uid="uid://da404duskch4p"]
 
-[ext_resource type="Script" path="res://scenes/world.gd" id="1_cqg7b"]
-[ext_resource type="Script" path="res://scripts/ui/hud.gd" id="3_iit0o"]
-[ext_resource type="Script" path="res://scripts/ui/day_night_tint.gd" id="4_tnun7"]
-[ext_resource type="Script" path="res://scripts/ui/hotbar.gd" id="5_17trp"]
+[ext_resource type="Script" uid="uid://dttca7jxbuh8y" path="res://scenes/world.gd" id="1_cqg7b"]
+[ext_resource type="Script" uid="uid://518b0jaqhau2" path="res://scripts/ui/hud.gd" id="3_iit0o"]
+[ext_resource type="Script" uid="uid://b4gbp3vc8rlyo" path="res://scripts/ui/day_night_tint.gd" id="4_tnun7"]
+[ext_resource type="Script" uid="uid://b0d74aebk2dru" path="res://scripts/ui/hotbar.gd" id="5_17trp"]
 [ext_resource type="PackedScene" uid="uid://b317xfonelqtb" path="res://scenes/ui/inv_panel.tscn" id="5_ddauf"]
 [ext_resource type="PackedScene" uid="uid://5eqojybanbut" path="res://scenes/ui/vendor_panel.tscn" id="6_d8mhh"]
 [ext_resource type="PackedScene" uid="uid://by31gg3pe7bax" path="res://scenes/ui/pager_indicator.tscn" id="7_8job4"]
 [ext_resource type="PackedScene" uid="uid://bb6pf2kq7fvhq" path="res://scenes/ui/callback_panel.tscn" id="8_dfh1m"]
 [ext_resource type="PackedScene" uid="uid://sdrb2mo8mqmm" path="res://scenes/ui/appointment_panel.tscn" id="9_j81pg"]
-[ext_resource type="Script" path="res://scripts/ui/notification_label.gd" id="10_61ul8"]
+[ext_resource type="Script" uid="uid://ce3kux6bky6vb" path="res://scripts/ui/notification_label.gd" id="10_61ul8"]
 
-[node name="World" type="Node2D"]
+[node name="World" type="Node2D" unique_id=887836903]
 y_sort_enabled = true
 script = ExtResource("1_cqg7b")
 
-[node name="CurrentRoom" type="Node2D" parent="."]
+[node name="CurrentRoom" type="Node2D" parent="." unique_id=1385260298]
 y_sort_enabled = true
 
-[node name="HUD" type="CanvasLayer" parent="."]
+[node name="HUD" type="CanvasLayer" parent="." unique_id=438090895]
 script = ExtResource("3_iit0o")
 
-[node name="DayNightTint" type="ColorRect" parent="HUD"]
+[node name="DayNightTint" type="ColorRect" parent="HUD" unique_id=1241610764]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -31,7 +31,7 @@ mouse_filter = 2
 color = Color(0, 0, 0, 0)
 script = ExtResource("4_tnun7")
 
-[node name="RentDueLabel" type="Label" parent="HUD"]
+[node name="RentDueLabel" type="Label" parent="HUD" unique_id=182750691]
 offset_left = 268.0
 offset_top = 10.0
 offset_right = 424.0
@@ -39,7 +39,7 @@ offset_bottom = 33.0
 text = "Rent Due Tomorrow"
 horizontal_alignment = 1
 
-[node name="ClockLabel" type="Label" parent="HUD"]
+[node name="ClockLabel" type="Label" parent="HUD" unique_id=1022818317]
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
@@ -51,20 +51,20 @@ theme_override_colors/font_color = Color(0.858824, 0, 0, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 horizontal_alignment = 2
 
-[node name="CashLabel" type="Label" parent="HUD"]
+[node name="CashLabel" type="Label" parent="HUD" unique_id=1997635035]
 offset_left = 601.0
 offset_top = 76.0
 offset_right = 641.0
 offset_bottom = 99.0
 
-[node name="StaminaLabel" type="Label" parent="HUD"]
+[node name="StaminaLabel" type="Label" parent="HUD" unique_id=1423321396]
 offset_left = 525.0
 offset_top = 51.0
 offset_right = 640.0
 offset_bottom = 74.0
 horizontal_alignment = 2
 
-[node name="InteractPrompt" type="Label" parent="HUD"]
+[node name="InteractPrompt" type="Label" parent="HUD" unique_id=795496228]
 anchors_preset = 7
 anchor_left = 0.5
 anchor_top = 1.0
@@ -80,7 +80,7 @@ pivot_offset = Vector2(0, -120)
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Hotbar" type="HBoxContainer" parent="HUD"]
+[node name="Hotbar" type="HBoxContainer" parent="HUD" unique_id=1520972948]
 anchors_preset = 7
 anchor_left = 0.5
 anchor_top = 1.0
@@ -94,21 +94,21 @@ grow_vertical = 0
 theme_override_constants/separation = 4
 script = ExtResource("5_17trp")
 
-[node name="InvPanel" parent="HUD" instance=ExtResource("5_ddauf")]
+[node name="InvPanel" parent="HUD" unique_id=1276004659 instance=ExtResource("5_ddauf")]
 
-[node name="VendorPanel" parent="HUD" instance=ExtResource("6_d8mhh")]
+[node name="VendorPanel" parent="HUD" unique_id=312657836 instance=ExtResource("6_d8mhh")]
 
-[node name="PagerIndicator" parent="HUD" instance=ExtResource("7_8job4")]
+[node name="PagerIndicator" parent="HUD" unique_id=2099724978 instance=ExtResource("7_8job4")]
 offset_left = 576.0
 offset_top = 111.0
 offset_right = 576.0
 offset_bottom = 111.0
 
-[node name="CallbackPanel" parent="HUD" instance=ExtResource("8_dfh1m")]
+[node name="CallbackPanel" parent="HUD" unique_id=2008453775 instance=ExtResource("8_dfh1m")]
 
-[node name="AppointmentPanel" parent="HUD" instance=ExtResource("9_j81pg")]
+[node name="AppointmentPanel" parent="HUD" unique_id=1298381124 instance=ExtResource("9_j81pg")]
 
-[node name="NotificationLabel" type="VBoxContainer" parent="HUD"]
+[node name="NotificationLabel" type="VBoxContainer" parent="HUD" unique_id=1468322041]
 custom_minimum_size = Vector2(200, 0)
 offset_left = 220.0
 offset_top = 3.0
@@ -117,7 +117,7 @@ offset_bottom = 43.0
 mouse_filter = 2
 script = ExtResource("10_61ul8")
 
-[node name="SkillDebug" type="Label" parent="HUD"]
+[node name="SkillDebug" type="Label" parent="HUD" unique_id=1781553279]
 offset_left = 3.0
 offset_top = 1.0
 offset_right = 207.0

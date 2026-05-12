@@ -1,6 +1,6 @@
-[gd_scene load_steps=15 format=3 uid="uid://tomsw2vi2igv"]
+[gd_scene format=3 uid="uid://tomsw2vi2igv"]
 
-[ext_resource type="Script" path="res://scripts/components/pot.gd" id="1_w7u4a"]
+[ext_resource type="Script" uid="uid://dhkydro4g00gm" path="res://scripts/components/pot.gd" id="1_w7u4a"]
 [ext_resource type="Texture2D" uid="uid://dudb4nvmmanng" path="res://art/objects/Placeables/Interactable/EmptyPot1.png" id="2_8pixd"]
 [ext_resource type="PackedScene" uid="uid://l6jfg123c1fw" path="res://scenes/components/interactable.tscn" id="3_lp7el"]
 [ext_resource type="Texture2D" uid="uid://wama0u8prjfv" path="res://art/objects/Placeables/Interactable/EmptyPotSoil.png" id="3_rshcp"]
@@ -11,7 +11,7 @@
 [ext_resource type="Texture2D" uid="uid://bkwaoe4256j6c" path="res://art/objects/Placeables/Interactable/PlantGrowCycle5.png" id="7_apfb1"]
 [ext_resource type="Texture2D" uid="uid://b8irwhcq1ss1s" path="res://art/objects/Placeables/Interactable/PlantGrowCycle6.png" id="8_pkl6v"]
 [ext_resource type="Texture2D" uid="uid://c5vaiphnvs8n" path="res://art/icons/Checkmark.png" id="9_cvh8f"]
-[ext_resource type="Script" path="res://scripts/components/plot_interactable.gd" id="10_5fyw5"]
+[ext_resource type="Script" uid="uid://bhma1gna8vilt" path="res://scripts/components/plot_interactable.gd" id="10_5fyw5"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_p0fqp"]
 size = Vector2(16, 5)
@@ -19,36 +19,36 @@ size = Vector2(16, 5)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_a2f56"]
 size = Vector2(27, 31)
 
-[node name="Pot" type="Node2D"]
+[node name="Pot" type="Node2D" unique_id=498127639]
 script = ExtResource("1_w7u4a")
 empty_texture = ExtResource("2_8pixd")
 soiled_texture = ExtResource("3_rshcp")
 plant_stage_textures = Array[Texture2D]([ExtResource("4_ffwkl"), ExtResource("5_fnkyi"), ExtResource("6_i3wb6"), ExtResource("6_gyqrq"), ExtResource("7_apfb1"), ExtResource("8_pkl6v")])
 
-[node name="ContainerSprite" type="Sprite2D" parent="."]
+[node name="ContainerSprite" type="Sprite2D" parent="." unique_id=1138973680]
 scale = Vector2(0.5, 0.5)
 offset = Vector2(0, -26)
 
-[node name="PlantSprite" type="Sprite2D" parent="."]
+[node name="PlantSprite" type="Sprite2D" parent="." unique_id=972767186]
 scale = Vector2(0.8, 0.8)
 offset = Vector2(0, -52)
 
-[node name="WateredMark" type="Sprite2D" parent="."]
+[node name="WateredMark" type="Sprite2D" parent="." unique_id=725354404]
 texture = ExtResource("9_cvh8f")
 
-[node name="StaticBody2D" type="StaticBody2D" parent="."]
+[node name="StaticBody2D" type="StaticBody2D" parent="." unique_id=215713940]
 collision_mask = 0
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D" unique_id=733392935]
 position = Vector2(0, -20.5)
 shape = SubResource("RectangleShape2D_p0fqp")
 
-[node name="Interactable" parent="." instance=ExtResource("3_lp7el")]
+[node name="Interactable" parent="." unique_id=1091486233 instance=ExtResource("3_lp7el")]
 script = ExtResource("10_5fyw5")
 pot = NodePath("..")
 prompt_text = "Tend Pot"
 interact_priority = 80
 
-[node name="CollisionShape2D2" type="CollisionShape2D" parent="Interactable"]
+[node name="CollisionShape2D2" type="CollisionShape2D" parent="Interactable" unique_id=1046708844]
 position = Vector2(0, -9)
 shape = SubResource("RectangleShape2D_a2f56")

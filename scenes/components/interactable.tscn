@@ -1,8 +1,8 @@
-[gd_scene load_steps=2 format=3 uid="uid://l6jfg123c1fw"]
+[gd_scene format=3 uid="uid://l6jfg123c1fw"]
 
-[ext_resource type="Script" path="res://scripts/components/interactable.gd" id="1_6t8v8"]
+[ext_resource type="Script" uid="uid://djllug4nykw38" path="res://scripts/components/interactable.gd" id="1_6t8v8"]
 
-[node name="Interactable" type="Area2D"]
+[node name="Interactable" type="Area2D" unique_id=702434313]
 collision_layer = 8
 collision_mask = 2
 monitorable = false

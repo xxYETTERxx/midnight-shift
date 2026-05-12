@@ -1,23 +1,23 @@
-[gd_scene load_steps=5 format=3 uid="uid://hw82pd7bflqo"]
+[gd_scene format=3 uid="uid://hw82pd7bflqo"]
 
 [ext_resource type="Texture2D" uid="uid://wtkrdt5qun1h" path="res://art/objects/Interactables/PayPhoneStyle1.png" id="1_js0cm"]
-[ext_resource type="Script" path="res://scripts/components/payphone.gd" id="1_kwgfd"]
+[ext_resource type="Script" uid="uid://b87crvcod2ie4" path="res://scripts/components/payphone.gd" id="1_kwgfd"]
 [ext_resource type="PackedScene" uid="uid://l6jfg123c1fw" path="res://scenes/components/interactable.tscn" id="2_dkgso"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_5uupw"]
 size = Vector2(20, 25)
 
-[node name="Payphone" type="Node2D"]
+[node name="Payphone" type="Node2D" unique_id=1556260754]
 y_sort_enabled = true
 script = ExtResource("1_kwgfd")
 
-[node name="Sprite2D" type="Sprite2D" parent="."]
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1542110979]
 y_sort_enabled = true
 texture = ExtResource("1_js0cm")
 
-[node name="Interactable" parent="." instance=ExtResource("2_dkgso")]
+[node name="Interactable" parent="." unique_id=19325871 instance=ExtResource("2_dkgso")]
 prompt_text = "Use Phone"
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Interactable"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Interactable" unique_id=1079521650]
 position = Vector2(0, 8.5)
 shape = SubResource("RectangleShape2D_5uupw")

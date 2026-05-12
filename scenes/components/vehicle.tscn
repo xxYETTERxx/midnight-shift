@@ -1,6 +1,6 @@
-[gd_scene load_steps=7 format=3 uid="uid://cdymw0jnxmehk"]
+[gd_scene format=3 uid="uid://cdymw0jnxmehk"]
 
-[ext_resource type="Script" path="res://scripts/components/lootable_car.gd" id="1_2gn1q"]
+[ext_resource type="Script" uid="uid://maoiajjyf4lu" path="res://scripts/components/lootable_car.gd" id="1_2gn1q"]
 [ext_resource type="Resource" uid="uid://dbhqoagkykuit" path="res://data/loot_tables/car_tier_0.tres" id="2_0hgty"]
 [ext_resource type="Texture2D" uid="uid://xpsoqvbo4d18" path="res://art/objects/Interactables/Vehicles/Car1Orange.png" id="2_qu3wy"]
 [ext_resource type="PackedScene" uid="uid://l6jfg123c1fw" path="res://scenes/components/interactable.tscn" id="3_p8c1m"]
@@ -11,27 +11,27 @@ size = Vector2(20, 96)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_7a6hb"]
 size = Vector2(144, 22)
 
-[node name="Vehicle" type="Node2D"]
+[node name="Vehicle" type="Node2D" unique_id=1295389725]
 y_sort_enabled = true
 script = ExtResource("1_2gn1q")
 loot_table = ExtResource("2_0hgty")
 
-[node name="Sprite" type="Sprite2D" parent="."]
+[node name="Sprite" type="Sprite2D" parent="." unique_id=446017498]
 texture = ExtResource("2_qu3wy")
 
-[node name="Interactable" parent="." instance=ExtResource("3_p8c1m")]
+[node name="Interactable" parent="." unique_id=1638477793 instance=ExtResource("3_p8c1m")]
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Interactable"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Interactable" unique_id=969349754]
 position = Vector2(-9, 4)
 shape = SubResource("RectangleShape2D_q3ygr")
 
-[node name="StaticBody2D" type="StaticBody2D" parent="."]
+[node name="StaticBody2D" type="StaticBody2D" parent="." unique_id=250869043]
 position = Vector2(287, -45)
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D" unique_id=407795360]
 position = Vector2(-287, 50)
 shape = SubResource("RectangleShape2D_7a6hb")
 
-[node name="ProgressBar" type="ProgressBar" parent="."]
+[node name="ProgressBar" type="ProgressBar" parent="." unique_id=392351955]
 offset_right = 4.0
 offset_bottom = 27.0

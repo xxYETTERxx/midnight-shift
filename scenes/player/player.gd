@@ -313,7 +313,6 @@ func _begin_vault(dir_vec: Vector2i, tier: int, landing_distance: int) -> void:
 	var duration: float = VAULT_DURATION_BY_TIER[clampi(tier, 0, VAULT_DURATION_BY_TIER.size() - 1)]
 	var arc_height: float = VAULT_ARC_HEIGHT_BY_TIER[clampi(tier, 0, VAULT_ARC_HEIGHT_BY_TIER.size() - 1)]
 	
-	var sort_offset: float = arc_height
 	
 	# Animation, scaled to match duration.
 	var anim_name := "vault_" + last_direction
@@ -337,12 +336,17 @@ func _begin_vault(dir_vec: Vector2i, tier: int, landing_distance: int) -> void:
 	var arc_tween := create_tween()
 	arc_tween.set_parallel(false)
 	var sprite_base_y: float = sprite.position.y
-	arc_tween.tween_method(_apply_vault_arc.bind(sprite_base_y, arc_height), 0.0, 1.0, duration)
+	arc_tween.tween_method(_apply_vault_arc.bind(sprite_base_y, arc_height, dir_vec.y), 0.0, 1.0, duration)
 	arc_tween.tween_callback(func(): sprite.position.y = sprite_base_y)
 
-func _apply_vault_arc(t: float, base_y: float, arc_height: float) -> void:
+func _apply_vault_arc(t: float, base_y: float, arc_height: float, dir_y: int) -> void:
 	var arc: float = sin(t * PI) * arc_height
 	sprite.position.y = base_y - arc
+	
+	if dir_y < 0:
+		z_index = 10 if t < 0.5 else -10
+	elif dir_y > 0:
+		z_index = -10 if t < 0.5 else 10
 
 
 func _complete_vault(tier: int, collision: CollisionShape2D) -> void:
@@ -352,6 +356,7 @@ func _complete_vault(tier: int, collision: CollisionShape2D) -> void:
 	spend_stamina(VAULT_STAMINA_COST)
 	if tier >= 0 and tier < VAULT_XP_BY_TIER.size():
 		PlayerSkills.adjust(&"athletics", VAULT_XP_BY_TIER[tier])
+	z_index = 0
 
 
 func _direction_vector(dir: String) -> Vector2i:

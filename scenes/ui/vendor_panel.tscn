@@ -1,8 +1,8 @@
-[gd_scene load_steps=2 format=3 uid="uid://5eqojybanbut"]
+[gd_scene format=3 uid="uid://5eqojybanbut"]
 
-[ext_resource type="Script" path="res://scripts/ui/vendor_panel.gd" id="1_y5e6c"]
+[ext_resource type="Script" uid="uid://cx3am3cm3iojl" path="res://scripts/ui/vendor_panel.gd" id="1_y5e6c"]
 
-[node name="VendorPanel" type="Control"]
+[node name="VendorPanel" type="Control" unique_id=1947525258]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -11,53 +11,53 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_y5e6c")
 
-[node name="PanelContainer" type="PanelContainer" parent="."]
+[node name="PanelContainer" type="PanelContainer" parent="." unique_id=1515578280]
 layout_mode = 0
 offset_left = 2.0
 offset_right = 137.0
 offset_bottom = 93.0
 
-[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer" unique_id=585847200]
 layout_mode = 2
 
-[node name="PlayerTitle" type="Label" parent="PanelContainer/VBoxContainer"]
+[node name="PlayerTitle" type="Label" parent="PanelContainer/VBoxContainer" unique_id=1994943509]
 layout_mode = 2
 text = "Player"
 horizontal_alignment = 1
 
-[node name="PlayerGrid" type="GridContainer" parent="PanelContainer/VBoxContainer"]
+[node name="PlayerGrid" type="GridContainer" parent="PanelContainer/VBoxContainer" unique_id=489717496]
 layout_mode = 2
 columns = 12
 
-[node name="VendorTitle" type="Label" parent="PanelContainer/VBoxContainer"]
+[node name="VendorTitle" type="Label" parent="PanelContainer/VBoxContainer" unique_id=1761746710]
 layout_mode = 2
 horizontal_alignment = 1
 
-[node name="VendorGrid" type="GridContainer" parent="PanelContainer/VBoxContainer"]
+[node name="VendorGrid" type="GridContainer" parent="PanelContainer/VBoxContainer" unique_id=647773435]
 layout_mode = 2
 columns = 12
 
-[node name="InfoRow" type="HBoxContainer" parent="PanelContainer/VBoxContainer"]
+[node name="InfoRow" type="HBoxContainer" parent="PanelContainer/VBoxContainer" unique_id=775218518]
 layout_mode = 2
 
-[node name="BalanceLabel" type="Label" parent="PanelContainer/VBoxContainer/InfoRow"]
+[node name="BalanceLabel" type="Label" parent="PanelContainer/VBoxContainer/InfoRow" unique_id=1016283661]
 layout_mode = 2
 
-[node name="PriceLabel" type="Label" parent="PanelContainer/VBoxContainer/InfoRow"]
+[node name="PriceLabel" type="Label" parent="PanelContainer/VBoxContainer/InfoRow" unique_id=250560417]
 layout_mode = 2
 
-[node name="ButtonRow" type="HBoxContainer" parent="PanelContainer/VBoxContainer"]
+[node name="ButtonRow" type="HBoxContainer" parent="PanelContainer/VBoxContainer" unique_id=1026144094]
 layout_mode = 2
 
-[node name="ConfirmButton" type="Button" parent="PanelContainer/VBoxContainer/ButtonRow"]
+[node name="ConfirmButton" type="Button" parent="PanelContainer/VBoxContainer/ButtonRow" unique_id=621753601]
 layout_mode = 2
 text = "Confirm"
 
-[node name="CancelButton" type="Button" parent="PanelContainer/VBoxContainer/ButtonRow"]
+[node name="CancelButton" type="Button" parent="PanelContainer/VBoxContainer/ButtonRow" unique_id=840914103]
 layout_mode = 2
 text = "Cancel"
 
-[node name="NetLabel" type="Label" parent="PanelContainer/VBoxContainer/ButtonRow"]
+[node name="NetLabel" type="Label" parent="PanelContainer/VBoxContainer/ButtonRow" unique_id=553065278]
 layout_mode = 2
 horizontal_alignment = 2
 vertical_alignment = 2

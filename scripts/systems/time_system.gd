@@ -137,6 +137,11 @@ func _advance_one_minute() -> void:
 
 	if day_of_month() != old_day:
 		day_rolled.emit(day_of_week(), day_of_month())
+		
+func current_fractional_minute() -> float:
+	if real_seconds_per_minute <= 0.0:
+		return float(total_minutes)
+	return float(total_minutes) + (_real_time_accumulator / real_seconds_per_minute)
 
 # --- Save System ---------------------------------------------------
 func save_state() -> Dictionary:
@@ -150,3 +155,4 @@ func load_state(data: Dictionary) -> void:
 	_real_time_accumulator = 0.0
 	# Emit a tick so the HUD refreshes
 	minute_tick.emit(total_minutes)
+	

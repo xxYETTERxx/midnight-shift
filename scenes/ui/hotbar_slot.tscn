@@ -1,20 +1,20 @@
-[gd_scene load_steps=2 format=3 uid="uid://b3rcmfy177x5o"]
+[gd_scene format=3 uid="uid://b3rcmfy177x5o"]
 
-[ext_resource type="Script" path="res://scripts/ui/hotbar_slot.gd" id="1_rgd5a"]
+[ext_resource type="Script" uid="uid://ckd3x1qkiflw0" path="res://scripts/ui/hotbar_slot.gd" id="1_rgd5a"]
 
-[node name="HotbarSlot" type="PanelContainer"]
+[node name="HotbarSlot" type="PanelContainer" unique_id=85392358]
 custom_minimum_size = Vector2(32, 32)
 offset_right = 32.0
 offset_bottom = 32.0
 script = ExtResource("1_rgd5a")
 
-[node name="Icon" type="TextureRect" parent="."]
+[node name="Icon" type="TextureRect" parent="." unique_id=106199348]
 texture_filter = 1
 layout_mode = 2
 mouse_filter = 2
 stretch_mode = 5
 
-[node name="Count" type="Label" parent="."]
+[node name="Count" type="Label" parent="." unique_id=749288395]
 layout_mode = 2
 size_flags_horizontal = 8
 size_flags_vertical = 8

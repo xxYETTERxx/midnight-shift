@@ -1,27 +1,27 @@
-[gd_scene load_steps=5 format=3 uid="uid://by31gg3pe7bax"]
+[gd_scene format=3 uid="uid://by31gg3pe7bax"]
 
-[ext_resource type="Script" path="res://scripts/dealing/pager_indicator.gd" id="1_4kb5c"]
+[ext_resource type="Script" uid="uid://dcpjlxwis1hku" path="res://scripts/dealing/pager_indicator.gd" id="1_4kb5c"]
 [ext_resource type="Texture2D" uid="uid://bkdrxr28lrw5u" path="res://art/icons/pager1.png" id="2_mu0pa"]
 [ext_resource type="AudioStream" uid="uid://r6kr8sc8l3m1" path="res://audio/effects/beep1.wav" id="3_fth2s"]
 [ext_resource type="Texture2D" uid="uid://dlmxpacg8auca" path="res://art/icons/pager2.png" id="3_ji7kw"]
 
-[node name="PagerIndicator" type="Control"]
+[node name="PagerIndicator" type="Control" unique_id=418833465]
 layout_mode = 3
 anchors_preset = 0
 script = ExtResource("1_4kb5c")
 off_texture = ExtResource("2_mu0pa")
 on_texture = ExtResource("3_ji7kw")
 
-[node name="Icon" type="TextureRect" parent="."]
+[node name="Icon" type="TextureRect" parent="." unique_id=1745293927]
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
 texture = ExtResource("2_mu0pa")
 
-[node name="CountLabel" type="Label" parent="."]
+[node name="CountLabel" type="Label" parent="." unique_id=1512498938]
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 23.0
 
-[node name="BeepPlayer" type="AudioStreamPlayer" parent="."]
+[node name="BeepPlayer" type="AudioStreamPlayer" parent="." unique_id=2060706523]
 stream = ExtResource("3_fth2s")

@@ -1,6 +1,6 @@
-[gd_scene load_steps=64 format=3 uid="uid://cb8eiu5us6cm5"]
+[gd_scene format=3 uid="uid://cb8eiu5us6cm5"]
 
-[ext_resource type="Script" path="res://scenes/player/player.gd" id="1_6aav1"]
+[ext_resource type="Script" uid="uid://d2yqo4hiups23" path="res://scenes/player/player.gd" id="1_6aav1"]
 [ext_resource type="Texture2D" uid="uid://cs27rl82ou0s1" path="res://art/sprites/player/Vaulting/vault_N.png" id="2_2di4m"]
 [ext_resource type="Texture2D" uid="uid://dhi3jffh231k3" path="res://art/sprites/player/Walking/player_walk_e.png" id="2_c77pq"]
 [ext_resource type="Texture2D" uid="uid://bme5rlt78riuo" path="res://art/sprites/player/Vaulting/vault_E.png" id="2_fwadc"]
@@ -9,7 +9,7 @@
 [ext_resource type="Texture2D" uid="uid://u2mci75r8sew" path="res://art/sprites/player/Walking/player_walk_n.png" id="3_q36cb"]
 [ext_resource type="Texture2D" uid="uid://b6oqy6yulg8bp" path="res://art/sprites/player/Walking/player_walk_s.png" id="4_dvxcf"]
 [ext_resource type="Texture2D" uid="uid://dpq3lii3ib2kg" path="res://art/sprites/player/Walking/player_walk_w.png" id="5_ch73g"]
-[ext_resource type="Script" path="res://scripts/items/inventory.gd" id="6_kn266"]
+[ext_resource type="Script" uid="uid://c40xv63xv46i2" path="res://scripts/items/inventory.gd" id="6_kn266"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_xkplm"]
 atlas = ExtResource("2_fwadc")
@@ -414,25 +414,25 @@ animations = [{
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_422xk"]
 size = Vector2(15, 22)
 
-[node name="Player" type="CharacterBody2D" groups=["player"]]
+[node name="Player" type="CharacterBody2D" unique_id=2028631120 groups=["player"]]
 y_sort_enabled = true
 collision_layer = 2
 script = ExtResource("1_6aav1")
 speed = 120.0
 
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=222948961]
 position = Vector2(0, -24)
 sprite_frames = SubResource("SpriteFrames_65utx")
 animation = &"vault_e"
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1490109494]
 position = Vector2(0, -19)
 shape = SubResource("RectangleShape2D_422xk")
 
-[node name="Camera2D" type="Camera2D" parent="."]
+[node name="Camera2D" type="Camera2D" parent="." unique_id=1406530807]
 position_smoothing_enabled = true
 
-[node name="Inventory" type="Node2D" parent="."]
+[node name="Inventory" type="Node2D" parent="." unique_id=1854469265]
 script = ExtResource("6_kn266")
 
-[node name="FeetAnchor" type="Marker2D" parent="."]
+[node name="FeetAnchor" type="Marker2D" parent="." unique_id=516540171]

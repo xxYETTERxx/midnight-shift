@@ -1,8 +1,8 @@
-[gd_scene load_steps=2 format=3 uid="uid://bb6pf2kq7fvhq"]
+[gd_scene format=3 uid="uid://bb6pf2kq7fvhq"]
 
-[ext_resource type="Script" path="res://scripts/ui/callback_panel.gd" id="1_cyp6y"]
+[ext_resource type="Script" uid="uid://c51hvx36agq6k" path="res://scripts/ui/callback_panel.gd" id="1_cyp6y"]
 
-[node name="CallbackPanel" type="Control"]
+[node name="CallbackPanel" type="Control" unique_id=227763905]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -11,24 +11,24 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_cyp6y")
 
-[node name="PanelContainer" type="PanelContainer" parent="."]
+[node name="PanelContainer" type="PanelContainer" parent="." unique_id=1274758033]
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
 
-[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer" unique_id=1254771341]
 layout_mode = 2
 
-[node name="Title" type="Label" parent="PanelContainer/VBoxContainer"]
+[node name="Title" type="Label" parent="PanelContainer/VBoxContainer" unique_id=1707500846]
 layout_mode = 2
 text = "Payphone"
 
-[node name="PageList" type="VBoxContainer" parent="PanelContainer/VBoxContainer"]
+[node name="PageList" type="VBoxContainer" parent="PanelContainer/VBoxContainer" unique_id=1800082522]
 layout_mode = 2
 
-[node name="Status" type="Label" parent="PanelContainer/VBoxContainer"]
+[node name="Status" type="Label" parent="PanelContainer/VBoxContainer" unique_id=1021858118]
 layout_mode = 2
 
-[node name="CloseButton" type="Button" parent="PanelContainer/VBoxContainer"]
+[node name="CloseButton" type="Button" parent="PanelContainer/VBoxContainer" unique_id=1839276660]
 layout_mode = 2
 text = "Hang Up"

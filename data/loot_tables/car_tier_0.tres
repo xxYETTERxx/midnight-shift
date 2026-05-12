@@ -1,35 +1,27 @@
-[gd_resource type="Resource" script_class="LootTable" load_steps=9 format=3 uid="uid://dbhqoagkykuit"]
+[gd_resource type="Resource" script_class="LootTable" format=3 uid="uid://dbhqoagkykuit"]
 
 [ext_resource type="Resource" uid="uid://m1dymf8u7d1" path="res://data/items/loose_change.tres" id="1_swhvm"]
-[ext_resource type="Script" path="res://scripts/items/loot_table.gd" id="1_yksnb"]
-[ext_resource type="Script" path="res://scripts/items/loot_table_entry.gd" id="2_pd8x8"]
+[ext_resource type="Script" uid="uid://bhvj6yn2k0c8b" path="res://scripts/items/loot_table.gd" id="1_yksnb"]
+[ext_resource type="Script" uid="uid://dndj8rbs0qhgm" path="res://scripts/items/loot_table_entry.gd" id="2_pd8x8"]
 [ext_resource type="Resource" uid="uid://cs4u45qelwlui" path="res://data/items/lighter.tres" id="3_iblvt"]
 [ext_resource type="Resource" uid="uid://d3d1fny61k4im" path="res://data/items/cigarette_pack.tres" id="4_j6j0k"]
 
 [sub_resource type="Resource" id="Resource_1p6rp"]
 script = ExtResource("2_pd8x8")
 item = ExtResource("1_swhvm")
-count_min = 1
 count_max = 5
 weight = 4.0
 
 [sub_resource type="Resource" id="Resource_cg405"]
 script = ExtResource("2_pd8x8")
 item = ExtResource("3_iblvt")
-count_min = 1
-count_max = 1
 weight = 1.5
 
 [sub_resource type="Resource" id="Resource_q6bd8"]
 script = ExtResource("2_pd8x8")
 item = ExtResource("4_j6j0k")
-count_min = 1
-count_max = 1
-weight = 1.0
 
 [resource]
 script = ExtResource("1_yksnb")
 entries = Array[ExtResource("2_pd8x8")]([SubResource("Resource_1p6rp"), SubResource("Resource_cg405"), SubResource("Resource_q6bd8")])
-rolls_min = 1
-rolls_max = 2
 empty_chance = 0.3

@@ -1,15 +1,13 @@
-[gd_resource type="Resource" script_class="ItemDef" load_steps=3 format=3 uid="uid://cs4u45qelwlui"]
+[gd_resource type="Resource" script_class="ItemDef" format=3 uid="uid://cs4u45qelwlui"]
 
 [ext_resource type="Texture2D" uid="uid://c6b2ok6bjrpfl" path="res://art/objects/Items/Loot/lighter.png" id="1_rduab"]
-[ext_resource type="Script" path="res://scripts/items/item_def.gd" id="1_sa1xr"]
+[ext_resource type="Script" uid="uid://2ndmr7htrd8w" path="res://scripts/items/item_def.gd" id="1_sa1xr"]
 
 [resource]
 script = ExtResource("1_sa1xr")
 id = &"lighter"
 display_name = "Lighter"
 icon = ExtResource("1_rduab")
-max_stack = 99
 category = 6
-description = ""
 base_value = 2
 sellable = true

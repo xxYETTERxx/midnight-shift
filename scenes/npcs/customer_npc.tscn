@@ -1,22 +1,22 @@
-[gd_scene load_steps=5 format=3 uid="uid://bo3p7c4kysecc"]
+[gd_scene format=3 uid="uid://bo3p7c4kysecc"]
 
-[ext_resource type="Script" path="res://scripts/dealing/customer_npc.gd" id="1_p0lx7"]
+[ext_resource type="Script" uid="uid://ctkxjb70wepqh" path="res://scripts/dealing/customer_npc.gd" id="1_p0lx7"]
 [ext_resource type="PackedScene" uid="uid://l6jfg123c1fw" path="res://scenes/components/interactable.tscn" id="2_2exq4"]
 [ext_resource type="Texture2D" uid="uid://bs7tq2i1qfskw" path="res://art/sprites/NPCs/Customers/HeavyRedHead2.png" id="2_jmikf"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_0hp6l"]
 size = Vector2(47, 56)
 
-[node name="CustomerNpc" type="Node2D"]
+[node name="CustomerNpc" type="Node2D" unique_id=1297495291]
 script = ExtResource("1_p0lx7")
 
-[node name="Sprite2D" type="Sprite2D" parent="."]
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1971685663]
 texture = ExtResource("2_jmikf")
 
-[node name="Interactable" parent="." instance=ExtResource("2_2exq4")]
+[node name="Interactable" parent="." unique_id=1729202130 instance=ExtResource("2_2exq4")]
 prompt_text = "Talk"
 interact_priority = 40
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Interactable"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Interactable" unique_id=125489113]
 position = Vector2(1.5, 3)
 shape = SubResource("RectangleShape2D_0hp6l")

@@ -1,6 +1,6 @@
-[gd_resource type="Resource" script_class="CallingCardDef" load_steps=3 format=3 uid="uid://xlgh2akouke6"]
+[gd_resource type="Resource" script_class="CallingCardDef" format=3 uid="uid://xlgh2akouke6"]
 
-[ext_resource type="Script" path="res://scripts/items/calling_card_def.gd" id="1_bg1q6"]
+[ext_resource type="Script" uid="uid://blng6elvvx0h" path="res://scripts/items/calling_card_def.gd" id="1_bg1q6"]
 [ext_resource type="Texture2D" uid="uid://devgefcrmf1wg" path="res://art/objects/Items/Consumable/calling_card.png" id="1_qe108"]
 
 [resource]
@@ -11,6 +11,5 @@ display_name = "120-Min Calling Card"
 icon = ExtResource("1_qe108")
 max_stack = 1
 category = 6
-description = ""
 base_value = 5
 sellable = true

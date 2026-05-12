@@ -1,15 +1,13 @@
-[gd_resource type="Resource" script_class="ItemDef" load_steps=3 format=3 uid="uid://oarmelcb0vo5"]
+[gd_resource type="Resource" script_class="ItemDef" format=3 uid="uid://oarmelcb0vo5"]
 
-[ext_resource type="Texture2D" uid="uid://jplu6g74diup" path="res://art/objects/weed_seed.png" id="1_hdxll"]
-[ext_resource type="Script" path="res://scripts/items/item_def.gd" id="1_ieewl"]
+[ext_resource type="Texture2D" uid="uid://jplu6g74diup" path="res://art/objects/Items/Consumable/weed_seed.png" id="1_hdxll"]
+[ext_resource type="Script" uid="uid://2ndmr7htrd8w" path="res://scripts/items/item_def.gd" id="1_ieewl"]
 
 [resource]
 script = ExtResource("1_ieewl")
 id = &"weed_seed"
 display_name = "Weed Seed"
 icon = ExtResource("1_hdxll")
-max_stack = 99
 category = 1
 description = "A single seed"
 base_value = 10
-sellable = false

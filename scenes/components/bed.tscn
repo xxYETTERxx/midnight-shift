@@ -1,6 +1,6 @@
-[gd_scene load_steps=6 format=3 uid="uid://yyg1vmqtao4e"]
+[gd_scene format=3 uid="uid://yyg1vmqtao4e"]
 
-[ext_resource type="Script" path="res://scripts/components/bed.gd" id="1_aiwdn"]
+[ext_resource type="Script" uid="uid://b0d2v15avvok1" path="res://scripts/components/bed.gd" id="1_aiwdn"]
 [ext_resource type="Texture2D" uid="uid://5vgvosh3kwvv" path="res://art/objects/Placeables/Decoration/single_bed_unkept_lightly_st.png" id="2_6qrhk"]
 [ext_resource type="PackedScene" uid="uid://l6jfg123c1fw" path="res://scenes/components/interactable.tscn" id="3_jigvk"]
 
@@ -10,26 +10,26 @@ size = Vector2(20, 11)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_edhyj"]
 size = Vector2(26, 4)
 
-[node name="Bed" type="Node2D"]
+[node name="Bed" type="Node2D" unique_id=1771853149]
 script = ExtResource("1_aiwdn")
 
-[node name="Sprite2D" type="Sprite2D" parent="."]
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=2067028927]
 position = Vector2(3, -19)
 texture = ExtResource("2_6qrhk")
 
-[node name="Interactable" parent="." instance=ExtResource("3_jigvk")]
+[node name="Interactable" parent="." unique_id=1462871556 instance=ExtResource("3_jigvk")]
 position = Vector2(0, -19)
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Interactable"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Interactable" unique_id=351054711]
 position = Vector2(0, -1.5)
 shape = SubResource("RectangleShape2D_nvogo")
 
-[node name="WakeSpot" type="Marker2D" parent="."]
+[node name="WakeSpot" type="Marker2D" parent="." unique_id=1113180362]
 position = Vector2(-34, -18)
 
-[node name="StaticBody2D" type="StaticBody2D" parent="."]
+[node name="StaticBody2D" type="StaticBody2D" parent="." unique_id=1192510255]
 position = Vector2(-1, 0)
 
-[node name="Head" type="CollisionShape2D" parent="StaticBody2D"]
+[node name="Head" type="CollisionShape2D" parent="StaticBody2D" unique_id=1246763998]
 position = Vector2(1, -42)
 shape = SubResource("RectangleShape2D_edhyj")

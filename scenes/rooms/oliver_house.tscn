@@ -1,0 +1,57 @@
+[gd_scene format=3 uid="uid://o7jxk2hvlbkh"]
+
+[ext_resource type="TileSet" uid="uid://bjb71lebq7nab" path="res://data/tilesets/InteriorWall.tres" id="1_cc6gb"]
+[ext_resource type="PackedScene" uid="uid://cu0qiy18mj116" path="res://scenes/components/doorway.tscn" id="3_i4uwn"]
+[ext_resource type="PackedScene" uid="uid://c5k1isfwli6lh" path="res://scenes/components/waypoint.tscn" id="3_vifrg"]
+
+[node name="OliverHouse" type="Node2D" unique_id=229554476]
+
+[node name="WallsTop" type="TileMap" parent="." unique_id=895460170]
+z_index = 1
+y_sort_enabled = true
+tile_set = ExtResource("1_cc6gb")
+format = 2
+layer_0/y_sort_enabled = true
+layer_0/y_sort_origin = 1
+layer_0/tile_data = PackedInt32Array(327686, 1114112, 2, 262150, 1114112, 2, 196614, 1114112, 2, 327694, 1245184, 2, 262158, 1245184, 2, 196622, 1245184, 2, 393223, 1179648, 3, 393224, 1179648, 3, 393225, 983040, 1, 393227, 1048576, 1, 393228, 1179648, 3, 393229, 1179648, 3, 393230, 1245184, 3, 393222, 1114112, 3, 131078, 1114112, 2, 65542, 1114112, 1, 65543, 786436, 16, 65544, 786436, 16, 65545, 786436, 16, 65546, 786436, 16, 65547, 786436, 16, 65548, 786436, 16, 65549, 786436, 16, 65550, 1245184, 1, 131086, 1245184, 2)
+
+[node name="WallsBase" type="TileMap" parent="." unique_id=159858449]
+y_sort_enabled = true
+tile_set = ExtResource("1_cc6gb")
+format = 2
+layer_0/y_sort_enabled = true
+layer_0/tile_data = PackedInt32Array(131079, 786436, 17, 131080, 786436, 17, 131081, 786436, 17, 131082, 786436, 17, 131083, 786436, 17, 131084, 786436, 17, 131085, 786436, 17)
+
+[node name="Floor" type="TileMap" parent="." unique_id=778497895]
+tile_set = ExtResource("1_cc6gb")
+format = 2
+layer_0/tile_data = PackedInt32Array(196615, 393217, 19, 262151, 393217, 19, 327687, 393217, 19, 196616, 393217, 19, 262152, 393217, 19, 327688, 393217, 19, 196617, 393217, 19, 262153, 393217, 19, 327689, 393217, 19, 196618, 393217, 19, 262154, 393217, 19, 327690, 393217, 19, 393226, 393217, 19, 196619, 393217, 19, 262155, 393217, 19, 327691, 393217, 19, 196620, 393217, 19, 262156, 393217, 19, 327692, 393217, 19, 196621, 393217, 19, 262157, 393217, 19, 327693, 393217, 19)
+
+[node name="Decoration" type="TileMap" parent="." unique_id=1363052982]
+y_sort_enabled = true
+format = 2
+layer_0/y_sort_enabled = true
+
+[node name="Interactables" type="Node2D" parent="." unique_id=1893674895]
+
+[node name="Doorway" parent="Interactables" unique_id=1088734415 instance=ExtResource("3_i4uwn")]
+position = Vector2(336, 232)
+target_room = "uid://d04jjxj7h6l1p"
+target_spawn = "from_oliver_house"
+
+[node name="SpawnPoints" type="Node2D" parent="." unique_id=872235828]
+position = Vector2(5, 16)
+
+[node name="from_outside" type="Marker2D" parent="SpawnPoints" unique_id=816118304]
+position = Vector2(331, 153)
+
+[node name="NPCs" type="Node2D" parent="." unique_id=567148555]
+y_sort_enabled = true
+position = Vector2(4, -9)
+
+[node name="Waypoints" type="Node2D" parent="." unique_id=1838166636]
+
+[node name="living_room" parent="Waypoints" unique_id=1614579198 instance=ExtResource("3_vifrg")]
+position = Vector2(415, 119)
+waypoint_id = &"living_room"
+facing = "south"

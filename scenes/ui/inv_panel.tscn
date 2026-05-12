@@ -1,8 +1,8 @@
-[gd_scene load_steps=2 format=3 uid="uid://b317xfonelqtb"]
+[gd_scene format=3 uid="uid://b317xfonelqtb"]
 
-[ext_resource type="Script" path="res://scripts/ui/inventory_panel.gd" id="1_0vv6v"]
+[ext_resource type="Script" uid="uid://7au7qcuf8x3r" path="res://scripts/ui/inventory_panel.gd" id="1_0vv6v"]
 
-[node name="InvPanel" type="Control"]
+[node name="InvPanel" type="Control" unique_id=1471601748]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -15,7 +15,7 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_0vv6v")
 
-[node name="Background" type="ColorRect" parent="."]
+[node name="Background" type="ColorRect" parent="." unique_id=1064360199]
 layout_mode = 0
 offset_left = -12.0
 offset_top = -10.0
@@ -24,50 +24,50 @@ offset_bottom = 238.0
 mouse_filter = 2
 color = Color(0.32549, 0.396078, 0.490196, 0.854902)
 
-[node name="PanelContainer" type="PanelContainer" parent="."]
+[node name="PanelContainer" type="PanelContainer" parent="." unique_id=204363682]
 layout_direction = 1
 layout_mode = 1
 offset_right = 456.0
 offset_bottom = 225.0
 
-[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer" unique_id=914502048]
 layout_mode = 2
 
-[node name="Title" type="Label" parent="PanelContainer/VBoxContainer"]
+[node name="Title" type="Label" parent="PanelContainer/VBoxContainer" unique_id=1581981410]
 layout_mode = 2
 mouse_filter = 1
 text = "Inventory"
 horizontal_alignment = 1
 
-[node name="HotbarRow" type="HBoxContainer" parent="PanelContainer/VBoxContainer"]
+[node name="HotbarRow" type="HBoxContainer" parent="PanelContainer/VBoxContainer" unique_id=71367389]
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
 
-[node name="HSeparator" type="HSeparator" parent="PanelContainer/VBoxContainer"]
+[node name="HSeparator" type="HSeparator" parent="PanelContainer/VBoxContainer" unique_id=1460014879]
 layout_mode = 2
 
-[node name="BackpackGrid" type="GridContainer" parent="PanelContainer/VBoxContainer"]
+[node name="BackpackGrid" type="GridContainer" parent="PanelContainer/VBoxContainer" unique_id=897272166]
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
 columns = 12
 
-[node name="StorageTitle" type="Label" parent="PanelContainer/VBoxContainer"]
+[node name="StorageTitle" type="Label" parent="PanelContainer/VBoxContainer" unique_id=466582635]
 visible = false
 layout_mode = 2
 mouse_filter = 1
 text = "Stash Box"
 horizontal_alignment = 1
 
-[node name="StorageGrid" type="GridContainer" parent="PanelContainer/VBoxContainer"]
+[node name="StorageGrid" type="GridContainer" parent="PanelContainer/VBoxContainer" unique_id=1303102658]
 layout_direction = 1
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
 columns = 12
 
-[node name="CursorVisual" type="TextureRect" parent="."]
+[node name="CursorVisual" type="TextureRect" parent="." unique_id=1970879550]
 visible = false
 layout_mode = 0
 offset_right = 40.0

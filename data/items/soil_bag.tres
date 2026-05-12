@@ -1,6 +1,6 @@
-[gd_resource type="Resource" script_class="ItemDef" load_steps=3 format=3 uid="uid://crawqx1nri2v6"]
+[gd_resource type="Resource" script_class="ItemDef" format=3 uid="uid://crawqx1nri2v6"]
 
-[ext_resource type="Script" path="res://scripts/items/item_def.gd" id="1_0b3bo"]
+[ext_resource type="Script" uid="uid://2ndmr7htrd8w" path="res://scripts/items/item_def.gd" id="1_0b3bo"]
 [ext_resource type="Texture2D" uid="uid://c8dv0iu0p1scx" path="res://art/icons/bagofsoil.png" id="1_nfnmv"]
 
 [resource]
@@ -9,7 +9,5 @@ id = &"soil_bag"
 display_name = "Bag of Soil"
 icon = ExtResource("1_nfnmv")
 max_stack = 5
-category = 2
 description = "A 25-pound bag of potting soil"
 base_value = 5
-sellable = false

@@ -1,28 +1,28 @@
-[gd_scene load_steps=2 format=3 uid="uid://sdrb2mo8mqmm"]
+[gd_scene format=3 uid="uid://sdrb2mo8mqmm"]
 
-[ext_resource type="Script" path="res://scripts/ui/appointment_panel.gd" id="1_4si78"]
+[ext_resource type="Script" uid="uid://do018t2sxtju2" path="res://scripts/ui/appointment_panel.gd" id="1_4si78"]
 
-[node name="AppointmentPanel" type="Control"]
+[node name="AppointmentPanel" type="Control" unique_id=689811983]
 layout_mode = 3
 anchors_preset = 0
 script = ExtResource("1_4si78")
 
-[node name="PanelContainer" type="PanelContainer" parent="."]
+[node name="PanelContainer" type="PanelContainer" parent="." unique_id=1347931956]
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
 
-[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer" unique_id=123048695]
 layout_mode = 2
 
-[node name="Title" type="Label" parent="PanelContainer/VBoxContainer"]
+[node name="Title" type="Label" parent="PanelContainer/VBoxContainer" unique_id=1664109725]
 layout_mode = 2
 text = "Appointments"
 horizontal_alignment = 1
 
-[node name="AppointmentList" type="VBoxContainer" parent="PanelContainer/VBoxContainer"]
+[node name="AppointmentList" type="VBoxContainer" parent="PanelContainer/VBoxContainer" unique_id=1226960783]
 layout_mode = 2
 
-[node name="CloseButton" type="Button" parent="PanelContainer/VBoxContainer"]
+[node name="CloseButton" type="Button" parent="PanelContainer/VBoxContainer" unique_id=1566702197]
 layout_mode = 2
 text = "Close"

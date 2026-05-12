@@ -1,18 +1,19 @@
-[gd_scene load_steps=4 format=3 uid="uid://cuc7tr377sgsc"]
+[gd_scene format=3 uid="uid://cuc7tr377sgsc"]
 
 [ext_resource type="TileSet" uid="uid://bjb71lebq7nab" path="res://data/tilesets/InteriorWall.tres" id="1_f8yrm"]
-[ext_resource type="PackedScene" uid="uid://1eeu67d0d6nu" path="res://scenes/npcs/oliver.tscn" id="3_7pyqs"]
+[ext_resource type="PackedScene" uid="uid://citlrvhb0bdsr" path="res://scenes/npcs/vendor.tscn" id="3_df7sl"]
+[ext_resource type="PackedScene" uid="uid://c5k1isfwli6lh" path="res://scenes/components/waypoint.tscn" id="4_df7sl"]
 [ext_resource type="PackedScene" uid="uid://cu0qiy18mj116" path="res://scenes/components/doorway.tscn" id="4_hvg7b"]
 
-[node name="ApartementHall" type="Node2D"]
+[node name="HardwoodStore" type="Node2D" unique_id=1419844553]
 
-[node name="Borders" type="TileMap" parent="."]
+[node name="Borders" type="TileMap" parent="." unique_id=763920043]
 z_index = 1
 tile_set = ExtResource("1_f8yrm")
 format = 2
 layer_0/tile_data = PackedInt32Array(589831, 983040, 1, 589830, 1179648, 3, 589829, 1179648, 3, 589828, 1179648, 3, 589827, 1179648, 3, 589833, 1048576, 1, 589834, 1179648, 3, 589835, 1179648, 3, 589836, 1179648, 3, 589837, 1179648, 3, 655367, 1114112, 2, 655369, 1245184, 2, 589838, 1245184, 3, 589826, 1114112, 3, 524290, 1114112, 2, 458754, 1114112, 2, 393218, 1114112, 2, 327682, 1114112, 2, 262146, 1114112, 2, 524302, 1245184, 2, 458766, 1245184, 2, 393230, 1245184, 2, 327694, 1245184, 2, 262158, 1245184, 2, 196621, 851968, 1, 196620, 851968, 1, 196619, 851968, 1, 196618, 851968, 1, 196616, 851968, 1, 196615, 851968, 1, 196614, 851968, 1, 196613, 851968, 1, 196612, 851968, 1, 196611, 851968, 1, 196617, 851968, 1, 196622, 1245184, 1, 196610, 1114112, 1)
 
-[node name="WallsTop" type="TileMap" parent="."]
+[node name="WallsTop" type="TileMap" parent="." unique_id=1016739777]
 y_sort_enabled = true
 tile_set = ExtResource("1_f8yrm")
 format = 2
@@ -20,39 +21,46 @@ layer_0/y_sort_enabled = true
 layer_0/y_sort_origin = 1
 layer_0/tile_data = PackedInt32Array(196611, 65540, 10, 196612, 65540, 10, 196613, 65540, 10, 196614, 65540, 10, 196615, 65540, 10, 196616, 65540, 10, 196617, 65540, 10, 196618, 65540, 10, 196619, 65540, 10, 196620, 65540, 10, 196621, 65540, 10)
 
-[node name="WallsBase" type="TileMap" parent="."]
+[node name="WallsBase" type="TileMap" parent="." unique_id=1603468023]
 y_sort_enabled = true
 tile_set = ExtResource("1_f8yrm")
 format = 2
 layer_0/y_sort_enabled = true
 layer_0/tile_data = PackedInt32Array(262147, 65540, 11, 262148, 65540, 11, 262149, 65540, 11, 262150, 65540, 11, 262151, 65540, 11, 262152, 65540, 11, 262153, 65540, 11, 262154, 65540, 11, 262155, 65540, 11, 262156, 65540, 11, 262157, 65540, 11)
 
-[node name="Floor" type="TileMap" parent="."]
+[node name="Floor" type="TileMap" parent="." unique_id=2050840961]
 tile_set = ExtResource("1_f8yrm")
 format = 2
 layer_0/tile_data = PackedInt32Array(327683, 262145, 13, 393219, 262145, 13, 458755, 262145, 13, 524291, 262145, 13, 327684, 327681, 13, 327685, 327681, 13, 327686, 327681, 13, 327687, 327681, 13, 327688, 327681, 13, 327689, 327681, 13, 327690, 327681, 13, 327691, 327681, 13, 327692, 327681, 13, 327693, 393217, 13, 393229, 393217, 13, 458765, 393217, 13, 524301, 393217, 13, 524300, 327681, 13, 524299, 327681, 13, 524298, 327681, 13, 524297, 327681, 13, 524296, 327681, 13, 524295, 327681, 13, 524294, 327681, 13, 524293, 327681, 13, 524292, 327681, 13, 458756, 327681, 13, 458757, 327681, 13, 458758, 327681, 13, 458759, 327681, 13, 458760, 327681, 13, 458761, 327681, 13, 458762, 327681, 13, 458763, 327681, 13, 458764, 327681, 13, 393228, 327681, 13, 393227, 327681, 13, 393226, 327681, 13, 393225, 327681, 13, 393224, 327681, 13, 393223, 327681, 13, 393222, 327681, 13, 393221, 327681, 13, 393220, 327681, 13, 589832, 327681, 13, 655368, 327681, 13)
 
-[node name="Decoration" type="TileMap" parent="."]
+[node name="Decoration" type="TileMap" parent="." unique_id=1896197204]
 y_sort_enabled = true
 format = 2
 layer_0/y_sort_enabled = true
 
-[node name="Interactables" type="Node2D" parent="."]
+[node name="Interactables" type="Node2D" parent="." unique_id=1919529190]
 
-[node name="Doorway" parent="Interactables" instance=ExtResource("4_hvg7b")]
+[node name="Doorway" parent="Interactables" unique_id=1347923647 instance=ExtResource("4_hvg7b")]
 position = Vector2(273, 340)
 target_room = "res://scenes/rooms/ext_central.tscn"
 target_spawn = "from_hardwood"
 
-[node name="SpawnPoints" type="Node2D" parent="."]
+[node name="Vendor" parent="Interactables" unique_id=1592916993 instance=ExtResource("3_df7sl")]
+position = Vector2(136, 171)
+
+[node name="SpawnPoints" type="Node2D" parent="." unique_id=814176097]
 position = Vector2(5, 16)
 
-[node name="from_outside" type="Marker2D" parent="SpawnPoints"]
+[node name="from_outside" type="Marker2D" parent="SpawnPoints" unique_id=1113485614]
 position = Vector2(265, 264)
 
-[node name="NPCs" type="Node2D" parent="."]
+[node name="NPCs" type="Node2D" parent="." unique_id=1421773814]
 y_sort_enabled = true
 position = Vector2(4, -9)
 
-[node name="Oliver" parent="NPCs" instance=ExtResource("3_7pyqs")]
-position = Vector2(133, 170)
+[node name="Waypoints" type="Node2D" parent="." unique_id=1215555829]
+
+[node name="Waypoint" parent="Waypoints" unique_id=1614579198 instance=ExtResource("4_df7sl")]
+position = Vector2(136, 169)
+waypoint_id = &"counter"
+facing = "east"
