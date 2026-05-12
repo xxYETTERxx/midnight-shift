@@ -1,13 +1,11 @@
-[gd_scene load_steps=13 format=3 uid="uid://dhr0c3n5df5qq"]
+[gd_scene load_steps=11 format=3 uid="uid://dhr0c3n5df5qq"]
 
 [ext_resource type="TileSet" uid="uid://bjb71lebq7nab" path="res://data/tilesets/InteriorWall.tres" id="2_0vbor"]
 [ext_resource type="TileSet" uid="uid://c25juxu377jw" path="res://data/tilesets/InteriorFloor.tres" id="3_iuhad"]
-[ext_resource type="TileSet" uid="uid://6akbc4rraedn" path="res://data/tilesets/apartment_tileset.tres" id="4_mly8a"]
 [ext_resource type="PackedScene" uid="uid://yyg1vmqtao4e" path="res://scenes/components/bed.tscn" id="5_f5k1h"]
 [ext_resource type="Texture2D" uid="uid://cf7vr1eg1sjq5" path="res://art/objects/Interactables/Doors/Interior4.png" id="6_l4eva"]
 [ext_resource type="PackedScene" uid="uid://cu0qiy18mj116" path="res://scenes/components/doorway.tscn" id="6_txc16"]
 [ext_resource type="PackedScene" uid="uid://cbl82j3yw8xvq" path="res://scenes/components/door.tscn" id="7_66ocw"]
-[ext_resource type="PackedScene" uid="uid://citlrvhb0bdsr" path="res://scenes/npcs/fence.tscn" id="7_g1oys"]
 [ext_resource type="Texture2D" uid="uid://dguppxekethma" path="res://art/objects/Interactables/Doors/Interior3.png" id="7_vr86a"]
 [ext_resource type="Texture2D" uid="uid://cyi48130t18ek" path="res://art/objects/Interactables/Doors/Interior2.png" id="8_h6tbt"]
 [ext_resource type="Texture2D" uid="uid://cs2lb004trp5o" path="res://art/objects/Interactables/Doors/Interior1.png" id="9_q42vy"]
@@ -91,7 +89,6 @@ layer_0/tile_data = PackedInt32Array(262148, 196608, 7, 327686, 196608, 7, 45876
 
 [node name="Decoration" type="TileMap" parent="."]
 y_sort_enabled = true
-tile_set = ExtResource("4_mly8a")
 format = 2
 layer_0/y_sort_enabled = true
 
@@ -115,7 +112,7 @@ position = Vector2(273, 165)
 position = Vector2(5, 16)
 
 [node name="default" type="Marker2D" parent="SpawnPoints"]
-position = Vector2(302, 164)
+position = Vector2(153, 125)
 
 [node name="from_hall" type="Marker2D" parent="SpawnPoints"]
 position = Vector2(362, 204)
@@ -123,6 +120,3 @@ position = Vector2(362, 204)
 [node name="NPCs" type="Node2D" parent="."]
 y_sort_enabled = true
 position = Vector2(4, -9)
-
-[node name="Fence" parent="NPCs" instance=ExtResource("7_g1oys")]
-position = Vector2(330, 33)

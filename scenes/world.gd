@@ -47,10 +47,9 @@ func load_state(data: Dictionary) -> void:
 	
 
 func _input(event: InputEvent) -> void:
-	if event.is_action_pressed("ui_accept"):  # Enter key
-		TimeSystem.advance_to(TimeSystem.total_minutes + 60)
 	if event is InputEventKey and event.pressed:
 		match event.keycode:
+			KEY_ENTER: TimeSystem.advance_to(TimeSystem.total_minutes + 60)
 			KEY_1: _jump_to_hour(2)    # deep night
 			KEY_2: _jump_to_hour(6)    # dawn
 			KEY_3: _jump_to_hour(14)   # day
@@ -66,13 +65,7 @@ func _input(event: InputEvent) -> void:
 				SaveSystem.save_to_disk()
 			KEY_F11:  # bonus: wipe save
 				SaveSystem.delete_save()
-			KEY_I:
-	# Debug: grant 3 soil bags
-				var soil := ItemRegistry.get_item(&"soil_bag")
-				if soil:
-					var leftover: int = player.inventory.add(soil, 3)
-					print("[Inventory] added 3 soil_bag, leftover: %d" % leftover)
-					print("[Inventory] slot 0: %s" % str(player.inventory.get_slot(0)))
+			
 			KEY_O:
 	# Debug: print inventory state
 				for i in range(player.inventory.max_slots):

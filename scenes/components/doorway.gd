@@ -17,4 +17,4 @@ func _on_body_entered(body: Node2D) -> void:
 	if not body.is_in_group("player"):
 		return
 	_enabled = false
-	RoomManager.change_room(target_room, target_spawn)
+	RoomManager.change_room.call_deferred(target_room, target_spawn)

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://b6oqy6yulg8bp"
-path="res://.godot/imported/player_walk_s.png-da479093c8b645a6261590cb31b5f5c0.ctex"
+uid="uid://b60cfqgsrv1nh"
+path="res://.godot/imported/Felix4.png-496d3102a2709f23dbea199027fea668.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://art/sprites/player/player_walk_s.png"
-dest_files=["res://.godot/imported/player_walk_s.png-da479093c8b645a6261590cb31b5f5c0.ctex"]
+source_file="res://art/sprites/NPCs/Felix/Felix4.png"
+dest_files=["res://.godot/imported/Felix4.png-496d3102a2709f23dbea199027fea668.ctex"]
 
 [params]
 

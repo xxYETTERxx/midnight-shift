@@ -1,8 +1,7 @@
-[gd_scene load_steps=6 format=3 uid="uid://huc6tubl0gxv"]
+[gd_scene load_steps=5 format=3 uid="uid://huc6tubl0gxv"]
 
 [ext_resource type="TileSet" uid="uid://bjb71lebq7nab" path="res://data/tilesets/InteriorWall.tres" id="1_a3gwh"]
 [ext_resource type="TileSet" uid="uid://c25juxu377jw" path="res://data/tilesets/InteriorFloor.tres" id="2_yvpor"]
-[ext_resource type="TileSet" uid="uid://6akbc4rraedn" path="res://data/tilesets/apartment_tileset.tres" id="3_xi8wy"]
 [ext_resource type="PackedScene" uid="uid://cu0qiy18mj116" path="res://scenes/components/doorway.tscn" id="4_drooq"]
 [ext_resource type="PackedScene" uid="uid://cbl82j3yw8xvq" path="res://scenes/components/door.tscn" id="7_1vq5c"]
 
@@ -31,7 +30,6 @@ layer_0/tile_data = PackedInt32Array(589824, 196608, 8, 589825, 196608, 8, 58982
 
 [node name="Decoration" type="TileMap" parent="."]
 y_sort_enabled = true
-tile_set = ExtResource("3_xi8wy")
 format = 2
 layer_0/y_sort_enabled = true
 

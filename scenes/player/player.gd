@@ -11,12 +11,13 @@ extends CharacterBody2D
 @export var movement_drain_per_minute: float = 0.05
 
 # --- Vault ---
-const VAULT_DURATION: float = 0.5
-const VAULT_DURATION_PER_EXTRA_TILE: float = 0.12
-const MAX_VAULT_RUN: int = 8
+const VAULT_DURATION_BY_TIER: Array[float] = [0.6, 0.8, 1.3]
+const VAULT_ARC_HEIGHT_BY_TIER: Array[float] = [15.0, 18.0, 32.0]
 const TILE_SIZE: int = 32
 const VAULT_STAMINA_COST: float = 2.0
 const VAULT_XP_BY_TIER: Array[int] = [5, 10, 20]
+const VAULT_LANDING_OFFSET_HORIZONTAL: float = 10.0
+const VAULT_LANDING_OFFSET_VERTICAL: float = 0.0
 
 var _is_vaulting: bool = false
 
@@ -256,57 +257,92 @@ func _try_vault() -> void:
 	var dir_vec := _direction_vector(last_direction)
 	var current_tile: Vector2i = layer.local_to_map(layer.to_local(global_position))
 	
-	# Scan forward through contiguous vault tiles. Run ends at the first
-	# non-vault tile. Highest tier in the run gates capability.
-	var max_tier: int = -1
-	var run_length: int = 0
-	for step in range(1, MAX_VAULT_RUN + 1):
-		var check_tile: Vector2i = current_tile + dir_vec * step
-		var tile_data: TileData = layer.get_cell_tile_data(0, check_tile)
-		if tile_data == null:
-			print("breaking")
-			break
-		var t: int = tile_data.get_custom_data("vault_tier")
-		max_tier = max(max_tier, t)
-		run_length = step
+		# Vaultables are 1 tile thick in the traversal axis. Look at the player's
+	# current tile and the tile immediately ahead — exactly one of them
+	# should be a vault tile.
+	var step0_tile: Vector2i = current_tile
+	var step1_tile: Vector2i = current_tile + dir_vec
+	var step0_data : TileData = layer.get_cell_tile_data(0, step0_tile)
+	var step1_data : TileData = layer.get_cell_tile_data(0, step1_tile)
 	
-	if run_length == 0:
-		return  # no vault tile in front; silent no-op
+	var vault_step: int = -1
+	if step0_data != null:
+		vault_step = 0
+	elif step1_data != null:
+		vault_step = 1
 	
-	print("vaulting")
-	var capability: StringName = _capability_for_tier(max_tier)
+	if vault_step < 0:
+		return  # nothing to vault
+	
+	# Reject stacked vaultables (two in a row in the traversal direction).
+	# Authoring rule: 1 tile thick. If broken, fail loudly.
+	var beyond_tile: Vector2i = current_tile + dir_vec * (vault_step + 1)
+	var beyond_data: TileData = layer.get_cell_tile_data(0, beyond_tile)
+	if beyond_data != null:
+		NotificationSystem.warn("Too thick to vault.")
+		return
+	
+	var tier: int = (step0_data if vault_step == 0 else step1_data).get_custom_data("vault_tier")
+	var capability: StringName = _capability_for_tier(tier)
 	if capability == &"" or not PlayerSkills.has_capability(capability):
 		NotificationSystem.warn("You can't get over that yet.")
 		return
 	
-	# Land 1 tile past the run.
-	_begin_vault(dir_vec, max_tier, run_length + 1)
+	# Land 1 tile past the vault tile. Always 1-2 tiles of motion total.
+	_begin_vault(dir_vec, tier, vault_step + 1)
 
 
 func _begin_vault(dir_vec: Vector2i, tier: int, landing_distance: int) -> void:
 	_is_vaulting = true
 	velocity = Vector2.ZERO
 	
-	var end_pos := global_position + Vector2(dir_vec) * (TILE_SIZE * landing_distance)
+	# Straight-line displacement, with per-axis landing offset to compensate
+	# for player origin sitting at feet rather than center.
+	var raw_offset := Vector2(dir_vec) * (TILE_SIZE * landing_distance)
+	if dir_vec.x != 0:
+		raw_offset.x -= sign(dir_vec.x) * VAULT_LANDING_OFFSET_HORIZONTAL
+	if dir_vec.y != 0:
+		raw_offset.y -= sign(dir_vec.y) * VAULT_LANDING_OFFSET_VERTICAL
+	var end_pos := global_position + raw_offset
 	
 	var collision := find_child("CollisionShape2D", false, false) as CollisionShape2D
 	if collision != null:
 		collision.disabled = true
 	
+	
+	var duration: float = VAULT_DURATION_BY_TIER[clampi(tier, 0, VAULT_DURATION_BY_TIER.size() - 1)]
+	var arc_height: float = VAULT_ARC_HEIGHT_BY_TIER[clampi(tier, 0, VAULT_ARC_HEIGHT_BY_TIER.size() - 1)]
+	
+	var sort_offset: float = arc_height
+	
+	# Animation, scaled to match duration.
 	var anim_name := "vault_" + last_direction
 	if sprite.sprite_frames != null and sprite.sprite_frames.has_animation(anim_name):
+		var anim_fps: float = sprite.sprite_frames.get_animation_speed(anim_name)
+		var anim_frames: int = sprite.sprite_frames.get_frame_count(anim_name)
+		if anim_fps > 0.0 and anim_frames > 0:
+			var anim_length: float = anim_frames / anim_fps
+			sprite.speed_scale = anim_length / duration
 		sprite.play(anim_name)
 	
-	# Duration: base 0.5s for a single-tile vault (2-tile movement), grows
-	# with run length so longer vaults don't feel zoomy. Eased so start and
-	# end aren't abrupt.
-	var duration: float = VAULT_DURATION + max(0, landing_distance - 2) * VAULT_DURATION_PER_EXTRA_TILE
-	
+	# Position tween moves the body in a straight line.
 	var tween := create_tween()
 	tween.set_ease(Tween.EASE_IN_OUT)
 	tween.set_trans(Tween.TRANS_SINE)
 	tween.tween_property(self, "global_position", end_pos, duration)
 	tween.tween_callback(_complete_vault.bind(tier, collision))
+	
+	# Sprite Y-offset tween for the arc. Runs in parallel via a second tween
+	# so it's independent of the position tween's ease curve.
+	var arc_tween := create_tween()
+	arc_tween.set_parallel(false)
+	var sprite_base_y: float = sprite.position.y
+	arc_tween.tween_method(_apply_vault_arc.bind(sprite_base_y, arc_height), 0.0, 1.0, duration)
+	arc_tween.tween_callback(func(): sprite.position.y = sprite_base_y)
+
+func _apply_vault_arc(t: float, base_y: float, arc_height: float) -> void:
+	var arc: float = sin(t * PI) * arc_height
+	sprite.position.y = base_y - arc
 
 
 func _complete_vault(tier: int, collision: CollisionShape2D) -> void:
