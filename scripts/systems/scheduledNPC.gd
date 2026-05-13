@@ -8,23 +8,33 @@ extends NPC
 # smooth movement that doesn't snap to minute ticks.
 
 var _transit_active: bool = false
-var _transit_start_pos: Vector2 = Vector2.ZERO
-var _transit_end_pos: Vector2 = Vector2.ZERO
+var _transit_points: Array[Vector2] = []
+var _transit_cumulative: Array[float] = []  # cumulative Manhattan dist to each point (first = 0)
+var _transit_total_distance: float = 0.0
 var _transit_start_minute: int = 0
 var _transit_end_minute: int = 0
+var _transit_animation_prefix: String = "walk"
 
 
-func set_stand(position: Vector2, facing: String) -> void:
+func set_stationary(position: Vector2, animation_name: String, facing: String) -> void:
 	_transit_active = false
 	global_position = position
-	_play_animation("idle", facing)
+	_play_animation(animation_name, facing)
 
-
-func set_transit(start_pos: Vector2, end_pos: Vector2, start_minute: int, end_minute: int) -> void:
-	_transit_start_pos = start_pos
-	_transit_end_pos = end_pos
+func set_transit(points: Array[Vector2], start_minute: int, end_minute: int, animation_prefix: String = "walk") -> void:
+	_transit_points = points
 	_transit_start_minute = start_minute
 	_transit_end_minute = end_minute
+	_transit_animation_prefix = animation_prefix
+
+	_transit_cumulative = [0.0]
+	var total: float = 0.0
+	for i in range(1, points.size()):
+		var d: Vector2 = points[i] - points[i - 1]
+		total += abs(d.x) + abs(d.y)
+		_transit_cumulative.append(total)
+	_transit_total_distance = total
+
 	_transit_active = true
 	_update_transit_pose()
 
@@ -35,53 +45,52 @@ func _process(_delta: float) -> void:
 
 
 func _update_transit_pose() -> void:
+	if _transit_points.size() < 2:
+		return
 	var span: int = _transit_end_minute - _transit_start_minute
 	if span <= 0:
-		global_position = _transit_end_pos
+		global_position = _transit_points[-1]
 		return
+	if _transit_total_distance <= 0.0:
+		global_position = _transit_points[-1]
+		return
+
 	var current: float = _shifted_minute_of_day()
 	var fraction: float = clampf(
 		(current - float(_transit_start_minute)) / float(span),
 		0.0, 1.0,
 	)
+	var target_distance: float = fraction * _transit_total_distance
 
-	var delta := _transit_end_pos - _transit_start_pos
-	var dx: float = abs(delta.x)
-	var dy: float = abs(delta.y)
+	# Find which leg the cursor is on — first leg whose cumulative distance
+	# at its end-point exceeds the target. Linear walk is fine; routes are
+	# small (handful of waypoints).
+	var leg_idx: int = _transit_points.size() - 2  # default to last leg
+	for i in range(1, _transit_cumulative.size()):
+		if _transit_cumulative[i] >= target_distance:
+			leg_idx = i - 1
+			break
 
-	var pos: Vector2
+	var leg_start: Vector2 = _transit_points[leg_idx]
+	var leg_end: Vector2 = _transit_points[leg_idx + 1]
+	var leg_dist_start: float = _transit_cumulative[leg_idx]
+	var leg_dist: float = _transit_cumulative[leg_idx + 1] - leg_dist_start
+
+	if leg_dist <= 0.0:
+		global_position = leg_start
+		_play_animation(_transit_animation_prefix, "south")
+		return
+
+	var sub: float = (target_distance - leg_dist_start) / leg_dist
+	global_position = leg_start.lerp(leg_end, sub)
+
+	var delta: Vector2 = leg_end - leg_start
 	var facing: String
-
-	if dx <= 0.0001:
-		# Pure vertical — no L needed.
-		pos = _transit_start_pos.lerp(_transit_end_pos, fraction)
-		facing = "south" if delta.y > 0 else "north"
-	elif dy <= 0.0001:
-		# Pure horizontal — no L needed.
-		pos = _transit_start_pos.lerp(_transit_end_pos, fraction)
+	if abs(delta.x) > abs(delta.y):
 		facing = "east" if delta.x > 0 else "west"
 	else:
-		# L-path: walk all of the X distance, then all of the Y distance.
-		# Time is split proportional to Manhattan distance so the apparent
-		# walking speed stays constant across the corner.
-		var seg1_end_frac: float = dx / (dx + dy)
-		if fraction <= seg1_end_frac:
-			var sub: float = fraction / seg1_end_frac
-			pos = Vector2(
-				lerpf(_transit_start_pos.x, _transit_end_pos.x, sub),
-				_transit_start_pos.y,
-			)
-			facing = "east" if delta.x > 0 else "west"
-		else:
-			var sub: float = (fraction - seg1_end_frac) / (1.0 - seg1_end_frac)
-			pos = Vector2(
-				_transit_end_pos.x,
-				lerpf(_transit_start_pos.y, _transit_end_pos.y, sub),
-			)
-			facing = "south" if delta.y > 0 else "north"
-
-	global_position = pos
-	_play_animation("walk", facing)
+		facing = "south" if delta.y > 0 else "north"
+	_play_animation(_transit_animation_prefix, facing)
 
 
 # Returns fractional minute-of-day, shifted forward by 1440 if our window

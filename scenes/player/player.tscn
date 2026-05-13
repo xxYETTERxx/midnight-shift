@@ -4,12 +4,18 @@
 [ext_resource type="Texture2D" uid="uid://cs27rl82ou0s1" path="res://art/sprites/player/Vaulting/vault_N.png" id="2_2di4m"]
 [ext_resource type="Texture2D" uid="uid://dhi3jffh231k3" path="res://art/sprites/player/Walking/player_walk_e.png" id="2_c77pq"]
 [ext_resource type="Texture2D" uid="uid://bme5rlt78riuo" path="res://art/sprites/player/Vaulting/vault_E.png" id="2_fwadc"]
+[ext_resource type="Texture2D" uid="uid://ch1u2i3oljn7p" path="res://art/sprites/player/Skate/Player_skate_E.png" id="2_myrg7"]
 [ext_resource type="Texture2D" uid="uid://c43pr7sndnvbt" path="res://art/sprites/player/Vaulting/vault_W.png" id="2_tjx63"]
 [ext_resource type="Texture2D" uid="uid://byc2nyb4yi1xs" path="res://art/sprites/player/Vaulting/vault_S.png" id="3_kexx1"]
+[ext_resource type="Texture2D" uid="uid://cqjbltnt5edun" path="res://art/sprites/player/Skate/Player_push_E.png" id="3_kvlxm"]
 [ext_resource type="Texture2D" uid="uid://u2mci75r8sew" path="res://art/sprites/player/Walking/player_walk_n.png" id="3_q36cb"]
 [ext_resource type="Texture2D" uid="uid://b6oqy6yulg8bp" path="res://art/sprites/player/Walking/player_walk_s.png" id="4_dvxcf"]
+[ext_resource type="Texture2D" uid="uid://cr5f5nocutlya" path="res://art/sprites/player/Skate/player_skate_N.png" id="4_uf5tr"]
 [ext_resource type="Texture2D" uid="uid://dpq3lii3ib2kg" path="res://art/sprites/player/Walking/player_walk_w.png" id="5_ch73g"]
+[ext_resource type="Texture2D" uid="uid://du775giuc7gmi" path="res://art/sprites/player/Skate/player_skate_S.png" id="5_lgqa7"]
+[ext_resource type="Texture2D" uid="uid://ohbx842nteid" path="res://art/sprites/player/Skate/Player_skate_W.png" id="6_8ydkj"]
 [ext_resource type="Script" uid="uid://c40xv63xv46i2" path="res://scripts/items/inventory.gd" id="6_kn266"]
+[ext_resource type="Texture2D" uid="uid://vwplq6t8casr" path="res://art/sprites/player/Skate/Player_push_W.png" id="7_3j4b4"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_xkplm"]
 atlas = ExtResource("2_fwadc")
@@ -219,6 +225,74 @@ region = Rect2(192, 0, 48, 48)
 animations = [{
 "frames": [{
 "duration": 1.0,
+"texture": ExtResource("2_myrg7")
+}, {
+"duration": 1.0,
+"texture": ExtResource("2_myrg7")
+}, {
+"duration": 1.0,
+"texture": ExtResource("2_myrg7")
+}, {
+"duration": 1.0,
+"texture": ExtResource("2_myrg7")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_kvlxm")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_kvlxm")
+}, {
+"duration": 1.0,
+"texture": ExtResource("2_myrg7")
+}],
+"loop": true,
+"name": &"skate_e",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("4_uf5tr")
+}],
+"loop": true,
+"name": &"skate_n",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("5_lgqa7")
+}],
+"loop": true,
+"name": &"skate_s",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("6_8ydkj")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_8ydkj")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_8ydkj")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_8ydkj")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_3j4b4")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_3j4b4")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_8ydkj")
+}],
+"loop": true,
+"name": &"skate_w",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
 "texture": SubResource("AtlasTexture_xkplm")
 }, {
 "duration": 1.0,
@@ -418,12 +492,11 @@ size = Vector2(15, 22)
 y_sort_enabled = true
 collision_layer = 2
 script = ExtResource("1_6aav1")
-speed = 120.0
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=222948961]
 position = Vector2(0, -24)
 sprite_frames = SubResource("SpriteFrames_65utx")
-animation = &"vault_e"
+animation = &"skate_e"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1490109494]
 position = Vector2(0, -19)

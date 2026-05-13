@@ -22,13 +22,12 @@ fri
 #default                    # absolute fallback (specificity -1)
 #mon                        # any single tag (weekday/location/timeofday/weather/flag)
 #bodega.mon.rainy           # multiple tags (all must match; specificity = tag count)
-*                          # match anything (specificity 0)
-#event:bodega_intro         # one-shot, only fires when queued
+#*                          # match anything (specificity 0)
+#event:bodega_introa         # one-shot, only fires when queued
 
-# Inline preconditions after `|`, separated by `;`:
-#fri | affinity > 40 ; !knows
+# Inline preconditions after `|`, a
 #mon | trust >= 30 ; has_item baggie
-#fri | event_done bodega_intro
+#fri | event_done bodega_introa
 
 # Body markup:
 #$h $s $a $w $n             # portrait codes (extend as you add art)
@@ -40,6 +39,6 @@ fri
 #--> "Response text" | affinity +5 ; trust +2
     Optional follow-up body specific to this response
 #--> "Other response" | set first_meeting
-    Effects can also flip flags
+#    Effects can also flip flags
 #$r
 #After $r, body continues with whatever was below the question.

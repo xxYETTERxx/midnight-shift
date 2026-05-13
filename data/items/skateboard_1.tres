@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ItemDef" format=3 uid="uid://q0888yvk6var"]
+
+[ext_resource type="Texture2D" uid="uid://iuol0itat8ax" path="res://art/objects/Items/Tools/skateboard3.png" id="1_d24s0"]
+[ext_resource type="Script" uid="uid://2ndmr7htrd8w" path="res://scripts/items/item_def.gd" id="2_coaml"]
+
+[resource]
+script = ExtResource("2_coaml")
+id = &"skateboard_1"
+tool_id = &"skateboard"
+display_name = "Skateboard"
+icon = ExtResource("1_d24s0")
+max_stack = 1
+category = 0
+movement_speed = 200.0
+description = "Go fast now!"
+metadata/_custom_type_script = "uid://2ndmr7htrd8w"

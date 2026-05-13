@@ -4,6 +4,7 @@ extends Resource
 # Stable identifier used in save files. Must be unique across all ItemDefs.
 # This is the canonical name — file paths can change, but id cannot.
 @export var id: StringName = ""
+@export var tool_id: StringName = &""
 
 @export var display_name: String = ""
 
@@ -15,6 +16,7 @@ extends Resource
 # What kind of item this is, for UI grouping and behavior dispatch.
 @export var category: Category = Category.MATERIAL
 
+@export var movement_speed: float = 0.0
 # Optional flavor text shown on hover/long-press.
 @export_multiline var description: String = ""
 

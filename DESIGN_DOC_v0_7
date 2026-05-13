@@ -1,0 +1,1166 @@
+# MIDNIGHT SHIFT — MVP Design Document
+
+**Status:** Living document. MVP scope only. Story content deferred.
+**Last updated:** v0.7
+
+---
+
+## §W Engine version
+
+Migrated from Godot 4.2 to Godot 4.6.0 on May 11 2026.
+- `Project → Tools → Upgrade Project Files` applied (unique node IDs).
+- Existing `TileMap` nodes preserved (not migrated to `TileMapLayer`).
+- `get_cell_tile_data(layer_index, tile)` calls retained — `TileMap` signature
+  requires the layer index.
+
+## 0. What's in this doc
+
+This is a forward-looking design reference, not a build log. Feed it to a new chat instance to get back up to speed. It captures the high-level concept, the systems we've designed, the technical approach, what's actually been built so far, and the open questions. It does not capture art assets created, specific tile layouts, or per-line code — those live in the project itself.
+
+**Changes from v0.6:**
+- Stage 8 (Player Skills) marked complete. Athletics / Strength / Lockpicking shipped with their capabilities, including vault. Stealth still deferred until heat lands.
+- Stage 9 (NPC Schedules) framework complete; content authoring in progress. §11.5 rewritten from design sketch to implementation reference. NavigationAgent2D still deferred to Stage 12 (pursuit cops) — scheduled NPCs use authored waypoint chains only.
+- New §11.6 covering the `.sched` authored file format with tag matching and preconditions (mirrors the `.dlg` system).
+- §5 (Vendor system) — vendors can now be gated on owner-NPC presence via `vendor_owner` field. Vendor closes when its NPC isn't materialized.
+- New §13.5 (Doors) — door locking with scheduled hours, owner-NPC unlock, late-lockout, hard-locked days. Replaces what had been a one-liner in §21.
+- New architecture pattern: ItemDef tool framework + player `active_mode` for movement tools (skateboard). Documented in §17, §21.
+- §24 Vault implementation updated with the tween-coordination fix and the actual shipped tuning values.
+- §21 / §22 expanded with the gotchas, conventions, and decisions surfaced this stage.
+- Duplicate §X Calling Cards heading cleaned up.
+
+---
+
+## 1. High Concept
+
+A 90s-set, urban, pixel-art life sim about scraping by — and building yourself up — through a mix of hustles, relationships, and risk management. Imagine **Stardew Valley's** loop and craft systems welded onto **Schedule I's** subject matter and **Disco Elysium's** willingness to sit with adult themes.
+
+The player starts in a shitty apartment in a rough neighborhood. They earn money through a mix of legal and illegal means: growing weed in their apartment, looting parked cars, dealing to a network of pager-summoned buyers. The shine isn't in the mechanics — those are deliberately simple. The shine is in the characters, the dialogue, the relationships, and the texture of the world.
+
+**MVP goal:** A vertical slice that proves the loop is fun. One handcrafted neighborhood, the player's apartment, ~6 characters with full dialogue/relationship support, two parallel income tracks (dealing and crime), a working day/calendar, and a basic heat system. No story arcs yet. No moving up. No combat depth.
+
+**Tone references:**
+- Schedule I (criminal life sim, irreverence)
+- Stardew Valley (loop, dialogue system, relationships)
+- Disco Elysium (adult themes treated seriously)
+- Kentucky Route Zero (melancholy of place)
+- GTA: Vice City / San Andreas (90s urban texture)
+
+---
+
+## 2. Setting & Aesthetic
+
+**Setting:** A fictional US city, mid-1990s. Player's home neighborhood is run-down — boarded windows, weed-cracked sidewalks, neon signs missing letters. Other neighborhoods (when added post-MVP) range from working-class to affluent.
+
+**Why the 90s:**
+- No smartphones — pagers, payphones, paper maps create gameplay friction (this is now a load-bearing design choice, see §7)
+- Weed is unambiguously illegal everywhere, raises stakes
+- Aesthetic is well-trodden and pixel-art-friendly
+- Lets the writing engage with the era's specific anxieties
+- Slim jims and car radios actually work as period-correct loot vectors (see §5.5)
+
+**Visual direction:**
+- Stardew Valley as the structural reference (top-down, similar character proportions)
+- Palette pivots hard from Stardew's saturated greens/yellows to greys, browns, sodium-vapor oranges, dirty teals
+- **Palette baseline: Waldgeist** (39 colors, Lospec — warm desaturated, tagged murky/dark/nostalgic). Expect to drop 3-5 colors and add 3-5
+- Strong use of warm interior light vs. cold exterior light for mood
+- Rain and night are visual events, not just lighting toggles
+
+**Asset pipeline:**
+- Tilesets split by function (interior_floor, interior_wall_base, interior_wall_top, outdoor_ground, outdoor_decoration) rather than by aesthetic — same node structure across rooms means swapping a tileset is a one-line change
+- Outdoor terrain uses 47-tile autotile templates (purchased asset pack) configured as Godot terrain sets. Probability weighting handles variant tiles within a terrain
+- Hand-authored work concentrates on characters, key props, decorations. Terrain/ground is largely purchased + recolored
+- Palette discipline upstream: every new tile passes through an indexed-palette pass in Aseprite before entering Godot
+
+---
+
+## 3. Core Loop
+
+**One day in the player's life (target experience):**
+
+Wake up at 2 PM in a shitty apartment. Stamina full. Check the plants — one needs water, one's ready to harvest. While doing that, hit Saturday — rent's due tomorrow and you're $40 short. Check the pager: nothing yet. Walk down to the street, slim jim a parked car for some cash. While crossing the block your pager buzzes — Dee P., wants 3 units, meet at the Shell lot in two hours. Run to the payphone, return the call, agree to terms. You've got an hour to kill, so you stop at the hardware store for soil. Get to the Shell lot ten minutes early to avoid looking sketchy. Deal goes clean, $67 in your pocket. Walk home past the bodega; the owner waves. Make dinner, water the plants, sleep. Rent gets paid in your sleep. Next day starts.
+
+That's the loop. Hustle pressure, schedule disruption, small decisions that compound.
+
+**Five-category time budget:**
+
+1. **Maintenance** — non-negotiable, predictable (plants, eating, sleeping)
+2. **Income** — varied risk/time profiles (growing, dealing, car looting)
+3. **Social** — relationship maintenance (NPC schedules, gifts, hangouts)
+4. **Exploration / Long-term** — skill grinding, casing locations, gossip at the bar
+5. **Neighborhood investment** — multi-day/week projects (see §23)
+
+The day should *almost* fit. See §6.
+
+---
+
+## 4. Time & Calendar
+
+**Wake hour: 2 PM.** Player wakes at 14:00 in-game, day rolls at 14:00 the next day. This is a 90s-criminal-life-sim tonal choice — the player keeps vampire hours.
+
+**Sleep window: 06:00–14:00.** This is a hard window during which game logic considers the player asleep. Pages don't fire. Customers don't try to meet. NPC schedules respect it for "this NPC sleeps too" behavior.
+
+**Day display granularity: 10 minutes.** HUD shows time rounded to the nearest 10. Internal calculations use exact minutes.
+
+**Single integer `total_minutes` is source of truth.** All other queries derive (current_hour, current_minute, day_of_week, day_of_month).
+
+**Day-of-week.** Indexed 0 = Mon, 6 = Sun. Rent is due Sunday (dow == 6). Saturday is the warning day.
+
+**Pause counter, not bool.** Multiple systems can pause concurrently. Time runs only when count is zero.
+
+---
+
+## 5. Economy ✅ STAGE 5 COMPLETE
+
+### Income sources (MVP)
+
+| Source | Track | Risk | Setup Cost | Skill Ceiling | Time Cost | Day-fill role |
+|---|---|---|---|---|---|---|
+| Weed growing | Dealing | Low | Medium | Medium | Slow (multi-day cycles) | Background maintenance |
+| **Pager dealing** | Dealing | Medium | None (after first crop) | Medium-high | Variable, schedule-disrupting | **The schedule engine** |
+| Car looting | Criminal | Medium | Low (slim jim eventually) | Low-medium | Fast (seconds per car) | Filler / opportunistic |
+| Chop shop deliveries (late) | Criminal | High | Med (skills) | High | Medium (delivery walks) | Big-payoff session activity |
+
+The two tracks (Dealing, Criminal) mirror each other structurally. Each has an XP spine (DealerExperience, CriminalExperience), each has tier-gated content, each unlocks tools/contacts/locations as it progresses. The player can lean into either, both, or alternate.
+
+### Wallet
+
+Multi-pool by design. MVP only uses `"cash"`. The pool architecture supports future expansion to `"clean"` (banked/checked) for catalogue mail-order, plus laundering bookkeeping. All Wallet methods take an optional pool parameter so the expansion is additive.
+
+Starting cash: $50. Weekly rent: $100. Raw bud base value: $15 (Fence pays $9 wholesale, retail to dealing customers pays $22.50).
+
+### Expenses
+- **Rent:** weekly, due Sunday (auto-deducted). 2 misses = eviction (MVP: logged signal only; future: shanty-town tent fallback)
+- **Food:** stamina maintenance — skip too long and tomorrow's stamina cap drops (deferred, post-MVP polish)
+- **Supplies:** soil, seeds, lockpicks, baggies, etc.
+- **Gifts:** social currency
+- **Bribes / fines:** when caught
+- **Equipment upgrades:** grow lamps, planter beds, tools (see below)
+
+### Vendor system
+
+One `VendorInteractable` node type supports both buying and selling via two multipliers:
+
+- `buy_multiplier` — applied to ItemDef.base_value when player buys from vendor
+- `sell_multiplier` — applied when player sells to vendor
+
+Setting `sell_multiplier = 0` makes a vendor buy-only (e.g., hardware store). The VendorPanel UI handles both directions transparently — click your inventory to stage sells, click their stock to stage buys, see live net, confirm.
+
+**Owner-NPC gating (new).** A vendor can declare a `vendor_owner: StringName` matching an NPC id. While the owner is materialized in the same room (via NPCDirector — see §11.5), the vendor's interactable is active. When the owner isn't present, the counter is dim/disabled. Vendors with `vendor_owner == &""` are always-on (vending machines, dead-drops, etc.). This is the clean way to express "store closed when the shopkeeper isn't there" without duplicating schedule logic on the vendor.
+
+**Configured vendors:**
+- **The Fence** — buys only. `sell_multiplier = 0.6` (wholesale). Empty stock. No owner.
+- **Hardware Store** — sells only. `buy_multiplier = 1.0`. Stocks pots, soil, seeds. Owner: `oliver`.
+
+When pawn shop and catalogue arrive (post-MVP), they'll be the same node type with different stock and multipliers.
+
+### Pawn shop / catalogue (deferred, architected)
+
+Two channels for acquiring equipment, each with different inventory and friction:
+
+- **Pawn shop** (in-person, cash): rotating daily stock. Basics always available. Mid-tier items appear at higher DealerExperience tiers — the Fence stocks what makes sense for your level of operation.
+- **Mail-order catalogue** (order + wait): higher-tier equipment. Player sends a check (physical cash committed), waits 2-3 days for delivery. Creates a planning horizon and a reason to check the mailbox.
+
+DealerExperience gates progression in both channels. More XP → more contacts → better stock.
+
+### Dirty vs. clean cash
+
+Architected via the multi-pool wallet but inert for MVP. The catalogue system, when it ships, will use a `"clean"` pool that requires physical bank visits to load. Money laundering loop is post-MVP.
+
+---
+
+## 5.5. Criminal Income Track ✅ MVP COMPLETE (CAR LOOTING)
+
+The Criminal Experience track parallels the Dealer Experience track. The player gets XP for every committed crime, scaled by tier/severity. CriminalExperience.tier() gates criminal-track unlocks at the Fence.
+
+### Car looting
+
+Parked cars spawn each morning across outdoor scenes. The player can break into them for loot.
+
+**Mechanic:**
+- Walk up to a car, hold E. Progress bar fills. Action completes → loot lands in inventory, CRIM_XP awarded, car marked looted (dimmed, non-interactable) for the rest of the day
+- Locked cars take longer than unlocked ones (eventually gated on slim jim possession)
+- Walking away mid-action cancels
+- Per-car state persists across saves within a day; full reset at day rollover
+
+**Car tiers (0/1/2):**
+- Tier 0 — beaters, loose change, light junk
+- Tier 1 — sedans, mid-tier loot, more frequent locked
+- Tier 2 — luxury, car radios + wallets, almost always locked
+
+Loot tables are authored as `.tres` resources per tier. Sprite variants exist per tier × orientation (4 orientations: N/S/E/W).
+
+**Spawning:**
+- Each outdoor scene contains `CarSpawnPoint` markers (orientation per marker)
+- On first entry per day, spawner generates 3-6 cars at random subset of points
+- Tier weights per neighborhood (one `NEIGHBORHOOD_TIER_WEIGHTS` dict, scene_path → weights). MVP has one neighborhood using defaults
+- Looted state persists mid-day, clears at day rollover
+
+### Criminal track unlocks (DEX-of-crime tiers)
+
+- **Tier 0 (start):** Loot unlocked cars only
+- **Tier 1:** Slim jim available at Fence — open locked cars
+- **Tier 2:** Electronics kit — pull radios and electronics from cars
+- **Tier 3:** Chop shop access — "claim" a car, walk to chop shop, fence the whole vehicle for a fat payout (see below)
+
+### Slim jim minigame (deferred)
+
+For MVP, locked cars just take longer (5s vs 2s). Eventually replaced with a multi-phase minigame matching the real-world mechanic:
+
+1. **Insert** — slip the tool between window and weather stripping (commit, no skill check)
+2. **Hunt** — slide-and-probe for the door linkage rod (position-based search with audio/visual cue)
+3. **Yank** — pull in the correct direction at the right moment
+
+Failure states: tool slips (retry), wrong-direction yank (rod damaged, car becomes "broken" — only smashable). Damaged cars are evidence — passing NPCs notice, increment area heat.
+
+### Chop shop loop (Stage 3 of criminal track)
+
+The criminal-track analog to the pager dealing loop. Mechanical shape:
+
+1. Slim-jim a tier-2 car with chop shop access
+2. Car becomes "claimed" — gameplay state flag, persisted
+3. Walk to the chop shop (far corner of the map — the walk *is* the gameplay)
+4. Hand off → big payout, big area heat tick
+5. Claim has a time limit; let it expire and the car becomes inert/despawns
+
+Cars are also a fast-travel mechanic when player owns one — minecart-equivalent, no driving sim. Once player has a personal car, every chop shop steal is a choice between "convert to cash" or "keep as transit."
+
+---
+
+## 6. The Day-Filling Principle
+
+The single most important design principle in the project.
+
+**Stardew's secret is that the day is always slightly too short to do everything you want.** That tension is the engine of "one more day" engagement. If the player ever finishes their list with hours of in-game time left, the loop has failed.
+
+Every activity falls into one of five time-cost categories (see §3).
+
+**Tuning principle 1:** Time costs should feel real but not punishing. A trip across town to a payphone is ~20-30 in-game minutes — felt but not crippling.
+
+**Tuning principle 2:** The schedule should *almost* fit, not comfortably fit. If a productive day is ~16 in-game hours (2 PM to 6 AM), the player's want-to-do list should average 20-22 hours. The 4-6 hour overflow is what makes them want to play tomorrow.
+
+---
+
+## 6.5. NotificationSystem ✅ COMPLETE
+
+A global notification autoload that any system can call to surface short messages to the player. Replaces the "every feature has its own HUD label" trap.
+
+```
+NotificationSystem.info("Rent paid")
+NotificationSystem.loot(item, count)
+NotificationSystem.warn("Can't place here")
+NotificationSystem.error("Inventory full")
+```
+
+A single HUD widget (`NotificationLabel`) listens to the broadcast signal and renders messages as a vertical stack of color-coded labels that fade out after 3 seconds. Max 5 visible at once; oldest evicted on overflow.
+
+Used by car looting, vendor refusals, rent system, locked doors, skateboard activation refusal. Also the right call for: page received, DEX/CRIM tier-up, placement refused, skill threshold crossed.
+
+---
+
+## 7. The Pager Dealing Loop ✅ STAGE 6 COMPLETE
+
+The **schedule-disrupting engine** of the game. Not just income — the system that creates moment-to-moment dramatic choices.
+
+### The loop
+
+1. **Page arrives** — pure interruption, you don't control timing. Pager indicator blinks on HUD
+2. **Click pager or find payphone** — clicking pager shows appointments; payphone returns calls
+3. **Return the call** — short scheduling — meet location auto-assigned, time auto-set 12+ hours out (with 0-6 hour jitter, rounded to 15-min increments), avoids sleep window
+4. **Commit to a window** — buyer waits 60 in-game minutes at the spot
+5. **Travel and execute** — get there during the window, talk → auto-sell if you have enough product, payout at retail (1.5× base value)
+6. **Back to whatever you were doing**
+
+### Implemented systems
+
+- **Customer roster** — persistent list of customers across save sessions. Starter customer ("Dee P.") seeded on new game. New customers added in waves when player crosses DEX tier thresholds. Customers have tier (gate), affinity, trust, times_dealt, times_flaked, blacklisted flags.
+- **PagerSystem** — drives time-driven page generation. Each waking minute, each active customer rolls a small per-customer chance scaled by their tier. Per-customer cooldown (24h) prevents double-paging. Pages have 6-hour waking-time callback deadlines.
+- **MeetingManager** — when player returns a call, schedules a meeting at an available `MeetSpot` at an available time. Spots register on `_ready`, persist in the manager. Window collision detection prevents simultaneous overlap at same spot.
+- **MeetingSpawner** — listens to `meeting_started`, instantiates `CustomerNPC` at the spot during the active window. Despawns on completion/miss/window-close. Handles cross-room materialization on room change.
+- **CustomerNPC** — interactable. Talk → if inventory has enough raw_bud, deduct + payout + complete; if not, prompt to come back with more.
+- **AppointmentPanel** — clicking the pager icon opens a list of upcoming and active meetings. `[NOW]` prefix on active ones.
+
+### Pager rep / DealerExperience
+
+Per design doc, pager rep is the spine of progression for the dealing track. Implemented as `DealerExperience` autoload — single int XP, tier function, tier_unlocked signal. Awarded on completed sales (proportional to quantity sold). Penalized on missed callbacks and missed deals.
+
+- **Tier thresholds:** [0, 25, 75, 150, 300] — tunable
+- **XP per unit sold:** 1
+- **Missed callback penalty:** -2
+- **Missed deal penalty:** -5
+- **Tier-up:** spawns wave of new customers into roster (per `WAVE_SIZE_PER_TIER`)
+
+## §X Calling Cards
+
+Replaces direct cash payment at payphone. Aligns with period-setting and creates
+ongoing errand cadence at bodega.
+
+### Mechanic
+- Calls cost a variable number of "minutes."
+- Minutes live on physical calling card items in player inventory.
+- Each calling card is an `ItemStack` with `data: {"minutes": N}` per-instance.
+- Cards do not merge across denominations or remaining-minutes values.
+- Inventory friction is intentional — each card is its own slot.
+
+### Cost taxonomy (initial values, tunable)
+- Pager callback (set up a deal): 1 minute
+- NPC hangout / relationship call: variable, ~5-10 minutes
+- Special calls (future content): TBD per call site
+
+### Spend logic
+- `CallingCardSystem.try_spend(cost)`: find the lowest-minutes card that covers
+  the cost; spend; remove if depleted; notify if no card qualifies.
+- "Single card must cover" rule (cards don't combine for a single call). Friction
+  is intentional; player should rarely hit it in practice (1-min pager calls).
+
+### SKUs (sold at bodega)
+- 30-minute card: $5
+- 120-minute card: $15
+- Future cards (premium, branded, etc.) plug into same system.
+
+### Player start
+- Single 30-min card item spawned with `minutes: 20` at game start.
+- Teaches the mechanic with mild urgency.
+
+### Out-of-minutes
+- Notification fires: "Need more minutes — buy a card at the bodega."
+- Call does not connect.
+
+---
+
+## §Y ItemStack per-instance data (architectural note)
+
+`ItemStack` now carries an arbitrary `data: Dictionary` for per-instance state.
+- Empty for most items (materials, seeds, tools).
+- Populated for cards, future durability, etc.
+- `can_merge_with` requires identical `data` — prevents inappropriate merging.
+- `ItemDef.initial_stack_data()` virtual: subclasses (e.g. `CallingCardDef`)
+  override to seed fresh stacks.
+
+---
+
+
+### Buyer relationship system
+
+Each customer carries minimal versions of the NPC relationship axes:
+- **Affinity** — friendliness toward player
+- **Trust** — willingness to introduce friends, work bigger deals
+- **times_dealt** / **times_flaked** — tracked for blacklisting
+
+Repeat flakers (3+ no-show meetings or missed callbacks) get blacklisted automatically — `CustomerRoster.active_customers()` filters them out.
+
+### Buyer archetypes (future content, post-MVP)
+
+Customers are currently randomly generated from name/sprite pools. Eventually some customers become *named characters* with full dialogue trees — the recurring weekly Friday-afternoon college kid, the chatty late-night woman, the haggler. The data model already supports this (display_name, dialogue_bank, sprite_id are per-customer); it's a content-authoring task, not a systems task.
+
+### Risk variables (heat system integration, deferred)
+
+- **Time of day** — daylight deals are riskier
+- **Location heat** — meeting in a high-heat area is dangerous
+- **Buyer's heat exposure** — sketchy buyers attract attention
+- **Quantity carried** — more on you = bigger bust if caught
+- **Repetition** — meeting the same buyer at the same place repeatedly raises area heat
+
+---
+
+## 8. Income System: Weed Growing ✅ STAGE 3 COMPLETE
+
+Per stage 3 build. Pot/planter placeable system, soil-seed-water-harvest cycle, per-room persistence via WorldStateSystem. Quality modifiers tracked but only one (`water_missed`) wired for MVP. Strain expansion is post-MVP — the modifier system supports it without refactor.
+
+---
+
+## 9. Income System: Pickpocketing (DEFERRED POST-MVP)
+
+Previously planned for Stage 7. Deferred — pickpocketing requires scheduled NPCs walking around, which depends on the NPC schedule system that isn't built yet. Car looting fills the "always-viable income vector" role and ships now.
+
+When it lands, pickpocketing follows the same pattern: walk up to an NPC, hold E, progress bar, success drops loot + crim XP / failure increases witness chance + relationship damage.
+
+---
+
+## 10. Income System: B&E (DEFERRED POST-MVP)
+
+Previously planned for Stage 8. Re-scoped — B&E is effectively its own game (stealth, lockpicking, combat, fleeing). The MVP doesn't need it. The criminal track's three rungs (loot car, electronics kit, chop shop) cover the same fantasy with shared systems.
+
+When B&E eventually lands, scope is 6-10 handcrafted house layouts (not procedural). Procedural generation for B&E is a research project, not an MVP feature.
+
+---
+
+## 11. Relationships & Dialogue
+
+Per stage 4 build. Dialogue system with key-lookup, preconditions, hot-reload. NPC relationship axes: affinity, trust, knows-flags. One full NPC (DialogueDatabase scaffolded for more) currently exists. Cast expansion to ~6 NPCs is Stage 10.
+
+---
+
+## 11.5. NPC Schedules ✅ FRAMEWORK COMPLETE (CONTENT IN PROGRESS)
+
+The substrate that makes the world feel populated. Each named NPC has a schedule — a time-keyed map of "where are you and what are you doing." As time advances, the schedule tells the NPC where to be, and the world materializes them when the player is there to see them.
+
+### Materialize-on-room-enter
+
+NPCs only physically exist when the player is in the scene the NPC's current schedule entry points to. Otherwise the NPC is a virtual entity tracked by `NPCDirector`. This is the same pattern proven by `MeetingSpawner` — meeting buyers materialize when the player enters the meet spot's room.
+
+When the player enters a scene, NPCDirector iterates its registered NPCs and asks for each one: "does your current schedule entry point at this scene?" If yes, instantiate at the named Waypoint. If no, ensure no stale instance is hanging around. Same logic runs on every minute tick, on every room change, and on every schedule hot-reload — so the world is always reconciled to "what the schedule says right now."
+
+### Cross-scene transit gap
+
+Transit happens *inside one scene*. An NPC going from `oliver_house` → `ext_central` (the street) → `hardware_store` has three separate schedule entries: a stationary at home, a transit on the street, a stationary at the store. The first-to-second and second-to-third transitions are simultaneous — at minute X he's in the house, at minute X he's on the street. From the player's perspective: if they're watching the front door at minute X they see him appear on the street side. If they're watching the bodega the moment he disappears from home, they see nothing.
+
+This is acceptable because rooms have visual boundaries (walls, doors), and the player can't see "between" rooms. The illusion holds as long as schedule entries are authored coherently with the level geometry.
+
+### Activities
+
+Two structural kinds of schedule entry:
+
+- **Stationary** — NPC stands at a named waypoint, optionally facing a direction, playing a named animation. The animation name is arbitrary data: `stand`, `sit`, `smoke`, `work`, `sleep` — whatever's authored in the SpriteFrames. Falls back to `idle` if not found. Adding a new activity is just adding the animation to the character's frames.
+- **Transit** — NPC walks a chain of 2+ waypoints in one scene. Duration is implicit — the gap to the next schedule entry. Position interpolates per frame along the Manhattan-distance line, with constant apparent speed across all legs (so a chain of waypoints doesn't speed up at short segments). Facing flips per leg based on dominant axis.
+
+Transit entries declare their walking animation via a `walk:NAME` prefix. `walk:walk` plays `walk_<facing>`; `walk:run` plays `run_<facing>` (for a hurried character); `walk:limp` plays `limp_<facing>` (post-injury); etc. Same animation-as-data principle as stationary.
+
+### Speed-as-data (emergent design lever)
+
+Because transit duration is implicit (`end_minute - start_minute`), authoring "Oliver leaves home at 08:45 and arrives at the store by 09:00" produces a faster walk than "leaves at 08:30 and arrives at 09:00." Same route, same arrival, different perceived urgency. This emerged from the implementation but turned out to be a useful authoring lever — characters in a hurry vs. sauntering vs. drunk-stumbling fall out of timing tuning, not separate code paths.
+
+### Authored waypoints
+
+Each scene with scheduled NPCs has a `Waypoints` Node2D child. `Waypoint` markers under it carry a `waypoint_id: StringName`. Schedule entries reference these ids. Naming convention: by location, not per-NPC. `home_door`, `store_door`, `corner_north`, `alley_west_bend` are shared across the cast. Per-NPC waypoints (`oliver_specific_spot`) are reserved for cases where it really is just one character's location.
+
+Helper waypoints at every grid corner are encouraged. The transit system walks straight lines between consecutive waypoints, so any time a route would need to turn (avoid geometry, follow a sidewalk), insert a corner waypoint. This is much cheaper than real pathfinding and stays under authoring control.
+
+### NavigationAgent2D — still deferred
+
+Real pathfinding (`NavigationAgent2D` against a `NavigationRegion2D`) is *not* used by scheduled NPCs. They follow authored waypoint chains exclusively. The reactive-pathfinding tool earns its weight when pursuit cops chase the player (Stage 12), where the destination is dynamic. Until then, the navigation region authoring overhead isn't justified.
+
+### Schedule priority vs. state machine (forward-looking)
+
+When pursuit cops land in Stage 12, their state machine takes priority over their schedule. Reggie might miss his 13:00 precinct shift if he's still chasing the player, but he'll resume at the next entry that hasn't started yet. The schedule is what he "would be doing" — pursuit overrides it. NPCDirector queries schedule + checks state-machine override; the override layer is a Stage 12 extension.
+
+### Architecture
+
+- **`Schedule` resource** — thin wrapper around the `entries: Dictionary` (minute-of-day → entry dict). Provides `entry_at(minute)` and `entry_window_at(minute)` (the latter returns start/end minutes for transit interpolation). Wraps midnight automatically.
+- **`ScheduleDatabase` autoload** — loads `.sched` files from `res://data/schedules/`, indexes scene basenames against `res://scenes/rooms/`, evaluates which schedule block is active for a given NPC under current context. Hot-reloads on file change (debug builds); F6 force-reloads. Mirrors `DialogueDatabase`.
+- **`NPCDirector` autoload** — owns NPC registration (scene + display_name). Per minute tick / room change, queries ScheduleDatabase for each NPC's current entry, reconciles scene tree, instantiates/despawns. Public API: `is_npc_present(npc_id)`, `is_npc_in_scene(npc_id, scene_path)`, `get_current_entry(npc_id)`. Other systems (vendors, doors) gate on these.
+- **`ScheduledNPC`** — extends `NPC` (which owns dialogue/Interactable/sprite). Adds `set_stationary` / `set_transit` methods that NPCDirector calls during reconciliation. Per-frame `_update_transit_pose` for the interpolated walk.
+- **`Waypoint`** — Node2D with `waypoint_id`. Authored under each scene's `Waypoints` container.
+
+### Open questions
+
+- Schedule swap on event: works (`event_done X` precondition picks a different block), but the in-room transition is "snap to new pose" — no walk-out-of-old-pose animation. Probably fine for now.
+- Long-term schedule evolution (NPC moves to a new apartment after Story Beat): handled by adding a `relocated` flag and gating blocks on it. Pattern works; just an authoring discipline thing.
+- Reggie's patrol routes will likely want a "loop forever" transit pattern (walk a beat repeatedly until shift ends). Current authoring doesn't have first-class support, but you can emulate it with many short transit entries. May want a `loop:` activity prefix eventually.
+
+---
+
+## 11.6. .sched File Format ✅ COMPLETE
+
+Schedules are authored in `res://data/schedules/<npc_id>.sched`. Filename basename = npc_id. Format mirrors `.dlg` closely (same key/precondition syntax, same hot-reload, same lookup model). Hot-reload on save in debug builds; F6 force-reloads.
+
+### Structure
+
+A file is a list of **blocks**. Each block is one variant of a daily schedule, gated by tags + preconditions. At any moment the highest-specificity matching block wins, and its time-keyed entries drive the NPC.
+
+```
+KEY [| precondition ; precondition ; ...]
+	HH:MM activity scene args
+	HH:MM activity scene args
+```
+
+Body lines tab-indented.
+
+### Keys
+
+| Key | Specificity | Matches |
+|---|---|---|
+| `default` | -1 | nothing else matches |
+| `*` | 0 | always (use with preconditions) |
+| `mon`..`sun`, `weekday`, `weekend` | 1 | as named |
+| `mon.rainy` | 2 | both tags present (AND) |
+
+Tag matching is AND. Tie-breaking: same-specificity blocks are won by **file order — later wins**. Convention: place "patch" blocks (a block that should override another when its conditions are met) lower in the file.
+
+### Preconditions
+
+Same syntax as `.dlg`:
+
+- `event_done X` — RelationshipSystem records this event as complete
+- `has_item X` — player carries item with id X
+- `flag_name` / `!flag_name` — NPC or global flag set / not set
+- `knows` / `!knows` — RelationshipSystem.get_knows for this NPC
+- Comparison ops on stats: `affinity > 40`, `trust < 20`, `day >= 5`, `dow == 2`
+- Multiple preconditions separated by `;` (all must be true)
+
+### Schedule lines
+
+Two activity shapes:
+
+```
+HH:MM <animation> SCENE MARKER [FACING]              # stationary
+HH:MM walk:<animation> SCENE A->B->C...              # transit
+```
+
+- `SCENE` is the room basename (no extension, no folder). ScheduleDatabase resolves it.
+- `MARKER` is a waypoint id in that scene.
+- `FACING` (stationary only) is `north`/`south`/`east`/`west`. Drives `<anim>_<facing>` selection. Default south.
+- Transit routes are 2+ waypoint ids joined by `->`. All waypoints in one scene.
+- Times are 24-hour calendar minute-of-day.
+
+Stationary `<animation>` is any name — `stand`, `sit`, `smoke`, `sleep`, `work`. Falls back to `idle` if absent from SpriteFrames.
+
+Transit `walk:<animation>` is the directional prefix — `walk:walk` → `walk_north/south/east/west`, `walk:run` → `run_north/...`, etc. Same fallback to `idle`.
+
+### Time windows
+
+Each entry occupies the window from its `HH:MM` until the next entry's `HH:MM`. Last entry wraps to first entry next day (so an evening "stand at home" covers overnight). Transit duration is the window's length — *speed = total Manhattan distance / window minutes, constant across the route*. Squeeze or expand the gap to control walking speed.
+
+### Block selection
+
+For each NPC, ScheduleDatabase iterates blocks, eliminates those whose tags aren't all in current context, eliminates those whose preconditions fail, picks highest specificity (later-in-file wins ties). Result is a `Schedule` wrapping just that block's entries. NPCDirector then queries `entry_window_at(now)` against it.
+
+Current context tags include: weekday name, `weekday`/`weekend`, all global flags from RelationshipSystem, all NPC-specific flags. Forthcoming: weather, time-of-day band — plumb in when those systems land.
+
+### Authoring patterns
+
+**Event-driven variant** — patch a default with a gated precondition:
+
+```
+default
+	09:00 stand hardware_store counter south
+
+default | event_done bodega_incident
+	11:00 stand hardware_store counter south
+```
+
+Default applies pre-event; the gated default (same specificity, later in file) takes over post-event.
+
+**Weekend schedule:**
+
+```
+sat
+	10:00 stand park bench_a east
+	14:00 walk:walk ext_central park_exit->store_door
+	14:30 stand hardware_store counter south
+```
+
+**Late-for-work hustle** — short transit window = fast walk:
+
+```
+08:55 walk:run ext_central home_door->corner->store_door
+09:00 stand hardware_store counter south
+```
+
+Five minutes for the whole walk = visible hurry.
+
+### Gotchas
+
+- Scene basenames must be unique across `res://scenes/rooms/`. Two `office.tscn` in different subfolders won't work — the index keys by basename.
+- Transit waypoints all live in one scene. Cross-room walks are sequential transit entries in different scenes with implicit "in transit between" gaps.
+- Marker ids are case-sensitive `StringName`s. Typo = silent warning + NPC fails to materialize at that entry.
+- A block with failing preconditions just doesn't match — it doesn't disable other blocks. Always have a `default`.
+
+---
+
+## 12. Cast (MVP — 6 Characters)
+
+Per design doc, 6 named NPCs with full dialogue support. Stage 10.
+
+Reggie (the beat cop) is now slated as one of the 6. He has a patrol schedule (predictable, gameable). His PURSUIT and APPREHENSION states have conditional dialogue based on player heat and relationship — high affinity + low heat = he lets you off with a warning; high heat = "I can't, the captain's on this."
+
+First scheduled NPC built: **Oliver** (hardware store owner). Covers stationary at work, stationary at home, multiple transit walks, weekday/Sunday variants, event-gated post-incident variant. Proves the framework across the shapes a real cast will need. Other characters are authoring tasks.
+
+---
+
+## 13. Locations (MVP)
+
+Per design doc. One playable neighborhood. Player apartment (living + bedroom + hallway). Outdoor scenes:
+- Apartment building exterior
+- Commercial street (Fence, hardware store, payphone, bodega)
+- Probably a connecting alley or two
+
+Chunk strategy: 4-7 outdoor chunks total when the map is finished. Each chunk is a separate scene file with `Doorway`-style transitions between chunks. Small connector scenes (alleys, paths) mask loads between major chunks. See §22 for the chunking framework.
+
+---
+
+## 13.5. Doors ✅ COMPLETE
+
+Doors are interactables with optional locking. Lockable doors have four authored configuration axes that compose multiplicatively to express most real-world door behavior:
+
+- **Schedule hours** (`time_open`, `time_close` as `HH:MM` strings) — door is open during this calendar minute-of-day window. Wraps midnight if `time_close < time_open` (for late-night bars etc.).
+- **Owner-NPC unlock** (`owner_npc`, `owner_home_scene`) — door is *also* unlocked whenever the owner's current schedule places them in `owner_home_scene`. This is *additive over scheduled hours, never subtractive* — owner-presence can never make a door more restrictive than its schedule.
+- **Late lockout** (`late_lockout` as `HH:MM` string, optional) — modifier on the owner-presence path only. After this time, owner-presence no longer unlocks the door (owner is home but "not answering"). Scheduled hours unaffected — a bar open until 02:00 stays open regardless of any lockout.
+- **Hard-locked days** (`locked_days` as `@export_flags` bitfield) — days the door is hard-locked regardless of *anything else*. Takes precedence over all unlock paths. For "store closed Sundays" / holiday rules.
+
+Lock resolution order: `_is_locked_today()` → false override; else schedule hours; else owner-present-and-not-late-lockout. Notification message switches on which path is active — "Closed today" for locked_days, "Locked. Open 09:00 – 21:00" for schedule-only doors, "Locked. No one's answering" for pure owner-presence doors.
+
+**Authoring examples:**
+
+| Door | Config |
+|---|---|
+| Hardware store front (Oliver's shop) | `time_open=09:00`, `time_close=21:00`, `owner_npc=oliver`, `owner_home_scene=res://scenes/rooms/hardware_store.tscn`, `locked_days=Sunday`. Result: 9-9 Mon-Sat, plus anytime Oliver's at the store outside hours; Sundays closed. |
+| Oliver's home front | `time_open=00:00`, `time_close=00:00` (never open by schedule), `owner_npc=oliver`, `owner_home_scene=res://scenes/rooms/oliver_house.tscn`, `late_lockout=22:00`. Result: open whenever Oliver's home before 22:00; locked overnight; reopens next morning when he's still home. |
+| Player apartment | `is_lockable=false`. Always works. |
+
+---
+
+## 14. Procedural Generation for B&E (DEFERRED)
+
+Not in MVP. When B&E ships, hand-authored handful of layouts is the right scope.
+
+---
+
+## 15. Heat / Police System
+
+**MVP heat is minimal:** witnessed crimes have a small chance to spawn a patrol cop arriving at the scene. Apprehension is fines, no jail time yet.
+
+**Post-MVP design — three layers of heat:**
+
+### 15.1 Immediate heat (caught in the act)
+
+A discrete event. Cop sees crime → pursuit begins → either apprehended or escaped. Apprehension consequence scales with severity:
+- Petty crime + low cumulative → warning
+- Petty crime + high cumulative → fine
+- Serious crime + any → fine + jail time
+- Serious crime + high cumulative → escalated
+
+Pursuit is the *moment of decision* between seen and caught. Player has 10ish seconds to break line of sight after being spotted. Three outcomes:
+- **Caught at scene** → apprehension flow
+- **Escaped but witnessed** → no immediate punishment, but personal cumulative heat spikes hard
+- **Got out clean** → small cumulative tick
+
+### 15.2 Personal cumulative heat (the case being built)
+
+Slow-rising tide. Fed by:
+- Petty crimes that didn't go clean
+- Witnessed-but-escaped events (highest weight — they have a description of you)
+- Buyer-witness reports
+- Bank deposits over a threshold ("structuring")
+- Phone-line overuse (when phones unlock)
+- Repeat patterns at the same location
+
+Decay: lay low for ~1 week of real-time activity-free and cumulative slowly drops. Lay low for 2 weeks and it returns to baseline. Player can always recover, but it takes restraint.
+
+**Hidden meter with symptoms.** No number on screen. The player feels heat through ambient cues:
+- Cruisers parked on the block more often
+- Neighbors mentioning "guy was asking about you"
+- Hangups on your new phone line
+- A specific NPC giving you a different greeting
+
+Symptoms are qualitative and overlapping — they tell you the *direction* of the tide, not the height.
+
+**High cumulative → detective knock.** Or one of several state-shift events: detective interview, buyer revealed as wired, raid that takes your stash, friend tipping you off they were questioned. Player doesn't know which shoe drops, only that something will.
+
+### 15.3 Area cumulative heat (neighborhood temperature)
+
+Per-region float. Fed by every crime that happens in the area (yours or anyone's). Decays with inactivity (~1-2 weeks to fully cool).
+
+Modifies:
+- Patrol cop spawn chance per check
+- Max concurrent patrol cops
+- Witness sensitivity (cops & NPCs both)
+
+High area heat = more cops on patrol = more witness checks per minute = compounding pressure.
+
+### 15.4 Witness model
+
+When a crime fires the "witness check" event, each eligible NPC/cop in the player's viewport rolls. NPCs roll against `discretion`:
+
+- Criminals / customers / fellow dealers: high discretion → silent witness
+- Junkies: silent
+- Friendly NPCs (high affinity): silent — but relationship damage ("you saw what?")
+- Low-affinity straights: report → cumulative heat spike + area heat tick
+- Cops: always report (pursuit begins)
+
+The friendly-NPC-silent-with-relationship-cost case is the most interesting one. It gives the social layer real teeth.
+
+### 15.5 Patrol cops (post-MVP)
+
+State machine: PATROL / PURSUIT / INVESTIGATE.
+
+- **PATROL** — walks waypoint route from one map edge to another, despawns at exit. Witness check active. Same speed as player.
+- **PURSUIT** — chasing last-seen-player position via NavigationAgent2D. Same speed as player but persistent — player must break line of sight, not outrun. ~3-second awareness buffer after LOS loss before transitioning to INVESTIGATE.
+- **INVESTIGATE** — at last-seen position, no player visible, looks around for N seconds before returning to PATROL or schedule. This is the state that lets evasion succeed.
+
+**Viewport = witness range.** Both directions: if cop is on player's screen, witness checks fire; if not, no check. `VisibleOnScreenNotifier2D` is the tool. Pursuit cops maintain awareness slightly beyond viewport for the 3-second buffer.
+
+**Spawning:** off-screen at map-edge entry markers. 8-12 minute jittered interval per check. Spawn chance and max cop count scale with area heat. Despawn after 2 minutes off-screen.
+
+**No game over.** All consequences are state shifts — wanted state with restricted options, informant path with different constraints, eviction to shanty town. The game gets meaner; it doesn't end.
+
+---
+
+## 16. Systems Deferred Post-MVP
+
+- Money laundering / bank accounts (multi-pool wallet architected, expansion is additive)
+- Multiple strains and quality system content (modifier system architected)
+- Cooking
+- Dating / romance
+- Catalogue mail-order (vendor system supports it; just needs scene + UI for ordering vs. instant buying)
+- Pawn shop with rotating daily stock (vendor system supports it; just needs the stock-rotation logic)
+- Body modifications / appearance
+- Multiple neighborhoods (architecture supports it via per-scene tier weights)
+- Full B&E with handcrafted house layouts
+- Pickpocketing
+- Full heat system (witness model, three layers)
+- Patrol cops
+- Detective storylines
+- Eviction → shanty town
+
+---
+
+## 17. Technical Architecture (Godot)
+
+[Existing architecture section retained — autoload order, signal patterns, save system, time system, etc. Updated key points:]
+
+### Autoload init order (MVP-current)
+
+1. `SaveSystem` — must precede anything that calls `register_savable`
+2. `ItemRegistry` — must precede anything that resolves item IDs
+3. `TimeSystem` — must precede time-dependent autoloads
+4. `WorldStateSystem` — room state persistence
+5. `RoomManager` — room transitions
+6. `Wallet`
+7. `RentSystem`
+8. `DealerExperience`
+9. `CriminalExperience`
+10. `CustomerRoster`
+11. `PagerSystem`
+12. `MeetingManager`
+13. `MeetingSpawner`
+14. `CarSpawner`
+15. `NotificationSystem`
+16. `PlayerSkills`
+17. `RelationshipSystem`
+18. `DialogueDatabase`
+19. `ScheduleDatabase` — must precede NPCDirector
+20. `NPCDirector` — depends on TimeSystem, RoomManager, ScheduleDatabase
+
+### Save/load timing trap
+
+`load_state` order across autoloads can't be relied on. Systems that need to sync with world state after their data loads should `call_deferred` a sync method from their own `load_state`. Examples: `CarSpawner.load_state` calls `call_deferred("_materialize_cars_for_current_scene")`; `NPCDirector.load_state` calls `call_deferred("_resync_after_load")` because `room_changed` already fired and TimeSystem may not yet be loaded at that point.
+
+### Vendor system as a reusable pattern
+
+`VendorInteractable` + `Stock` Inventory child + `VendorPanel` UI = the pattern for any "swap items for currency" interaction. Same node type covers Fence (sell-only), Hardware Store (buy-only with owner gating), eventual pawn shop (both), eventual catalogue (buy with delay). The two multipliers + sellable flag on ItemDef handle every variation. The optional `vendor_owner` field couples the vendor's availability to an NPC's schedule via NPCDirector — no schedule code on the vendor itself.
+
+### Spawner pattern
+
+The "register markers in scenes, manager picks from them on a trigger" pattern is now used by four systems:
+- `MeetSpot` + `MeetingManager` (one-off scheduled meetings)
+- `PatrolWaypoint` + `PatrolSpawner` (recurring patrol routes, post-MVP)
+- `CarSpawnPoint` + `CarSpawner` (daily-renewable spawns)
+- `Waypoint` + `NPCDirector` (per-room markers referenced by schedule entries)
+
+Future systems (item spawners, decoration spawners) should follow the same pattern.
+
+### Material-on-room-enter
+
+Pattern proven by `MeetingSpawner`, `CarSpawner`, and now `NPCDirector`. Generic shape:
+1. Manager owns state about what should exist in which scene
+2. Listens to `RoomManager.room_changed`
+3. On room enter, queries own state for "what belongs here?" and instantiates
+4. On room exit, despawns or persists state back
+
+### ItemDef tool framework
+
+Items can declare movement-tool behavior via two ItemDef fields:
+
+- `tool_id: StringName` — empty for passive items; non-empty triggers a tool dispatch in player.gd when interact is pressed while the item is in the active slot
+- `movement_speed: float` — speed when this tool is the active movement mode
+
+Player owns `active_mode: StringName` and `active_mode_speed: float`. Entering a mode reads the speed from the item def (so future vehicles are just new `.tres` files, not new code constants). Exiting clears both. `_current_speed()` returns `active_mode_speed` if a mode is active, otherwise the walking calculation with athletics multiplier.
+
+This is the framework for the skateboard (Athletics-track upgrade item). Future bikes / rollerblades / cars-as-fast-travel plug in the same way — new tool_id, new dispatch line in `_try_tool_interact`, new entry in `MOVEMENT_TOOL_SCENES` if the new mode is scene-restricted.
+
+### Interactable + collision shape separation
+
+Lesson learned: don't bundle collision shape inside the reusable Interactable scene. The shape is per-object data that varies; the script and behavior are what gets reused. Parent scenes provide their own CollisionShape2D as a child of the Interactable instance (with Editable Children enabled — safe usage since we're adding new children, not modifying inherited ones).
+
+### Y-sort and chunking
+
+Outdoor scenes use a YSortedContent parent for everything dynamic (wall tops, decoration with height, NPCs, player). Floor and wall-base TileMapLayers stay outside the y-sort group as flat backgrounds. z_index manipulation is reserved for vault arc state (see §24).
+
+---
+
+## 18. Open Questions
+
+- Detective knock as scripted event vs. state shift — leaning toward scripted scene that resolves to a state
+- Cumulative heat decay rate — needs playtesting once heat ships
+- Patrol cop max count scaling — current `[1, 2, 3, 4]` per heat band is a guess
+- How fast cars should be as fast-travel (vs. walking) — depends on map size
+- Whether to ever surface CRIM_XP as an in-game number (probably yes, parallel to DEX)
+- Skill caps — see §24
+- Whether scheduled NPCs need a "loop" transit primitive for patrol-style routes, or whether sequential transit entries are clear enough (see §11.5)
+
+---
+
+
+
+## 19. MVP Build Order
+
+### Stage 1: Spatial Foundation ✅ COMPLETE
+### Stage 2: Time and State ✅ COMPLETE
+### Stage 3: First Income Loop (Weed) ✅ COMPLETE
+### Stage 4: Dialogue & First NPC ✅ COMPLETE
+### Stage 5: Economy Closure ✅ COMPLETE
+- Wallet (multi-pool, MVP cash only)
+- RentSystem with weekly auto-deduct and 2-strike eviction signal
+- VendorInteractable + VendorPanel supporting both buy and sell
+- The Fence (sell-only)
+- Hardware Store (buy-only with initial_stock authoring)
+- HUD cash + rent labels + NotificationSystem
+
+### Stage 6: Pager & Buyers ✅ COMPLETE
+- Customer class + CustomerRoster autoload (persistent, tier-gated growth)
+- DealerExperience autoload (XP, tiers, signals, save/load)
+- PagerSystem (time-driven page generation, 6h callback deadline, sleep window respect)
+- PagerIndicator HUD (always visible, blinks on pending)
+- Payphone interactable + CallbackPanel UI
+- MeetingManager (auto-schedule meet spots with 12h+ minimum, jitter, conflict avoidance)
+- MeetSpot markers
+- MeetingSpawner (cross-scene materialize on room change)
+- CustomerNPC (auto-sell on talk if inventory has enough product)
+- AppointmentPanel (pager-click opens upcoming/active meeting list)
+
+### Stage 7: Criminal Track (Car Looting) ✅ COMPLETE
+- LootableCar scene + script (progress-bar action, locked/unlocked, looted state)
+- LootTable + LootTableEntry resources (weighted entries, multi-roll with empty chance)
+- CriminalExperience autoload (XP, tiers, signals, save/load)
+- CarSpawner autoload (per-scene-on-first-entry generation, daily reset, save persistence)
+- CarSpawnPoint markers with orientation
+- Per-tier × orientation sprite arrays
+- NotificationSystem integration (loot drops show up in HUD feed)
+
+### Stage 8: Player Skills ✅ COMPLETE
+See §24.
+- PlayerSkills autoload with skill dictionary
+- Athletics — passive per-pixel gain, larger on vault
+- Strength — slot-count-based gain, unlocks inventory slots at thresholds
+- Lockpicking — duration scaling on car loot, XP on success
+- Vault interactable + 3 tier-gated vault categories (low/medium/high)
+- Capability query API (`PlayerSkills.has_capability("vault_low")`) for event/quest gating
+- Stealth deferred until heat lands
+- Skill screen UI deferred (capabilities surface through gameplay feel; threshold-cross notifications fire on level-up)
+
+### Stage 9: NPC Schedules ✅ FRAMEWORK COMPLETE, CONTENT IN PROGRESS
+See §11.5, §11.6.
+- `Schedule` resource (minute-of-day → entry dict)
+- `Waypoint` markers + per-room `Waypoints` container convention
+- `ScheduledNPC` base class extending `NPC` (inherits dialogue / interactable / sprite)
+- `NPCDirector` autoload (registration, reconciliation on tick + room change, materialize-on-room-enter)
+- `ScheduleDatabase` autoload (.sched parsing, tag + precondition block selection, hot-reload)
+- `.sched` file format with stationary + transit activities, animation-as-data
+- Multi-waypoint transit routes with constant-speed Manhattan interpolation
+- Public API for downstream systems (`is_npc_present`, `is_npc_in_scene`, `get_current_entry`)
+- First NPC (Oliver) authored end-to-end as proof-of-concept
+- Vendor owner-gating wired (vendor active only when owner NPC is materialized)
+- Door owner-presence unlock wired (doors can unlock when their owner is scheduled-home)
+- Skateboard movement-tool framework as bonus deliverable (scene-restricted movement mode pattern)
+- NavigationAgent2D deferred to Stage 12 (only pursuit cops need real pathfinding)
+
+### Stage 10: Cast Expansion
+- Fill remaining 5 NPCs with dialogue trees and .sched schedules
+- Reggie (the cop) as the most complex scheduled NPC, with patrol route (sequential transit entries)
+- Hangouts mechanic (MVP: teleport to location + short dialogue; post-MVP: full activities)
+- NPC gift-giving (relationship axis affecting affinity, dialogue context, schedule variants)
+
+### Stage 11: Scripted Events
+- Event resource format + EventDirector autoload
+- Skill-gated, time-gated, location-gated, relationship-gated event triggers
+- At least 3-5 authored events demonstrating each gate type
+- Integration with dialogue system (events queue dialogue) and schedule system (events flip flags that gate schedule blocks)
+
+### Stage 12: Heat System (light MVP)
+- Single witness check per crime
+- Random patrol cop spawn on witnessed crime
+- NavigationAgent2D + NavigationRegion2D introduced here for cop pursuit
+- Apprehension flow → fine (no jail yet)
+- Hooks for full three-layer heat system later
+
+### Stage 13: Neighborhood Progression Foundation
+- Neighborhood drift tracking (community / criminal scores)
+- 2-3 slot locations with default/community/criminal states
+- 1-2 fully implemented end-to-end slot choices
+- Pawn shop with rotating stock + DEX gating
+
+### Stage 14: Polish & MVP Definition of Done
+See §20.
+
+---
+
+## 20. MVP Definition of Done
+
+The MVP is "done" when a new player can:
+
+1. Wake up in the apartment, learn the basic loop in their first in-game day
+2. Grow weed from seed to harvest over an in-game week
+3. Sell stolen goods to the Fence
+4. Buy supplies from the Hardware Store
+5. Receive a page, return the call, complete a deal, get paid at retail
+6. Develop a recurring buyer relationship over multiple successful deals
+7. Loot at least one car successfully
+8. Reach Tier 1 in each XP track (DealerExperience, CriminalExperience)
+9. Develop one player skill to a meaningful threshold and feel the capability change (e.g., vault unlock)
+10. Build relationship with at least one of the 6 NPCs to a meaningful threshold
+11. Hang out with an NPC, choosing it over a competing income opportunity
+12. Get caught committing a minor crime and pay the fine
+13. Encounter at least one scripted event, triggered by skill or relationship gating
+14. Survive (or fail to survive) a full in-game month including rent obligations
+15. Save and reload without state loss
+
+If all fifteen are achievable in a vertical slice, MVP is done and "is this loop fun?" can be answered with real playtest data.
+
+---
+
+## 21. Build Status & Architecture Decisions
+
+[Existing content retained. Key additions:]
+
+### Stage 5 / 6 / 7 specific decisions:
+
+**Vendor system uses shadow inventories for staged transactions.** When the panel opens, it duplicates both player and vendor inventories. The player manipulates shadows freely; on Confirm the wallet delta is computed and the shadows are written back. On Cancel the shadows are discarded. This is the cleanest way to support multi-item buy+sell in one transaction without complex undo logic.
+
+**Pricing uses base_value + per-vendor multipliers.** Each ItemDef has `base_value` and `sellable` fields. Each vendor has `buy_multiplier` and `sell_multiplier`. Final price = base × multiplier × count. Items where `sellable=false` are refused by sell-anywhere vendors regardless of multiplier.
+
+**Customer roster persists per-save, not per-playthrough.** Originally considered cross-playthrough persistence; rejected as it would require state outside the save file. Each save has its own customer roster, seeded with the same starter customer and growing differently as the player progresses.
+
+**Pages have a waking-time deadline, not wall-clock deadline.** A page that arrives at 4 AM doesn't expire while you sleep — the deadline ticks down only during waking hours (06:00–14:00 sleep window is paused). This means a late-night page is still actionable when you wake up.
+
+**Meeting schedules round to quarter-hours.** "Meet at 6:45" feels more natural than "Meet at 6:32." Auto-scheduler picks the meeting time, then quantizes to the nearest 15.
+
+**Car spawning is lazy per-scene, not daily-batch.** Cars generate when the player first enters an outdoor scene each day, not all-at-once at dawn. This handles cross-scene scaling naturally — scenes the player never visits don't generate anything.
+
+**Car state persistence keyed by car_id, not by scene + position.** Carries through save/load cleanly. Day rollover clears the whole `_car_states` dict; new cars get fresh IDs.
+
+**Placement gated by `placement_allowed` group on rooms.** Apartment rooms are in the group; outdoor and hallway are not. The hallway exception was the original prompt that revealed the missing gate.
+
+**Animated doors use two named animations (open, close) plus frame-0-as-rest convention.** Frame 0 of `open` is the closed visual; frame 0 of `close` is the open visual. Resting state uses appropriate animation + frame 0 + stop().
+
+**Interactable scenes carry no CollisionShape2D.** The shape lives in the parent scene as a child of the Interactable instance (Editable Children enabled). This handles the bed/door/payphone/car cases that all wanted different collision footprints without per-scene script changes.
+
+**Spawn point scene_path resolution prefers `owner.scene_file_path`, not `current_scene`.** A spawn point inside a sub-scene loaded under a world wrapper would otherwise report the wrapper's path. `owner` correctly points to the *room* the marker was authored in.
+
+### Stage 9 specific decisions:
+
+**Schedule data lives in `.sched` files, not in code.** Initial implementation hardcoded Oliver's schedule in NPCDirector. Moved to data-driven .sched files for the same reason dialogue is in .dlg files — hot-reload, authoring without recompile, content separable from systems. Format mirrors .dlg deliberately so both files feel familiar to author.
+
+**Activity type is animation name, not enum.** Originally `activity: STAND | TRANSIT | SIT | SMOKE` enum. Realized the only structural distinction is "is this stationary or transit" (which affects how position resolves), and the rest is just "play this animation." Now the entry has `kind: stationary | transit` and an arbitrary `animation: String`. Adding a new authored animation (smoking, sleeping, working) needs zero code changes — just SpriteFrames updates and a .sched line that references the new name. Transit uses a `walk:NAME` prefix to encode the directional animation while staying within the same format.
+
+**Transit speed is implicit from the schedule timing window.** Each transit entry's duration = the gap to the next entry. Speed = total Manhattan distance / window minutes. This emerged from the implementation but became a load-bearing design lever — characters in a hurry vs sauntering vs limping fall out of timing tuning, not separate speeds-per-NPC config.
+
+**Vendors gate on owner-NPC presence, doors gate on owner-NPC schedule location.** The two are subtly different. Vendors care about "is the NPC currently materialized in this room" (presence) — works because vendors live in a specific room and the player only sees the gate effect when they're there. Doors care about "is the NPC scheduled to be home right now" (schedule lookup) — works even when the player is on the wrong side of the door and the owner isn't materialized anywhere. Two methods, two use cases: `NPCDirector.is_npc_present(id)` and `NPCDirector.is_npc_in_scene(id, scene_path)`.
+
+**Door locking factors compose, they don't priority-order.** Hard-locked days override everything. Schedule hours and owner-presence are both unlock paths; whichever is true unlocks the door. Late-lockout modifies the owner-presence path only. This composition lets one door type express stores-with-hours, homes-without-hours, late-night-bars, holiday-closures — without subclassing.
+
+**ItemDef gains tool_id / movement_speed for the movement-tool pattern.** Speed lives on the item, not in player constants. Skateboard is the first instance; bikes and other vehicles plug in the same way. Player owns `active_mode` state that survives slot changes (player swaps inventory item, mode persists until explicitly exited or auto-dismounted on room change).
+
+**Vault tween coordination uses one tween with `set_parallel(true)` and `chain()` before the completion callback.** Original implementation used two parallel tweens for position and arc — they appeared to finish simultaneously but actually had nondeterministic per-frame ordering, causing residual writes after the completion callback. Single-tween-with-parallel-children + chained callback guarantees ordering: position and arc tick together, then callback fires once both are complete.
+
+---
+
+## 22. Gotchas & Conventions
+
+[Existing content retained. Key additions:]
+
+### Godot quirks
+
+- **`@export var foo: MyEnum` doesn't work cleanly.** Use `@export_enum("Display1", "Display2") var foo: int = 0` instead. Underlying enum values still match for `if foo == MyEnum.VALUE` checks.
+- **`@export_flags("Name1", "Name2", ...)` for multi-select.** Inspector renders as labeled checkbox dropdown, stored as bitfield int. Used for door `locked_days`. *Don't reorder names* once data is authored — Godot stores by bit position, not name; reorder = silently relabel.
+- **`process_mode` is a property, not a method.** Setting `node.process_mode = X` works; `node.set_process_mode(X)` doesn't exist.
+- **Disabling `process_mode` on an Area2D kills its physics detection too.** Use `monitoring = false` for that purpose instead. Even better: guard in the interaction handler itself rather than disabling the node.
+- **`call_deferred` is the answer for "do this after the current load/signal cycle completes".** Used in CarSpawner.load_state and NPCDirector.load_state to re-materialize after state restore.
+- **`@tool` annotation on a subclass breaks bare identifier access to inherited properties.** E.g. `global_position` becomes "Identifier not declared in current scope" when the subclass is `@tool` but accesses Node2D inheritance. Drop `@tool` from the subclass; if editor-time preview is needed, the parent class handles it via property setters.
+- **Adding a new `@export` to a Resource script may not propagate to existing `.tres` files without an editor restart.** Symptom: "Invalid access to property 'foo' on Resource" on a file you know has the export. Restart editor or delete `.godot/` cache to force resync.
+
+### Save/load patterns
+
+- Every autoload that owns state calls `SaveSystem.register_savable("name", self)` in `_ready`
+- Every such autoload implements `save_state() -> Dictionary` and `load_state(data: Dictionary)`
+- State that depends on world (scene tree, current room) needs `call_deferred` sync in `load_state`
+- Resource references (Texture2D, SpriteFrames, etc.) are NOT saved — they're configuration. Save indices/IDs that resolve back to resources.
+
+### Outdoor chunking
+
+- 4-7 outdoor chunks total for MVP, each its own scene file
+- Connector scenes (alleys, paths) are small, scene-bordered, hide loads
+- Use existing Doorway system for chunk transitions
+- Author room template scene; use as the base for all new rooms via "New Inherited Scene"
+- Stick to a `Floors / WallsBase / YSortedContent / SpawnPoints / NPCs / Cars / Placeables / Waypoints` node convention per room
+
+### Tween coordination
+
+- **Don't parallel-run two separate Tween instances of the same duration with a completion callback on one.** Per-frame ordering between independent tweens is nondeterministic, so the "trailing" tween can write state after the callback resets it. Symptom in the vault case: z_index gets reset to 0 in the callback, then arc tween's final frame writes 10 back.
+- **Single tween with `set_parallel(true)` + `chain().tween_callback(...)` for the completion** guarantees ordering. Children tick together, callback fires once all children complete.
+- **Reset `AnimatedSprite2D.speed_scale` to 1.0** after using it for duration-matching. It persists across animation changes.
+
+### Asset pipeline conventions
+
+- Tilesets split by function, not aesthetic
+- Outdoor terrain via 47-tile autotile templates as Godot terrain sets
+- Probability weighting on variant tiles for visual noise
+- All tiles pass through indexed-palette in Aseprite before entering Godot
+- Per-orientation sprite naming convention: `assetname_color_n.png`, `_s.png`, `_e.png`, `_w.png`
+
+### Input handling
+
+- **One `is_action_pressed(action)` block per action per `_unhandled_input`.** Duplicate blocks silently fire both handlers — surface as "thing happens twice per press" (e.g., door opens-then-closes in the same frame). When adding a new feature that needs to intercept an existing input, modify the existing block; don't add a second.
+
+### Animation naming
+
+- Animation resolution uses a fallback ladder: `<prefix>_<facing>`, `<prefix>`, `idle_<facing>`, `idle`. SpriteFrames can be incomplete during development without runtime errors — missing animations silently fall back.
+- For NPC schedules: any animation name authored in the SpriteFrames is callable from `.sched` files. Activity vocabulary is data, not code.
+
+### Known minor bugs / deferred fixes
+
+- Doorways at identical positions in two rooms cause infinite-flip (workaround: one-tile buffer)
+- Day/night tint between 2 PM and 9 PM needs more tuning
+- HUD's `get_parent().get_node("Player")` is fragile; replace with player singleton when convenient
+- Debug print in hotbar_slot.gd line 67 needs cleanup
+- Looted-car sprite swap is just a modulate dim; needs a real "door ajar" variant when art lands
+
+---
+
+## 23. Neighborhood Progression System
+
+[Section retained from v0.4 — full content preserved. This is the overarching goal structure that gives the game's daily loop a direction. The community-vs-criminal drift mechanic, neighborhood slots, three timescales of feedback, and tier-gated content unlocks. Pawn shop and catalogue stock gating happens here via DealerExperience tier.]
+
+---
+
+## 24. Player Skills ✅ STAGE 8 COMPLETE
+
+The capability-progression spine that complements the content-gating XP tracks (DEX, CRIM).
+
+### The distinction
+
+- **XP tracks (DEX, CRIM)** gate content. They unlock new customers, new tools, new contacts. Player feels progression through "I can now do X."
+- **Player skills** gate capability and access. They make moment-to-moment play feel better and slowly open up the world. Player feels progression through "I feel faster / I can carry more / I can reach places I couldn't before."
+
+Both are slow burns. Both are felt. They complement, they don't compete.
+
+### Visibility model
+
+- **No involuntary numbers.** The Skyrim "+1 Lockpicking" popup is the failure mode — it turns the action into a number-collection game.
+- **One-time threshold notifications.** When a skill crosses a meaningful threshold, a quiet message ("You feel quicker on your feet"). Once. Never again.
+- **Optional dedicated screen.** Stardew-style. Player opens it when they're curious. Shows progress bars to next level rather than raw XP numbers. Closes. Not pushed at them. (Deferred — capabilities surface through gameplay feel; the screen is post-MVP polish.)
+
+### Leveling: Bethesda-style, gain-from-doing
+
+Skills increase by engaging with relevant actions. Small per-action gains naturally accumulate during normal play. No grinding loopholes because gains are tied to actions that consume game time and produce game state.
+
+Per-day caps prevent degenerate spam where applicable.
+
+### Initial skill set
+
+### Athletics
+- XP accrues per pixel of player movement, committed via fractional accumulator.
+- Speed scales linearly: `1.0 + level * 0.015`. L50 = 140 px/s (base 80).
+- Capability thresholds: `vault_low` at L10, `vault_medium` at L25, `vault_high` at L50.
+- Each threshold fires a one-time notification.
+- XP curve: `round(20 * pow(level, 1.6))` cumulative. ~12,649 XP to reach L50.
+
+### Vault (implemented)
+- Authoring: 1-tile-thick rule in the traversal axis. Stacked vaultables are rejected.
+- Vaultable tiles painted in a per-room `TileMap` named "Vaultables" with a
+  `vault_tier` custom data layer (0/1/2 = low/medium/high).
+- Visual fence rows above the vault row live in the world tilemap, not Vaultables.
+- Input: dedicated `vault` action (spacebar).
+- Detection: scan player's current tile (north-approach edge case) and one tile ahead.
+- **Single tween with parallel children** for position + arc, chained callback for completion (see §21 / §22 — tween coordination matters).
+- Per-tier tuning (shipped):
+  - Duration: 0.6s / 0.8s / 1.3s
+  - Arc height: 15px / 18px / 32px
+  - XP: 5 / 10 / 20
+- Landing offset (per-axis) compensates for foot-centered player origin.
+- Animation `speed_scale` set so anim length matches vault duration; reset to 1.0 in completion callback.
+- Z-sort fix: `z_index` is flipped at arc apex (t > 0.5) based on traversal direction
+  to make "clearing the fence" read correctly. East/west vaults leave z_index alone.
+  Reset to 0 in completion callback.
+- Stamina cost: 2 per vault.
+
+### Strength
+- XP accrues on movement, multiplied by filled inventory slots.
+- Inventory expands by chunks at threshold levels:
+  - Start: 6 slots
+  - L10/L20/L30/L40/L50: +6 slots each (capability flags `carry_12` through `carry_36`)
+- `Inventory` listens to `PlayerSkills.level_up` and resizes itself on threshold;
+  emits `capacity_changed` so dependent UIs (hotbar, inventory panel) rebuild.
+
+### Lockpicking
+- Flat 3 XP per successful locked car loot. (Tune after playtest — currently slow.)
+- Duration reduction: `max(0.1, 1.0 - level * 0.012)`. L50 = 40% faster picks.
+- No capability gates currently — slim jim + skill scaling only.
+- Future complexity (gated tiers) can layer on top.
+
+**Stealth** (defer until heat system lands)
+- Trigger: small XP per second in a witness's viewport without being detected. Larger XP on successful completion of a crime undetected.
+- Effect: lengthens the time it takes for a witness's "noticed" meter to fill.
+
+### Movement tools (skateboard)
+
+Athletics-track upgrade items that replace the foot-speed calculation with a flat speed sourced from the item. See §17 ItemDef tool framework. Skateboard is the first instance:
+
+- `tool_id = &"skateboard"`, `movement_speed = 150.0` on the ItemDef
+- Hold item active, press interact → enter skate mode (gated to `MOVEMENT_TOOL_SCENES` — outdoor neighborhoods only)
+- Skate mode plays `skate_<facing>` animation, drains stamina at 40% of walking rate
+- Press interact again → exit
+- Auto-dismount on room change to a non-allowed scene (skating in the hardware store would read weird; player gets dismounted entering, can re-mount on exit)
+- Speed scaling does NOT include the athletics multiplier — the skateboard *is* the upgrade, independent of athletics progression
+- Persists across saves
+
+Pattern extends to future vehicles (bike, rollerblades, moped) as new `.tres` files plus a dispatch line in player's `_try_tool_interact`.
+
+### Cop pursuit vault interaction
+Deferred — design intent recorded: cops can't vault medium until high pursuit aggression. Implementation waits for cop AI / heat system.
+
+---
+
+### Vault as the headline capability
+
+Vaultable objects are placed throughout outdoor scenes — low fences, mid-height walls, dumpsters, rooftop ledges. Each is tagged with a tier (low / medium / high). Player can vault objects of tiers they've unlocked.
+
+- **Low vault** (Athletics ~10): low fences, trash piles. Common throughout the map. Becomes the early "the world feels more open now" moment.
+- **Medium vault** (Athletics ~25): chain-link fences, low walls. Creates chase-mechanic shortcuts. Cops can't vault medium until high pursuit aggression.
+- **High vault** (Athletics ~50): walls, rooftop access. Late-game unlock for area access — gates content behind it.
+
+Vault is committed: pressing the vault key during a vault locks the player into the animation, can't be canceled or steered. Half-second commit. Prevents spamming as evasion; creates real timing decisions in chase scenarios.
+
+**This turns the level geometry into progression-relevant terrain.** The map literally changes as the player progresses — alleys with low fences become traversable, then chain-link cuts open new routes, then walls unlock new areas. Same trick as Metroidvania traversal, applied to an urban life sim.
+
+### Skill gates as content authoring lever
+
+The biggest design payoff of skills isn't the buffs — it's that **skills become a content-gating axis for events and quests**:
+
+- An NPC opens up to high-stealth players because they assume you can keep a secret
+- A specific Fence offer requires lockpicking tier 3
+- A side questline involving rooftop deliveries opens at Athletics tier 3 (high vault unlock)
+- A neighbor only mentions the basement burglary if your forced-entry skill is high enough to be useful
+
+Players who skill into different things *see different games*. This is huge for content variety and replay.
+
+
+### Architecture
+- `PlayerSkills` autoload owns all skills via a single `SKILL_CONFIG` dict keyed by skill id.
+- Adding a new skill = new config entry + trigger wiring in the source system.
+- One save dict, one set of signals (`skill_changed`, `level_up`, `capability_unlocked`).
+- Skills are distinct from XP tracks (DealerExperience, CriminalExperience):
+  skills gate *capability* (speed, carry, traversal); XP tracks gate *content* (customers, contacts).
+
+
+### Open design questions
+
+- Skill caps: aiming for 30+ hour saves, so caps should align with that target. Tentatively each skill caps at ~50 levels with the late levels increasingly slow.
+- Whether to surface skills before the player's first level-up, or wait until they cross a threshold so the screen appears as a discovery rather than a tutorial element.
+
+---
+## §Z Inventory shorts (additions)
+
+### Click modifiers
+- Plain click: cursor pickup (inventory) / move-one (vendor, storage)
+- Shift+click: full-stack transfer to other inventory
+- Ctrl+click: same as plain in inventory (cursor pickup); move-one in vendor/storage
+- Right-click: split-in-half (cursor takes half)
+
+Click semantics differ between panels deliberately — vendor and storage have a
+two-pile mental model; inventory has a cursor pickup model.
+
+### Capacity changes
+- `Inventory.capacity_changed(new_max: int)` signal fires on `expand_slots()` and
+  in `load_state()`. UIs subscribe and rebuild widgets reactively.
+
+---

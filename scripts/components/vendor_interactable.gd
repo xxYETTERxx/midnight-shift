@@ -15,6 +15,11 @@ extends Node2D
 # Number of slots in the vendor's stock inventory.
 @export var stock_size: int = 24
 
+# If set, the vendor is only open when this NPC is materialized in the same
+# room. Leave empty for vendors with no owner (vending machines, dead-drops,
+# any "always on" interactable).
+@export var vendor_owner: StringName = &""
+
 @onready var interactable: Interactable = $Interactable
 @onready var stock: Inventory = $Stock
 
@@ -26,6 +31,11 @@ func _ready() -> void:
 	stock.max_slots = stock_size
 	interactable.interacted.connect(_on_interacted)
 	_populate_initial_stock()
+
+	if vendor_owner != &"":
+		NPCDirector.npc_materialized.connect(_on_npc_presence_changed)
+		NPCDirector.npc_despawned.connect(_on_npc_presence_changed)
+		_refresh_open_state()
 
 
 func _on_interacted(player: Node) -> void:
@@ -49,6 +59,7 @@ func quote_buy_from_vendor(item: ItemDef, count: int) -> int:
 		return 0
 	return int(round(item.base_value * buy_multiplier)) * count
 
+
 func _populate_initial_stock() -> void:
 	if initial_stock.is_empty():
 		return
@@ -61,9 +72,36 @@ func _populate_initial_stock() -> void:
 		var count: int = initial_stock_counts[i] if i < initial_stock_counts.size() else 1
 		if item != null and count > 0:
 			stock.add(item, count)
-			
+
+
 func _stock_is_empty() -> bool:
 	for i in range(stock.max_slots):
 		if stock.get_slot(i) != null:
 			return false
 	return true
+
+
+# --- Owner gating -------------------------------------------------------
+
+# Re-check open state when our owner spawns or despawns anywhere. We don't
+# filter by which NPC — _refresh_open_state checks the live registry, so
+# this just acts as a "something changed, look again" trigger.
+func _on_npc_presence_changed(_npc_id: StringName) -> void:
+	_refresh_open_state()
+
+
+# Vendor is "open" if its owning NPC is currently materialized in the live
+# registry. Since scheduled NPCs only materialize in the player's current
+# room, presence in the registry implies presence in this room.
+func _refresh_open_state() -> void:
+	var owner_present: bool = NPCDirector.is_npc_present(vendor_owner)
+	interactable.set_enabled(owner_present) if interactable.has_method("set_enabled") else _toggle_interactable(owner_present)
+
+
+# Fallback if Interactable doesn't expose a clean enable API.
+func _toggle_interactable(enabled: bool) -> void:
+	interactable.visible = enabled
+	interactable.set_process(enabled)
+	interactable.set_physics_process(enabled)
+	if interactable.has_node("CollisionShape2D"):
+		interactable.get_node("CollisionShape2D").disabled = not enabled

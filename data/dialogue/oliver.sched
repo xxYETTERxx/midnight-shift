@@ -2,15 +2,14 @@
 
 # Default weekday plan: home → store → break → store → home
 default
-	08:55 walk:walk ext_central home_door->hardware_store_door
-	09:00 stand hardware_store counter
-	14:50 walk:walk ext_central hardware_store_door->hardware_w_junc->oliver_break
-	14:58 lighting_smoke ext_central oliver_break
-	15:00 smoking_south ext_central oliver_break
-	15:55 walk:walk ext_central oliver_break->hardware_w_junc->hardware_store_door
-	16:00 stand hardware_store counter
-	20:35 walk:walk ext_central hardware_store_door->home_door
-	21:00 stand oliver_house living_room
+	08:55 transit ext_central home_door->store_door
+	09:00 stand hardware_store counter south
+	14:55 transit ext_central store_door->oliver_break
+	15:00 stand ext_central oliver_break east
+	15:55 transit ext_central oliver_break->store_door
+	16:00 stand hardware_store counter south
+	20:35 transit ext_central store_door->home_door
+	21:00 stand oliver_house living_room north
 
 # Sundays — store closed, stays home
 sun

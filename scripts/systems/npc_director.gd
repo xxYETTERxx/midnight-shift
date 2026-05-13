@@ -160,27 +160,34 @@ func _materialize(npc_id: StringName, window: Dictionary) -> void:
 	_live_npcs[key] = npc
 	npc_materialized.emit(npc_id)
 	print("[NPCDirector] %s materialized (%s)" % [
-		npc_id, window.get("entry", {}).get("activity", "stand"),
+		npc_id, window.get("entry", {}).get("animation", "?"),
 	])
 
 
 func _apply_pose(npc: ScheduledNPC, entry: Dictionary, window: Dictionary) -> void:
-	var activity: String = entry.get("activity", "stand")
+	var kind: String = entry.get("kind", "stationary")
 	var room: Node = RoomManager.current_room
 	if room == null:
 		return
 
-	if activity == "transit":
+	if kind == "transit":
 		var route: Array = entry.get("route", [])
 		if route.size() < 2:
 			push_warning("NPCDirector: transit entry needs at least 2 waypoints")
 			return
-		var start_pos = _resolve_waypoint_position(room, StringName(route[0]))
-		var end_pos = _resolve_waypoint_position(room, StringName(route[-1]))
-		if start_pos == null or end_pos == null:
-			push_warning("NPCDirector: missing waypoint for transit (%s → %s)" % [route[0], route[-1]])
-			return
-		npc.set_transit(start_pos, end_pos, window.get("start_minute", 0), window.get("end_minute", 0))
+		var positions: Array[Vector2] = []
+		for marker in route:
+			var pos = _resolve_waypoint_position(room, StringName(marker))
+			if pos == null:
+				push_warning("NPCDirector: missing waypoint '%s' for transit" % marker)
+				return
+			positions.append(pos)
+		npc.set_transit(
+			positions,
+			window.get("start_minute", 0),
+			window.get("end_minute", 0),
+			entry.get("animation", "walk"),
+		)
 	else:
 		var pos = _resolve_waypoint_position(room, entry.get("marker", &""))
 		if pos == null:
@@ -188,7 +195,11 @@ func _apply_pose(npc: ScheduledNPC, entry: Dictionary, window: Dictionary) -> vo
 				entry.get("marker", &""), room.scene_file_path,
 			])
 			return
-		npc.set_stand(pos, entry.get("facing", "south"))
+		npc.set_stationary(
+			pos,
+			entry.get("animation", "idle"),
+			entry.get("facing", "south"),
+		)
 
 
 func _despawn(npc_id: StringName) -> void:
@@ -236,7 +247,9 @@ func _windows_equivalent(a: Dictionary, b: Dictionary) -> bool:
 		return false
 	var ea: Dictionary = a.get("entry", {})
 	var eb: Dictionary = b.get("entry", {})
-	if ea.get("activity", "") != eb.get("activity", ""):
+	if ea.get("kind", "") != eb.get("kind", ""):
+		return false
+	if ea.get("animation", "") != eb.get("animation", ""):
 		return false
 	if ea.get("scene_path", "") != eb.get("scene_path", ""):
 		return false
@@ -245,9 +258,19 @@ func _windows_equivalent(a: Dictionary, b: Dictionary) -> bool:
 	if ea.get("route", []) != eb.get("route", []):
 		return false
 	return true
+	
+func is_npc_present(npc_id: StringName) -> bool:
+	return _live_npcs.has(String(npc_id))
+
+func is_npc_in_scene(npc_id: StringName, scene_path: String) -> bool:
+	var entry: Dictionary = get_current_entry(npc_id)
+	if entry.is_empty():
+		return false
+	return entry.get("scene_path", "") == scene_path
 
 
 # --- Save / load --------------------------------------------------------
+
 
 func save_state() -> Dictionary:
 	return {}

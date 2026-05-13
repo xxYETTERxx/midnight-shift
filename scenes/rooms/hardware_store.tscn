@@ -3,7 +3,9 @@
 [ext_resource type="TileSet" uid="uid://bjb71lebq7nab" path="res://data/tilesets/InteriorWall.tres" id="1_f8yrm"]
 [ext_resource type="PackedScene" uid="uid://citlrvhb0bdsr" path="res://scenes/npcs/vendor.tscn" id="3_df7sl"]
 [ext_resource type="PackedScene" uid="uid://c5k1isfwli6lh" path="res://scenes/components/waypoint.tscn" id="4_df7sl"]
+[ext_resource type="Script" uid="uid://2ndmr7htrd8w" path="res://scripts/items/item_def.gd" id="4_dtkev"]
 [ext_resource type="PackedScene" uid="uid://cu0qiy18mj116" path="res://scenes/components/doorway.tscn" id="4_hvg7b"]
+[ext_resource type="Resource" uid="uid://bp42lp8ylxupe" path="res://data/items/calling_card_30.tres" id="5_nm5og"]
 
 [node name="HardwoodStore" type="Node2D" unique_id=1419844553]
 
@@ -47,6 +49,10 @@ target_spawn = "from_hardwood"
 
 [node name="Vendor" parent="Interactables" unique_id=1592916993 instance=ExtResource("3_df7sl")]
 position = Vector2(136, 171)
+vendor_name = "Oliver"
+vendor_owner = &"oliver"
+initial_stock = Array[ExtResource("4_dtkev")]([ExtResource("5_nm5og")])
+initial_stock_counts = Array[int]([1])
 
 [node name="SpawnPoints" type="Node2D" parent="." unique_id=814176097]
 position = Vector2(5, 16)

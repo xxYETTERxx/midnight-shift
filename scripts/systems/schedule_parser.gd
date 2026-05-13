@@ -189,30 +189,43 @@ static func _parse_schedule_line(line: String) -> Dictionary:
 	var activity: String = parts[1]
 	var scene: String = parts[2]
 
-	match activity:
-		"stand":
-			var entry: Dictionary = {
-				"activity": "stand",
-				"scene_path": scene,
-				"marker": StringName(parts[3]),
-			}
-			if parts.size() >= 5:
-				entry["facing"] = parts[4]
-			return {"minute": minute, "entry": entry}
-		"transit":
-			var route_str: String = parts[3]
-			var arrow_idx: int = route_str.find("->")
-			if arrow_idx < 0:
-				return {"error": "Transit route must be START->END"}
-			var start_marker: String = route_str.substr(0, arrow_idx).strip_edges()
-			var end_marker: String = route_str.substr(arrow_idx + 2).strip_edges()
-			return {"minute": minute, "entry": {
-				"activity": "transit",
-				"scene_path": scene,
-				"route": [StringName(start_marker), StringName(end_marker)],
-			}}
-		_:
-			return {"error": "Unknown activity '%s' (expected stand/transit)" % activity}
+	# Transit entries are flagged by the `walk:` prefix. The suffix names
+	# the animation prefix (e.g. walk:hustle plays hustle_east/west/etc.
+	# per leg). Position is resolved from a multi-waypoint route.
+	if activity.begins_with("walk:"):
+		var anim_prefix: String = activity.substr(5)
+		if anim_prefix.is_empty():
+			return {"error": "walk: prefix needs an animation name (e.g. walk:walk)"}
+		var route_str: String = parts[3]
+		var marker_strs: PackedStringArray = route_str.split("->", false)
+		if marker_strs.size() < 2:
+			return {"error": "Transit route must be START->END (with optional ->MID->...)"}
+		var route: Array = []
+		for m in marker_strs:
+			var trimmed: String = m.strip_edges()
+			if trimmed.is_empty():
+				return {"error": "Transit route has empty waypoint"}
+			route.append(StringName(trimmed))
+		return {"minute": minute, "entry": {
+			"kind": "transit",
+			"animation": anim_prefix,
+			"scene_path": scene,
+			"route": route,
+		}}
+
+	# Stationary entries: any animation name. Resolved against the named
+	# marker; facing optional. Parser doesn't gatekeep the name — if the
+	# sprite frames don't have it, ScheduledNPC's animation resolver
+	# falls back to "idle".
+	var entry: Dictionary = {
+		"kind": "stationary",
+		"animation": activity,
+		"scene_path": scene,
+		"marker": StringName(parts[3]),
+	}
+	if parts.size() >= 5:
+		entry["facing"] = parts[4]
+	return {"minute": minute, "entry": entry}
 
 
 # "HH:MM" → minute-of-day, or -1 on parse failure.

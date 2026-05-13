@@ -19,7 +19,15 @@ const VAULT_XP_BY_TIER: Array[int] = [5, 10, 20]
 const VAULT_LANDING_OFFSET_HORIZONTAL: float = 10.0
 const VAULT_LANDING_OFFSET_VERTICAL: float = 0.0
 
+const MOVEMENT_TOOL_SCENES: Array[String] = [
+	"res://scenes/rooms/ext_central.tscn",
+]
+const SKATEBOARD_DRAIN_MULTIPLIER: float = 0.4
+
 var _is_vaulting: bool = false
+
+var active_mode: StringName = &""
+var active_mode_speed: float = 0.0
 
 var stamina: float = 100.0
 
@@ -31,15 +39,15 @@ func _ready() -> void:
 	TimeSystem.minute_tick.connect(_on_minute_tick)
 	TimeSystem.hour_tick.connect(_on_hour_tick)
 	TimeSkipSystem.time_skipped.connect(_on_time_skipped)
+	RoomManager.room_changed.connect(_on_room_changed)
 	stamina_changed.emit(stamina, stamina_max)
 	SaveSystem.register_savable("player", self)
 	# NEW: re-arbitrate interactions when the player's held item changes
 	inventory.active_slot_changed.connect(_on_active_slot_changed)
 	inventory.slot_changed.connect(_on_inventory_slot_changed)
-	inventory.add(ItemRegistry.get_item(&"weed_seed"), 4)
-	inventory.add(ItemRegistry.get_item(&"watering_can"), 1)
+	inventory.add(ItemRegistry.get_item(&"skateboard_1"), 1)
 	inventory.add(ItemRegistry.get_item(&"slim_jim"), 1)
-	inventory.add_with_data(ItemRegistry.get_item(&"calling_card_30"), 1, {"minutes": 20})
+	_settle_idle()
 
 
 func _physics_process(delta: float) -> void:
@@ -56,7 +64,7 @@ func _physics_process(delta: float) -> void:
 	if input_vector.length() > 1.0:
 		input_vector = input_vector.normalized()
 
-	velocity = input_vector * speed * PlayerSkills.speed_multiplier()
+	velocity = input_vector * _current_speed()
 	move_and_slide()
 
 	# Athletics XP from distance actually moved (post-collision velocity).
@@ -70,6 +78,12 @@ func _physics_process(delta: float) -> void:
 	_update_animation(input_vector)
 
 func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("interact"):
+		if _try_tool_interact():
+			return
+		if not InteractionManager.try_interact(self):
+			PlacementSystem.try_place_active(self)
+	
 	if event is InputEventKey and event.pressed and not event.echo:
 		if event.keycode == KEY_F12:
 			RelationshipSystem.push_dialogue("mira", "bodega_intro")
@@ -103,9 +117,6 @@ func _unhandled_input(event: InputEvent) -> void:
 			print("[debug] burned 1 minute -> total=", CallingCardSystem.total_minutes(),
 				", cards=", CallingCardSystem.card_count())
 	
-	if event.is_action_pressed("interact"):
-		if not InteractionManager.try_interact(self):
-			PlacementSystem.try_place_active(self)
 	# Hotbar cycling
 	if event.is_action_pressed("hotbar_prev"):
 		inventory.cycle_active_slot(-1)
@@ -138,7 +149,7 @@ func _update_animation(input_vector: Vector2) -> void:
 		direction = "w" if input_vector.x < 0 else "e"
 
 	last_direction = direction
-	var anim_name := "walk_" + direction
+	var anim_name: String = _movement_animation_name(direction)
 	if sprite.animation != anim_name:
 		sprite.play(anim_name)
 	elif not sprite.is_playing():
@@ -147,7 +158,10 @@ func _update_animation(input_vector: Vector2) -> void:
 func _on_minute_tick(_total: int) -> void:
 	var drain := passive_drain_per_minute
 	if velocity.length() > 0.1:
-		drain += movement_drain_per_minute
+		var movement_drain := movement_drain_per_minute
+		if active_mode == &"skateboard":
+			movement_drain *= SKATEBOARD_DRAIN_MULTIPLIER
+		drain += movement_drain
 	spend_stamina(drain)
 
 
@@ -202,6 +216,22 @@ func _next_wake_minute() -> int:
 	var days_passed := current / minutes_per_day
 	return (days_passed + 1) * minutes_per_day
 
+func _movement_animation_name(direction: String) -> String:
+	if active_mode == &"skateboard":
+		var skate_name := "skate_" + direction
+		if sprite.sprite_frames != null and sprite.sprite_frames.has_animation(skate_name):
+			return skate_name
+	return "walk_" + direction
+	
+# Snap the sprite to a known idle pose so we don't briefly show whatever
+# animation was selected in the editor when the scene was saved.
+func _settle_idle() -> void:
+	var anim_name: String = _movement_animation_name(last_direction)
+	if sprite.sprite_frames != null and sprite.sprite_frames.has_animation(anim_name):
+		sprite.animation = anim_name
+		sprite.frame = 0
+		sprite.pause()
+	
 #---- Save Systems ------------------------------------------------------
 
 func save_state() -> Dictionary:
@@ -213,6 +243,8 @@ func save_state() -> Dictionary:
 		"stamina_max": stamina_max,
 		"last_direction": last_direction,
 		"inventory": inventory.save_state(),  # NEW
+		"active_mode": String(active_mode),
+		"active_mode_speed": active_mode_speed,
 	}
 
 
@@ -223,6 +255,9 @@ func load_state(data: Dictionary) -> void:
 	if data.has("inventory"):
 		inventory.load_state(data["inventory"])
 	stamina_changed.emit(stamina, stamina_max)
+	active_mode = StringName(data.get("active_mode", ""))
+	active_mode_speed = data.get("active_mode_speed", 0.0)
+	_settle_idle()
 	
 #---- Inventory------------------------------------------------------
 func _on_active_slot_changed(_slot: int) -> void:
@@ -243,7 +278,12 @@ func is_holding_anything() -> bool:
 func is_holding_category(category: int) -> bool:
 	var stack := inventory.get_active_stack()
 	return stack != null and stack.item != null and stack.item.category == category
-	
+
+func _current_speed() -> float:
+	if active_mode != &"":
+		return active_mode_speed
+	return speed * PlayerSkills.speed_multiplier()
+
 # --- Vault ---
 
 func _try_vault() -> void:
@@ -325,19 +365,23 @@ func _begin_vault(dir_vec: Vector2i, tier: int, landing_distance: int) -> void:
 		sprite.play(anim_name)
 	
 	# Position tween moves the body in a straight line.
+	# Position and arc share one tween so they finish in lockstep. The
+	# arc runs in parallel with the position step; the completion callback
+	# is chained (not parallel) so it fires after both are done.
+	var sprite_base_y: float = sprite.position.y
 	var tween := create_tween()
 	tween.set_ease(Tween.EASE_IN_OUT)
 	tween.set_trans(Tween.TRANS_SINE)
+	tween.set_parallel(true)
 	tween.tween_property(self, "global_position", end_pos, duration)
-	tween.tween_callback(_complete_vault.bind(tier, collision))
-	
-	# Sprite Y-offset tween for the arc. Runs in parallel via a second tween
-	# so it's independent of the position tween's ease curve.
-	var arc_tween := create_tween()
-	arc_tween.set_parallel(false)
-	var sprite_base_y: float = sprite.position.y
-	arc_tween.tween_method(_apply_vault_arc.bind(sprite_base_y, arc_height, dir_vec.y), 0.0, 1.0, duration)
-	arc_tween.tween_callback(func(): sprite.position.y = sprite_base_y)
+	tween.tween_method(
+		_apply_vault_arc.bind(sprite_base_y, arc_height, dir_vec.y),
+		0.0, 1.0, duration,
+	)
+	tween.chain().tween_callback(func() -> void:
+		sprite.position.y = sprite_base_y
+		_complete_vault(tier, collision)
+	)
 
 func _apply_vault_arc(t: float, base_y: float, arc_height: float, dir_y: int) -> void:
 	var arc: float = sin(t * PI) * arc_height
@@ -357,6 +401,7 @@ func _complete_vault(tier: int, collision: CollisionShape2D) -> void:
 	if tier >= 0 and tier < VAULT_XP_BY_TIER.size():
 		PlayerSkills.adjust(&"athletics", VAULT_XP_BY_TIER[tier])
 	z_index = 0
+	sprite.speed_scale = 1.0
 
 
 func _direction_vector(dir: String) -> Vector2i:
@@ -374,3 +419,56 @@ func _capability_for_tier(tier: int) -> StringName:
 		1: return &"vault_medium"
 		2: return &"vault_high"
 		_: return &""
+
+#----------------Skateboard---------------
+func _try_tool_interact() -> bool:
+	print("[Skate] _try_tool_interact, active_mode=", active_mode)
+	if active_mode != &"":
+		_exit_active_mode()
+		return true
+
+	var stack := inventory.get_active_stack()
+	print("[Skate] stack=", stack, " item=", stack.item if stack else null)
+	if stack == null or stack.item == null:
+		return false
+	var tool_id: StringName = stack.item.tool_id
+	if tool_id == &"":
+		return false
+
+	match tool_id:
+		&"skateboard":
+			_try_enter_skateboard(stack.item)
+			return true
+	return false
+
+
+func _try_enter_skateboard(item: ItemDef) -> void:
+	print("[Skate] enter, in_scene=", _in_movement_tool_scene(),
+		" speed=", item.movement_speed,
+		" room=", RoomManager.current_room.scene_file_path if RoomManager.current_room else "<null>")
+	
+	if not _in_movement_tool_scene():
+		NotificationSystem.warn("Not here.")
+		return
+	if item.movement_speed <= 0.0:
+		push_warning("Skateboard item has no movement_speed set")
+		return
+	active_mode = &"skateboard"
+	active_mode_speed = item.movement_speed
+
+
+func _exit_active_mode() -> void:
+	active_mode = &""
+	active_mode_speed = 0.0
+
+
+func _in_movement_tool_scene() -> bool:
+	if RoomManager.current_room == null:
+		return false
+	return RoomManager.current_room.scene_file_path in MOVEMENT_TOOL_SCENES
+
+
+# Auto-dismount when entering a scene where the active mode isn't allowed.
+func _on_room_changed(_room_path: String) -> void:
+	if active_mode != &"" and not _in_movement_tool_scene():
+		_exit_active_mode()
