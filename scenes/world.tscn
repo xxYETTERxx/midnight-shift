@@ -10,6 +10,7 @@
 [ext_resource type="PackedScene" uid="uid://bb6pf2kq7fvhq" path="res://scenes/ui/callback_panel.tscn" id="8_dfh1m"]
 [ext_resource type="PackedScene" uid="uid://sdrb2mo8mqmm" path="res://scenes/ui/appointment_panel.tscn" id="9_j81pg"]
 [ext_resource type="Script" uid="uid://ce3kux6bky6vb" path="res://scripts/ui/notification_label.gd" id="10_61ul8"]
+[ext_resource type="PackedScene" uid="uid://bphslxlns571t" path="res://scenes/ui/gift_panel.tscn" id="11_e3hyu"]
 
 [node name="World" type="Node2D" unique_id=887836903]
 y_sort_enabled = true
@@ -122,3 +123,5 @@ offset_left = 3.0
 offset_top = 1.0
 offset_right = 207.0
 offset_bottom = 65.0
+
+[node name="GiftPanel" parent="HUD" unique_id=1957251125 groups=["gift_panel"] instance=ExtResource("11_e3hyu")]

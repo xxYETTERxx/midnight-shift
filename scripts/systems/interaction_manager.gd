@@ -49,6 +49,15 @@ func try_interact(player: Node) -> bool:
 	_winner.interact(player)
 	return true
 
+func try_alt_interact(player: Node) -> bool:
+	print("[alt] IM.try_alt, winner=", _winner, " has_method=", _winner.has_method("alt_interact") if _winner else "n/a")
+	if _winner == null:
+		return false
+	if not _winner.has_method("alt_interact"):
+		return false
+	_winner.alt_interact(player)
+	return true
+
 
 # Backwards-compatible alias for code that reads "the active interactable."
 # Prefer reading the winner_changed signal where possible.

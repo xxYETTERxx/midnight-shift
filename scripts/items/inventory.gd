@@ -27,7 +27,6 @@ func _ready() -> void:
 	# the case where the player loads into the scene after their strength
 	# level should have already granted more slots (signal won't re-fire
 	# retroactively).
-	print("[inv _ready start] max_slots=", max_slots)
 	var expected: int = PlayerSkills.inventory_slot_count()
 	if expected > max_slots:
 		max_slots = expected
@@ -62,6 +61,9 @@ func is_full() -> bool:
 		if not stack.is_full():
 			return false
 	return true
+	
+func get_size() -> int:
+	return max_slots
 
 
 # --- Adding items ---

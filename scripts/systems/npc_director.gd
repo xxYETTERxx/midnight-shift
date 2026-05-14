@@ -260,7 +260,8 @@ func _windows_equivalent(a: Dictionary, b: Dictionary) -> bool:
 	return true
 	
 func is_npc_present(npc_id: StringName) -> bool:
-	return _live_npcs.has(String(npc_id))
+	return _current_windows.has(String(npc_id)) \
+		and _entry_is_in_current_room(get_current_entry(npc_id))
 
 func is_npc_in_scene(npc_id: StringName, scene_path: String) -> bool:
 	var entry: Dictionary = get_current_entry(npc_id)

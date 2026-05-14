@@ -8,6 +8,7 @@ script = ExtResource("1_88k62")
 id = &"weed_buds"
 display_name = "Weed Buds"
 icon = ExtResource("1_lg2w4")
+category = 14
 description = "Raw Harvested Buds"
 base_value = 15
 sellable = true

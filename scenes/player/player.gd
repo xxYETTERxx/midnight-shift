@@ -47,6 +47,9 @@ func _ready() -> void:
 	inventory.slot_changed.connect(_on_inventory_slot_changed)
 	inventory.add(ItemRegistry.get_item(&"skateboard_1"), 1)
 	inventory.add(ItemRegistry.get_item(&"slim_jim"), 1)
+	inventory.add(ItemRegistry.get_item(&"weed_buds"), 20)
+	inventory.add(ItemRegistry.get_item(&"weed_seed"), 20)
+	inventory.add(ItemRegistry.get_item(&"lighter"), 3)
 	_settle_idle()
 
 
@@ -85,7 +88,7 @@ func _unhandled_input(event: InputEvent) -> void:
 			PlacementSystem.try_place_active(self)
 	
 	if event is InputEventKey and event.pressed and not event.echo:
-		if event.keycode == KEY_F12:
+		if event.keycode == KEY_F1:
 			RelationshipSystem.push_dialogue("mira", "bodega_intro")
 			print("[debug] queued bodega_intro for mira")
 		elif event.keycode == KEY_F2:
@@ -112,10 +115,14 @@ func _unhandled_input(event: InputEvent) -> void:
 			print("[debug] +50 lockpicking XP -> ", PlayerSkills.value(&"lockpicking"),
 				" (L", PlayerSkills.tier(&"lockpicking"),
 				", mult=%.2f)" % PlayerSkills.lockpick_duration_multiplier())
-		elif event.keycode == KEY_F1:
+		elif event.keycode == KEY_F8:
 			CallingCardSystem.try_spend(1)
 			print("[debug] burned 1 minute -> total=", CallingCardSystem.total_minutes(),
 				", cards=", CallingCardSystem.card_count())
+		elif event.keycode == KEY_F12:
+			_debug_replay_event("oliver_intro")
+			get_viewport().set_input_as_handled()
+			return
 	
 	# Hotbar cycling
 	if event.is_action_pressed("hotbar_prev"):
@@ -132,7 +139,11 @@ func _unhandled_input(event: InputEvent) -> void:
 			inventory.set_active_slot(i)
 			break
 	if event.is_action_pressed("alt_interact"):
-		PlacementSystem.try_pickup_targeted(self)
+		print("[alt] player pressed, winner=", InteractionManager._winner)
+		var handled := InteractionManager.try_alt_interact(self)
+		print("[alt] try_alt_interact returned=", handled)
+		if not handled:
+			PlacementSystem.try_pickup_targeted(self)
 
 func _update_animation(input_vector: Vector2) -> void:
 	if input_vector == Vector2.ZERO:
@@ -224,13 +235,17 @@ func _movement_animation_name(direction: String) -> String:
 	return "walk_" + direction
 	
 # Snap the sprite to a known idle pose so we don't briefly show whatever
-# animation was selected in the editor when the scene was saved.
+# animation was selected in the editor when the sceane was saved.
 func _settle_idle() -> void:
 	var anim_name: String = _movement_animation_name(last_direction)
 	if sprite.sprite_frames != null and sprite.sprite_frames.has_animation(anim_name):
 		sprite.animation = anim_name
 		sprite.frame = 0
 		sprite.pause()
+
+func _debug_replay_event(event_id: String) -> void:
+	RelationshipSystem.mark_event_undone(event_id)
+	EventDirector.force_fire(event_id)
 	
 #---- Save Systems ------------------------------------------------------
 

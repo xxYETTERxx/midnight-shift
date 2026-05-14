@@ -44,6 +44,8 @@ CarSpawner="*res://scripts/systems/car_spawner.gd"
 PlayerSkills="*res://scripts/systems/player_skills.gd"
 CallingCardSystem="*res://scripts/systems/calling_card_system.gd"
 NPCDirector="*uid://dy6jg22jcylxc"
+EventDirector="*uid://udnxymtxno83"
+GiftSystem="*uid://dv0ajswgssafv"
 
 [display]
 

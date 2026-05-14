@@ -20,6 +20,7 @@ func register_world_only(world: Node, player: Node2D) -> void:
 	_player = player
 
 func change_room(room_path: String, spawn_name: String) -> void:
+	
 	if _world == null:
 		push_error("RoomManager: world not registered")
 		return
@@ -53,3 +54,6 @@ func change_room(room_path: String, spawn_name: String) -> void:
 	WorldStateSystem.restore_room(current_room)
 	
 	room_changed.emit(current_room.name)
+	
+func get_player() -> Node2D:
+	return _player

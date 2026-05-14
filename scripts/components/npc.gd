@@ -47,6 +47,7 @@ func _ready() -> void:
 	_interactable.prompt_text = prompt_text
 	_interactable.interact_priority = 40  # NPC tier per design doc
 	_interactable.interacted.connect(_on_interacted)
+	_interactable.alt_interacted.connect(_on_alt_interacted)
 
 
 func _on_interacted(_player: Node) -> void:
@@ -92,3 +93,15 @@ func _current_location_id() -> String:
 	if RoomManager.current_room == null:
 		return ""
 	return RoomManager.current_room.scene_file_path.get_file().get_basename()
+
+func _on_alt_interacted(_player: Node) -> void:
+	print("[alt] NPC._on_alt_interacted fired for ", npc_id)
+	if not RelationshipSystem.can_receive_gift(npc_id):
+		NotificationSystem.warn("They already got something from you today.")
+		return
+	var panel := get_tree().get_first_node_in_group("gift_panel")
+	print("[alt] gift_panel lookup=", panel)
+	if panel == null:
+		push_warning("NPC '%s': no GiftPanel in scene tree" % npc_id)
+		return
+	panel.open(npc_id, display_name)

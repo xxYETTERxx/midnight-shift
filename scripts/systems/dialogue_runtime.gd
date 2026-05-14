@@ -17,7 +17,9 @@ var _current_portrait: String = "n"
 var _box: CanvasLayer = null
 
 signal dialogue_started(npc_id: String)
+
 signal dialogue_ended()
+signal response_selected(index: int)
 
 
 # --- Lifecycle ---
@@ -82,6 +84,7 @@ func select_response(index: int) -> void:
 		return
 
 	var response: Dictionary = eligible[index]
+	response_selected.emit(index)
 
 	for effect in response["effects"]:
 		RelationshipSystem.apply_effect(_npc_id, effect)

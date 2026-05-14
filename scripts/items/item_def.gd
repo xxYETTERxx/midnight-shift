@@ -1,42 +1,47 @@
 class_name ItemDef
 extends Resource
 
-# Stable identifier used in save files. Must be unique across all ItemDefs.
-# This is the canonical name — file paths can change, but id cannot.
 @export var id: StringName = ""
-@export var tool_id: StringName = &""
-
+@export var tool_id: StringName = ""
 @export var display_name: String = ""
-
 @export var icon: Texture2D
-
-# Maximum count per stack. 1 = unstackable (tools, weapons).
 @export_range(1, 999) var max_stack: int = 99
-
-# What kind of item this is, for UI grouping and behavior dispatch.
 @export var category: Category = Category.MATERIAL
-
-@export var movement_speed: float = 0.0
-# Optional flavor text shown on hover/long-press.
 @export_multiline var description: String = ""
-
-# Canonical worth in dollars. Vendors apply their own multipliers.
-# 0 = effectively unsellable/unbuyable regardless of `sellable`.
+@export var movement_speed: float = 0.0
 @export var base_value: int = 0
-
-# Whether wholesale buyers (the Fence, etc.) will accept this item.
-# Tools, keys, and quest items typically should NOT be sellable.
 @export var sellable: bool = false
 
 
+# Gift-system fields.
+# If non-empty, giving this item to the named NPC counts as "perfect"
+# instead of being graded by category. Empty = no perfect target.
+@export var perfect_gift_for: StringName = ""
+
+
+# Whether this item can be given as a gift at all. Tools and keys = false.
+# Defaults true — most items should be giftable.
+@export var giftable: bool = true
+
+
 enum Category {
-	TOOL,        # watering can, lockpicks, axes — never consumed on use
-	SEED,        # planted into soiled pots
-	MATERIAL,    # soil, baggies, raw buds
-	CONSUMABLE,  # food, drugs (when those exist)
-	GIFT,        # explicitly giftable items (jewelry, etc.)
-	KEY,         # quest items, keys to specific locations
-	MISC,
+	# --- Legacy / inventory-side ---
+	TOOL,        # 0 — watering can, lockpicks, axes. Not giftable.
+	SEED,        # 1 — planted into soil pots
+	MATERIAL,    # 2 — soil, baggies, raw buds
+	CONSUMABLE,  # 3 — legacy, prefer FOOD/DRINK for new items
+	GIFT,        # 4 — legacy, prefer specific gift category
+	KEY,         # 5 — quest items. Not giftable.
+	MISC,        # 6 — fallback / catch-all
+	# --- Gift-side (appended; do not reorder above this line) ---
+	FOOD,           # 7
+	DRINK,          # 8
+	FLOWER,         # 9
+	JEWELRY,        # 10
+	ENTERTAINMENT,  # 11 — VHS, CDs, books
+	CLOTHING,       # 12
+	DECORATION,     # 13 — knick-knacks, art
+	DRUG,           # 14 — in-genre, some NPCs love it
 }
 
 # Override in subclasses to provide initial per-stack data when a fresh

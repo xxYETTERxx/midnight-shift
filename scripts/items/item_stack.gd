@@ -24,6 +24,9 @@ func space_remaining() -> int:
 func is_full() -> bool:
 	return count >= (item.max_stack if item else 1)
 
+func is_empty() -> bool:
+	return count <= 0
+
 
 # True if other holds the same item type AND identical data — both required
 # for merging. Two calling cards with different remaining minutes don't merge.

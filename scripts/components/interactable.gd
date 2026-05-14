@@ -28,6 +28,7 @@ signal state_changed
 
 # Emitted when this interactable is interacted with.
 signal interacted(player: Node)
+signal alt_interacted(player: Node)
 
 
 func _ready() -> void:
@@ -64,6 +65,9 @@ func can_interact(_player: Node) -> bool:
 # interactable wins the arbitration.
 func interact(player: Node) -> void:
 	interacted.emit(player)
+
+func alt_interact(player: Node) -> void:
+	alt_interacted.emit(player)
 
 func _player_holds(player: Node, id: StringName) -> bool:
 	return player != null and player.has_method("is_holding") and player.is_holding(id)

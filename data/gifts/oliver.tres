@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="GiftPreferences" format=3 uid="uid://bevod6picch1v"]
+
+[ext_resource type="Script" uid="uid://b8blb45i5xf4n" path="res://scripts/gifts/gift_preferences.gd" id="1_t11od"]
+
+[resource]
+script = ExtResource("1_t11od")
+npc_id = &"oliver"
+like_categories = Array[int]([2])
+love_categories = Array[int]([8])
+dislike_categories = Array[int]([1])
+hate_categories = Array[int]([14])
+hate_line = "Fuck you"
+dislike_line = "Yuck"
+neutral_line = "Okay, thanks"
+like_line = "Nice!"
+love_line = "Wow! Really?!?"
+perfect_line = "You have no idea what this means to me"
+metadata/_custom_type_script = "uid://b8blb45i5xf4n"

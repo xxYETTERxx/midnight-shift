@@ -1,0 +1,136 @@
+[gd_scene format=3 uid="uid://bp4tav87122u8"]
+
+[ext_resource type="TileSet" uid="uid://bjb71lebq7nab" path="res://data/tilesets/InteriorWall.tres" id="1_prhu4"]
+[ext_resource type="Script" uid="uid://bg8oeex5ppbbd" path="res://scripts/events/event.gd" id="2_jwpyt"]
+[ext_resource type="PackedScene" uid="uid://drmxuaq0xg60e" path="res://scenes/puppets/cutscene_oliver.tscn" id="3_kheor"]
+[ext_resource type="PackedScene" uid="uid://ce3d2gt5sq4kg" path="res://scenes/puppets/cutscene_player.tscn" id="4_lfbt8"]
+[ext_resource type="Script" uid="uid://op3h4rtxgapq" path="res://scripts/events/animation_step.gd" id="5_bj4g6"]
+[ext_resource type="Script" uid="uid://b0i378w2bkp8b" path="res://scripts/events/dialogue_step.gd" id="5_gjbpu"]
+[ext_resource type="Script" uid="uid://rt0jesbcc8no" path="res://scripts/events/move_step.gd" id="6_kheor"]
+[ext_resource type="Script" uid="uid://buh0x7nk8qcnh" path="res://scripts/events/wait.gd" id="7_lfbt8"]
+[ext_resource type="Script" uid="uid://5bhr6rnewto" path="res://scripts/events/face_step.gd" id="8_gjbpu"]
+[ext_resource type="Script" uid="uid://d0e74fnnnyhgy" path="res://scripts/events/choice_step.gd" id="10_ncfl6"]
+[ext_resource type="Script" uid="uid://dwmgmy4slpe2v" path="res://scripts/events/branch.gd" id="11_ncfl6"]
+
+[node name="Oliver_intro" type="Node2D" unique_id=1419844553]
+
+[node name="Borders" type="TileMap" parent="." unique_id=763920043]
+z_index = 1
+position = Vector2(-272.155, -211.49)
+tile_set = ExtResource("1_prhu4")
+format = 2
+layer_0/tile_data = PackedInt32Array(589831, 983040, 1, 589830, 1179648, 3, 589829, 1179648, 3, 589828, 1179648, 3, 589827, 1179648, 3, 589833, 1048576, 1, 589834, 1179648, 3, 589835, 1179648, 3, 589836, 1179648, 3, 589837, 1179648, 3, 655367, 1114112, 2, 655369, 1245184, 2, 589838, 1245184, 3, 589826, 1114112, 3, 524290, 1114112, 2, 458754, 1114112, 2, 393218, 1114112, 2, 327682, 1114112, 2, 262146, 1114112, 2, 524302, 1245184, 2, 458766, 1245184, 2, 393230, 1245184, 2, 327694, 1245184, 2, 262158, 1245184, 2, 196621, 851968, 1, 196620, 851968, 1, 196619, 851968, 1, 196618, 851968, 1, 196616, 851968, 1, 196615, 851968, 1, 196614, 851968, 1, 196613, 851968, 1, 196612, 851968, 1, 196611, 851968, 1, 196617, 851968, 1, 196622, 1245184, 1, 196610, 1114112, 1)
+
+[node name="WallsTop" type="TileMap" parent="." unique_id=1016739777]
+y_sort_enabled = true
+position = Vector2(-272.155, -211.49)
+tile_set = ExtResource("1_prhu4")
+format = 2
+layer_0/y_sort_enabled = true
+layer_0/y_sort_origin = 1
+layer_0/tile_data = PackedInt32Array(196611, 65540, 10, 196612, 65540, 10, 196613, 65540, 10, 196614, 65540, 10, 196615, 65540, 10, 196616, 65540, 10, 196617, 65540, 10, 196618, 65540, 10, 196619, 65540, 10, 196620, 65540, 10, 196621, 65540, 10)
+
+[node name="WallsBase" type="TileMap" parent="." unique_id=1603468023]
+y_sort_enabled = true
+position = Vector2(-272.155, -211.49)
+tile_set = ExtResource("1_prhu4")
+format = 2
+layer_0/y_sort_enabled = true
+layer_0/tile_data = PackedInt32Array(262147, 65540, 11, 262148, 65540, 11, 262149, 65540, 11, 262150, 65540, 11, 262151, 65540, 11, 262152, 65540, 11, 262153, 65540, 11, 262154, 65540, 11, 262155, 65540, 11, 262156, 65540, 11, 262157, 65540, 11)
+
+[node name="Floor" type="TileMap" parent="." unique_id=2050840961]
+position = Vector2(-272.155, -211.49)
+tile_set = ExtResource("1_prhu4")
+format = 2
+layer_0/tile_data = PackedInt32Array(327683, 262145, 13, 393219, 262145, 13, 458755, 262145, 13, 524291, 262145, 13, 327684, 327681, 13, 327685, 327681, 13, 327686, 327681, 13, 327687, 327681, 13, 327688, 327681, 13, 327689, 327681, 13, 327690, 327681, 13, 327691, 327681, 13, 327692, 327681, 13, 327693, 393217, 13, 393229, 393217, 13, 458765, 393217, 13, 524301, 393217, 13, 524300, 327681, 13, 524299, 327681, 13, 524298, 327681, 13, 524297, 327681, 13, 524296, 327681, 13, 524295, 327681, 13, 524294, 327681, 13, 524293, 327681, 13, 524292, 327681, 13, 458756, 327681, 13, 458757, 327681, 13, 458758, 327681, 13, 458759, 327681, 13, 458760, 327681, 13, 458761, 327681, 13, 458762, 327681, 13, 458763, 327681, 13, 458764, 327681, 13, 393228, 327681, 13, 393227, 327681, 13, 393226, 327681, 13, 393225, 327681, 13, 393224, 327681, 13, 393223, 327681, 13, 393222, 327681, 13, 393221, 327681, 13, 393220, 327681, 13, 589832, 327681, 13, 655368, 327681, 13)
+
+[node name="Decoration" type="TileMap" parent="." unique_id=1896197204]
+y_sort_enabled = true
+position = Vector2(-272.155, -211.49)
+format = 2
+layer_0/y_sort_enabled = true
+
+[node name="Event" type="Node2D" parent="." unique_id=1747946042]
+script = ExtResource("2_jwpyt")
+id = "oliver_intro"
+conditions = Array[String](["room == hardware_store", "npc_in_scene oliver"])
+return_room_path = "uid://cuc7tr377sgsc"
+return_spawn = "from_outside"
+
+[node name="Cast" type="Node" parent="." unique_id=790139351]
+
+[node name="Oliver" parent="Cast" unique_id=2048820101 instance=ExtResource("3_kheor")]
+position = Vector2(135, -35)
+dialogue_npc_id = "oliver"
+
+[node name="Player" parent="Cast" unique_id=2028631120 instance=ExtResource("4_lfbt8")]
+position = Vector2(1, 117)
+
+[node name="OliverGreetMark" type="Marker2D" parent="Cast" unique_id=2099154482]
+position = Vector2(2, 33)
+
+[node name="Steps" type="Node" parent="." unique_id=116805195]
+
+[node name="FaceP1" type="Node" parent="Steps" unique_id=802391685]
+script = ExtResource("8_gjbpu")
+actor = NodePath("../../Cast/Player")
+direction = "n"
+
+[node name="Anim1" type="Node" parent="Steps" unique_id=240165803]
+script = ExtResource("5_bj4g6")
+actor = NodePath("../../Cast/Oliver")
+animation_name = "stocking_shelf"
+
+[node name="Line1" type="Node" parent="Steps" unique_id=353925381]
+script = ExtResource("5_gjbpu")
+speaker = NodePath("../../Cast/Oliver")
+text = "\"I thought I ordered six of these....\""
+portrait_override = "n"
+
+[node name="Wait1" type="Node" parent="Steps" unique_id=1423759313]
+script = ExtResource("7_lfbt8")
+
+[node name="Line2" type="Node" parent="Steps" unique_id=1753404117]
+script = ExtResource("5_gjbpu")
+speaker = NodePath("../../Cast/Oliver")
+text = "Oh! a new customer"
+portrait_override = "h"
+
+[node name="Move1" type="Node" parent="Steps" unique_id=526375654]
+script = ExtResource("6_kheor")
+actor = NodePath("../../Cast/Oliver")
+target = NodePath("../../Cast/OliverGreetMark")
+
+[node name="Face1" type="Node" parent="Steps" unique_id=1359624132]
+script = ExtResource("8_gjbpu")
+actor = NodePath("../../Cast/Oliver")
+
+[node name="Choice" type="Node" parent="Steps" unique_id=736660906]
+script = ExtResource("10_ncfl6")
+speaker = NodePath("../../Cast/Oliver")
+prompt = "Don't think we've met. I'm Oliver. You new in town or just passing through?"
+portrait_override = "n"
+
+[node name="Polite_branch" type="Node" parent="Steps/Choice" unique_id=2120877688]
+script = ExtResource("11_ncfl6")
+label = "\"Yes just moved in\""
+
+[node name="Line3" type="Node" parent="Steps/Choice/Polite_branch" unique_id=1123891928]
+script = ExtResource("5_gjbpu")
+speaker = NodePath("../../../../Cast/Oliver")
+text = "Well it's nice to meet you young man"
+portrait_override = "h"
+
+[node name="Rude_branch" type="Node" parent="Steps/Choice" unique_id=1608385039]
+script = ExtResource("11_ncfl6")
+label = "..."
+
+[node name="Line4" type="Node" parent="Steps/Choice/Rude_branch" unique_id=501021265]
+script = ExtResource("5_gjbpu")
+speaker = NodePath("../../../../Cast/Oliver")
+text = "Nothing to say? Damn kids are so rude these days"
+portrait_override = "a"
+
+[node name="Camera2D" type="Camera2D" parent="." unique_id=160148223]
+position = Vector2(274, 222)
+enabled = false

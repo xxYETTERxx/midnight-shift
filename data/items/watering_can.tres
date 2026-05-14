@@ -6,10 +6,10 @@
 [resource]
 script = ExtResource("1_klx1g")
 id = &"watering_can"
-tool_id = &"watering_can"
 display_name = "Watering Can"
 icon = ExtResource("1_byrcw")
 max_stack = 1
 category = 0
 description = "Keeps Plants Alive"
 base_value = 35
+giftable = false

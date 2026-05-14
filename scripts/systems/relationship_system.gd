@@ -22,6 +22,8 @@ var _npcs: Dictionary = {}
 var _global_flags: Dictionary = {}
 # event_name → true
 var _events_done: Dictionary = {}
+# npc_id (String) -> day_index (int) on which they last received a gift
+var _last_gift_day: Dictionary = {}
 
 signal affinity_changed(npc_id: String, new_value: int)
 signal trust_changed(npc_id: String, new_value: int)
@@ -142,6 +144,8 @@ func is_event_done(event_name: String) -> bool:
 func mark_event_done(event_name: String) -> void:
 	_events_done[event_name] = true
 
+func mark_event_undone(event_name: String) -> void:
+	_events_done.erase(event_name)
 
 # --- Dialogue queue ---------------------------------------------------
 # FIFO of event names. DialogueDatabase peeks/pops when looking up lines.
@@ -174,6 +178,16 @@ func clear_queue(npc_id: String) -> void:
 func queue_size(npc_id: String) -> int:
 	return _ensure_npc(npc_id)["queue"].size()
 
+#-----Gifts----------------
+
+func can_receive_gift(npc_id: String) -> bool:
+	if not _last_gift_day.has(npc_id):
+		return true
+	return _last_gift_day[npc_id] != TimeSystem.day_index()
+
+
+func record_gift(npc_id: String) -> void:
+	_last_gift_day[npc_id] = TimeSystem.day_index()
 
 # --- Apply effects helper ---------------------------------------------
 # DialogueRuntime (4b) will call this when a response is selected; included
@@ -207,6 +221,7 @@ func save_state() -> Dictionary:
 		"npcs": _npcs.duplicate(true),
 		"global_flags": _global_flags.duplicate(true),
 		"events_done": _events_done.duplicate(true),
+		"last_day_gift": _last_gift_day.duplicate(true),
 	}
 
 
@@ -214,3 +229,4 @@ func load_state(data: Dictionary) -> void:
 	_npcs = data.get("npcs", {}).duplicate(true)
 	_global_flags = data.get("global_flags", {}).duplicate(true)
 	_events_done = data.get("events_done", {}).duplicate(true)
+	_last_gift_day = data.get("last_day_gift", {}).duplicate(true)
