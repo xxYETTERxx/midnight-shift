@@ -10,6 +10,10 @@ extends CharacterBody2D
 @export var passive_drain_per_minute: float = 0.07
 @export var movement_drain_per_minute: float = 0.05
 
+@export var sprint_multiplier: float = 1.5
+@export var sprint_drain_per_second: float = 10.0
+var _is_sprinting: bool = false
+
 # --- Vault ---
 const VAULT_DURATION_BY_TIER: Array[float] = [0.6, 0.8, 1.3]
 const VAULT_ARC_HEIGHT_BY_TIER: Array[float] = [15.0, 18.0, 32.0]
@@ -50,6 +54,7 @@ func _ready() -> void:
 	inventory.add(ItemRegistry.get_item(&"weed_buds"), 20)
 	inventory.add(ItemRegistry.get_item(&"weed_seed"), 20)
 	inventory.add(ItemRegistry.get_item(&"lighter"), 3)
+	inventory.add(ItemRegistry.get_item(&"calling_card_30"), 3)
 	_settle_idle()
 
 
@@ -67,7 +72,19 @@ func _physics_process(delta: float) -> void:
 	if input_vector.length() > 1.0:
 		input_vector = input_vector.normalized()
 
-	velocity = input_vector * _current_speed()
+	# Sprint: held action, gated on having any stamina and actually moving.
+	# Drains continuously; terminates when stamina hits zero (player keeps
+	# moving at walk speed). Exhaustion / passout flow is a separate concern.
+	var moving: bool = input_vector.length_squared() > 0.01
+	var wants_sprint: bool = Input.is_action_pressed("sprint")
+	_is_sprinting = wants_sprint and moving and stamina > 0.0
+
+	var move_multiplier: float = PlayerSkills.speed_multiplier()
+	if _is_sprinting:
+		move_multiplier *= sprint_multiplier
+		spend_stamina(sprint_drain_per_second * delta)
+
+	velocity = input_vector * speed * move_multiplier
 	move_and_slide()
 
 	# Athletics XP from distance actually moved (post-collision velocity).
@@ -437,13 +454,11 @@ func _capability_for_tier(tier: int) -> StringName:
 
 #----------------Skateboard---------------
 func _try_tool_interact() -> bool:
-	print("[Skate] _try_tool_interact, active_mode=", active_mode)
 	if active_mode != &"":
 		_exit_active_mode()
 		return true
 
 	var stack := inventory.get_active_stack()
-	print("[Skate] stack=", stack, " item=", stack.item if stack else null)
 	if stack == null or stack.item == null:
 		return false
 	var tool_id: StringName = stack.item.tool_id
@@ -458,9 +473,6 @@ func _try_tool_interact() -> bool:
 
 
 func _try_enter_skateboard(item: ItemDef) -> void:
-	print("[Skate] enter, in_scene=", _in_movement_tool_scene(),
-		" speed=", item.movement_speed,
-		" room=", RoomManager.current_room.scene_file_path if RoomManager.current_room else "<null>")
 	
 	if not _in_movement_tool_scene():
 		NotificationSystem.warn("Not here.")

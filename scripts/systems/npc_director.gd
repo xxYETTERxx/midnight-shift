@@ -124,7 +124,12 @@ func _reconcile_npc(npc_id: StringName) -> void:
 	if not is_live:
 		_materialize(npc_id, window)
 	else:
-		_apply_pose(_live_npcs[key], entry, window)
+		var npc: ScheduledNPC = _live_npcs[key]
+		# Cops (and anyone else that opts into override) drive their own
+		# pose during pursuit/investigate. Skip schedule updates for them.
+		if npc.has_method("is_overridden") and npc.call("is_overridden"):
+			return
+		_apply_pose(npc, entry, window)
 
 
 func _entry_is_in_current_room(entry: Dictionary) -> bool:
@@ -155,12 +160,19 @@ func _materialize(npc_id: StringName, window: Dictionary) -> void:
 	if parent == null:
 		parent = room
 	parent.add_child(npc)
+
+	# Cops emit state_changed when pursuit ends; re-push their pose so the
+	# schedule picks back up at the correct waypoint without waiting for
+	# the next minute tick.
+	if npc.has_signal("state_changed"):
+		npc.state_changed.connect(_on_cop_state_changed.bind(npc_id))
+
 	_apply_pose(npc, window.get("entry", {}), window)
 
 	_live_npcs[key] = npc
 	npc_materialized.emit(npc_id)
 	print("[NPCDirector] %s materialized (%s)" % [
-		npc_id, window.get("entry", {}).get("animation", "?"),
+		npc_id, window.get("entry", {}).get("activity", "stand"),
 	])
 
 
@@ -269,6 +281,19 @@ func is_npc_in_scene(npc_id: StringName, scene_path: String) -> bool:
 		return false
 	return entry.get("scene_path", "") == scene_path
 
+
+func _on_cop_state_changed(_new_state: int, npc_id: StringName) -> void:
+	# When a cop returns to ROUTINE, immediately re-apply its schedule pose
+	# so it teleports back to where the schedule says it should be. Without
+	# this, the cop would stand in place until the next minute tick.
+	var key := String(npc_id)
+	if not _live_npcs.has(key):
+		return
+	var npc: ScheduledNPC = _live_npcs[key]
+	if npc.has_method("is_overridden") and npc.call("is_overridden"):
+		return
+	var window: Dictionary = _current_windows.get(key, {})
+	_apply_pose(npc, window.get("entry", {}), window)
 
 # --- Save / load --------------------------------------------------------
 

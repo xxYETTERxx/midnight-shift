@@ -19,14 +19,24 @@ var quantity_min: int = 1
 var quantity_max: int = 3
 
 # Quality expectation for future strain system. 0 = anything, higher = pickier.
-# Stage 6: stored but not yet read by any consumer.
 var quality_preference: int = 0
 
-# Stub identifier for the meet-NPC sprite. Mapped to actual art in chunk 4.
+# Randomized appearance, assigned at creation via NPCGenerator and frozen
+# for the customer's lifetime. -1 means "not assigned" (legacy save data
+# or a creation path that bypassed the generator) — CharacterSprite will
+# leave its default texture in place.
+var head_index: int = -1
+var body_index: int = -1
+
+# A single stock dialogue line, assigned at creation. Future: split into
+# four lines (one per relationship tier) and pick at runtime by trust.
+var default_dialogue: String = ""
+
+# Deprecated, kept on the dict for save compat. Was a placeholder sprite
+# tag before the head/body system existed; nothing reads it now.
 var sprite_id: String = ""
 
-# Which stock-dialogue bank this buyer pulls from ("chatty", "twitchy", etc.).
-# Stage 6 placeholder — wired up when meet dialogue lands.
+# Which stock-dialogue bank this buyer pulls from (placeholder).
 var dialogue_bank: String = "default"
 
 # Per-customer relationship axes — minimal mirror of the NPC system (per §7).
@@ -47,6 +57,9 @@ func to_dict() -> Dictionary:
 		"quantity_min": quantity_min,
 		"quantity_max": quantity_max,
 		"quality_preference": quality_preference,
+		"head_index": head_index,
+		"body_index": body_index,
+		"default_dialogue": default_dialogue,
 		"sprite_id": sprite_id,
 		"dialogue_bank": dialogue_bank,
 		"affinity": affinity,
@@ -65,6 +78,9 @@ static func from_dict(data: Dictionary) -> Customer:
 	c.quantity_min = data.get("quantity_min", 1)
 	c.quantity_max = data.get("quantity_max", 3)
 	c.quality_preference = data.get("quality_preference", 0)
+	c.head_index = data.get("head_index", -1)
+	c.body_index = data.get("body_index", -1)
+	c.default_dialogue = data.get("default_dialogue", "")
 	c.sprite_id = data.get("sprite_id", "")
 	c.dialogue_bank = data.get("dialogue_bank", "default")
 	c.affinity = data.get("affinity", 0)

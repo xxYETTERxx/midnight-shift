@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://ctkxjb70wepqh" path="res://scripts/dealing/customer_npc.gd" id="1_p0lx7"]
 [ext_resource type="PackedScene" uid="uid://l6jfg123c1fw" path="res://scenes/components/interactable.tscn" id="2_2exq4"]
-[ext_resource type="Texture2D" uid="uid://bs7tq2i1qfskw" path="res://art/sprites/NPCs/Customers/HeavyRedHead2.png" id="2_jmikf"]
+[ext_resource type="PackedScene" uid="uid://b2jrqxgb1qsd1" path="res://scenes/components/character_sprite.tscn" id="2_kt2vl"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_0hp6l"]
 size = Vector2(47, 56)
@@ -10,8 +10,7 @@ size = Vector2(47, 56)
 [node name="CustomerNpc" type="Node2D" unique_id=1297495291]
 script = ExtResource("1_p0lx7")
 
-[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1971685663]
-texture = ExtResource("2_jmikf")
+[node name="Sprite" parent="." unique_id=75059540 instance=ExtResource("2_kt2vl")]
 
 [node name="Interactable" parent="." unique_id=1729202130 instance=ExtResource("2_2exq4")]
 prompt_text = "Talk"

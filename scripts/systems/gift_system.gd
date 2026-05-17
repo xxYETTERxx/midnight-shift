@@ -14,7 +14,7 @@ const TIER_DELTAS: Dictionary = {
 	Tier.NEUTRAL:   0,
 	Tier.LIKE:     20,
 	Tier.LOVE:     80,
-	Tier.PERFECT: 200,
+	Tier.PERFECT: 120,
 }
 
 # Fallback reaction lines if neither the per-NPC override nor a special case

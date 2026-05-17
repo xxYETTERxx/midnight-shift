@@ -131,7 +131,7 @@ func _create_page(customer: Customer) -> void:
 	var page := PendingPage.new()
 	page.customer_id = customer.id
 	page.received_at_minute = TimeSystem.total_minutes
-	page.quantity_requested = _rng.randi_range(customer.quantity_min, customer.quantity_max)
+	page.quantity_requested = CustomerRoster.roll_page_quantity(customer, _rng)
 	page.minutes_remaining = CALLBACK_DEADLINE_HOURS * 60
 	_pending.append(page)
 	_last_page_minute[String(customer.id)] = TimeSystem.total_minutes

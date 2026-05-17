@@ -1,0 +1,66 @@
+[gd_scene format=3 uid="uid://d0kkcujya3o5i"]
+
+[ext_resource type="Script" uid="uid://dn8w3erewwlyx" path="res://scripts/cops/cop_npc.gd" id="1_jlxjt"]
+[ext_resource type="Resource" uid="uid://yot7vmsuwknw" path="res://data/cops/cop_average.tres" id="2_da8kt"]
+[ext_resource type="PackedScene" uid="uid://l6jfg123c1fw" path="res://scenes/components/interactable.tscn" id="2_jp0na"]
+[ext_resource type="Script" uid="uid://dwra71dwdcy3y" path="res://scripts/components/witness_component.gd" id="4_fy6qe"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_b7lda"]
+animations = [{
+"frames": [],
+"loop": true,
+"name": &"idle",
+"speed": 5.0
+}, {
+"frames": [],
+"loop": true,
+"name": &"walk_e",
+"speed": 5.0
+}, {
+"frames": [],
+"loop": true,
+"name": &"walk_n",
+"speed": 5.0
+}, {
+"frames": [],
+"loop": true,
+"name": &"walk_s",
+"speed": 5.0
+}, {
+"frames": [],
+"loop": true,
+"name": &"walk_w",
+"speed": 5.0
+}]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_a8fvl"]
+size = Vector2(34, 31)
+
+[node name="CopNpc" type="Node2D" unique_id=1791349545]
+script = ExtResource("1_jlxjt")
+profile = ExtResource("2_da8kt")
+npc_id = "copnpc"
+display_name = "CopNpc"
+prompt_text = ""
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=2101006928]
+sprite_frames = SubResource("SpriteFrames_b7lda")
+animation = &"walk_w"
+
+[node name="Interactable" parent="." unique_id=702434313 instance=ExtResource("2_jp0na")]
+prompt_text = ""
+auto_trigger = true
+interact_priority = 40
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Interactable" unique_id=1756050942]
+shape = SubResource("RectangleShape2D_a8fvl")
+
+[node name="NavigationAgent2D" type="NavigationAgent2D" parent="." unique_id=592959926]
+path_desired_distance = 4.0
+target_desired_distance = 4.0
+
+[node name="WitnessComponent" type="Node2D" parent="." unique_id=339249557]
+script = ExtResource("4_fy6qe")
+use_parent_cop_profile = true
+
+[node name="VisibleOnScreenNotifier2D" type="VisibleOnScreenNotifier2D" parent="WitnessComponent" unique_id=1237435226]

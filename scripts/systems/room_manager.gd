@@ -19,6 +19,8 @@ func register_world_only(world: Node, player: Node2D) -> void:
 	_world = world
 	_player = player
 
+
+
 func change_room(room_path: String, spawn_name: String) -> void:
 	
 	if _world == null:

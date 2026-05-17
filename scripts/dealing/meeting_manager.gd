@@ -12,8 +12,12 @@ const MAX_SEARCH_HOURS: int = 48
 const SLEEP_START_HOUR: int = 6
 const SLEEP_END_HOUR: int = 14
 
+const CUSTOMER_WALK_SPEED: float = 70.0
+const SECONDS_PER_MINUTE: int = 60
+
 # spot_id (as String) → { display_name, scene_path, x, y }
 var _spots: Dictionary = {}
+var _spot_route_distances: Dictionary = {}
 
 # meeting_id (as String) → Meeting
 var _meetings: Dictionary = {}
@@ -21,10 +25,15 @@ var _meetings: Dictionary = {}
 var _next_meeting_id: int = 1
 var _rng: RandomNumberGenerator = RandomNumberGenerator.new()
 
+
 signal meeting_scheduled(meeting: Meeting)
-signal meeting_started(meeting: Meeting)    # for chunk 4
+signal meeting_spawning(meeting: Meeting)   # walk-in phase — customer should appear
+signal meeting_started(meeting: Meeting)    # sale window opens
 signal meeting_missed(meeting: Meeting)
 signal meeting_completed(meeting: Meeting)
+
+
+
 
 
 func _ready() -> void:
@@ -60,6 +69,10 @@ func registered_spot_ids() -> Array:
 		result.append(StringName(k))
 	return result
 
+func register_route_distances(spot_id: StringName, distances: Array) -> void:
+	if spot_id == &"":
+		return
+	_spot_route_distances[String(spot_id)] = distances
 
 # --- Scheduling ---
 
@@ -82,6 +95,7 @@ func schedule_meeting(customer: Customer, quantity: int) -> Meeting:
 	m.scheduled_minute = slot["minute"]
 	m.window_minutes = MEETING_WINDOW_MINUTES
 	m.quantity_requested = quantity
+	_compute_arrival(m)
 	m.status = Meeting.Status.SCHEDULED
 
 	_meetings[String(m.id)] = m
@@ -131,33 +145,92 @@ func _is_in_sleep_window(minute: int) -> bool:
 	var hour: int = ((minute + 14 * 60) % 1440) / 60
 	return hour >= SLEEP_START_HOUR and hour < SLEEP_END_HOUR
 
+# Picks a random arrival route for the meeting's spot, resolves its
+# waypoints to compute path length, and sets m.spawn_minute and
+# m.route_waypoints. Falls back to a teleport-at-spot (spawn_minute ==
+# scheduled_minute, empty route) if no routes are authored or any
+# waypoint fails to resolve.
+# Picks a random arrival route for the meeting's spot and computes
+# m.spawn_minute from the route's pre-measured distance (registered by
+# MeetSpot on _ready). Stores the chosen waypoint chain on m so the
+# spawner can re-resolve positions at materialize time.
+#
+# Falls back to teleport (spawn_minute == scheduled_minute, empty route)
+# if no routes are authored, the chosen route is degenerate, or the
+# spot's room hasn't loaded yet to register distances.
+func _compute_arrival(m: Meeting) -> void:
+	var routes: Array = CustomerRoutes.get_routes(m.spot_id)
+	if routes.is_empty():
+		m.spawn_minute = m.scheduled_minute
+		m.route_waypoints = []
+		return
+
+	var idx: int = _rng.randi() % routes.size()
+	var route_ids: Array = routes[idx]
+	if route_ids.size() < 2:
+		m.spawn_minute = m.scheduled_minute
+		m.route_waypoints = []
+		return
+
+	var distances: Array = _spot_route_distances.get(String(m.spot_id), [])
+	if idx >= distances.size() or distances[idx] <= 0.0:
+		push_warning("MeetingManager: no precomputed distance for %s route %d — teleport" % [
+			m.spot_id, idx,
+		])
+		m.spawn_minute = m.scheduled_minute
+		m.route_waypoints = []
+		return
+
+	var total_dist: float = distances[idx]
+	var walk_seconds: float = total_dist / CUSTOMER_WALK_SPEED
+	var walk_game_minutes: float = walk_seconds / TimeSystem.real_seconds_per_minute
+	var lead_minutes: int = int(ceil(walk_game_minutes))
+
+	m.spawn_minute = m.scheduled_minute - lead_minutes
+	m.route_waypoints = route_ids
+	print("[MeetingManager] _compute_arrival spot=%s route=%d dist=%.0fpx walk=%.1fs lead=%d gmin" % [
+		m.spot_id, idx, total_dist, walk_seconds, lead_minutes,
+	])
+
 
 # --- Tick / status transitions ---
 
 func _on_minute_tick(_total: int) -> void:
 	var now: int = TimeSystem.total_minutes
+	var to_spawn: Array = []
 	var to_start: Array = []
 	var to_miss: Array = []
 	for m in _meetings.values():
 		if m.status != Meeting.Status.SCHEDULED:
 			continue
-		if now >= m.scheduled_minute + m.window_minutes:
+		var window_end: int = m.scheduled_minute + m.window_minutes
+		if now >= window_end:
 			to_miss.append(m)
-		elif now >= m.scheduled_minute and now < m.scheduled_minute + m.window_minutes:
-			# Still scheduled but the window has just opened. We re-emit each
-			# minute it's open — MeetingSpawner dedupes so only the first does
-			# real work. This keeps spawn logic robust to room changes mid-window.
+		elif now >= m.scheduled_minute:
 			to_start.append(m)
+		elif now >= m.spawn_minute:
+			to_spawn.append(m)
+	# Re-emit every minute during each phase — MeetingSpawner dedupes via
+	# _live_npcs, so only the first does real work. Keeps spawn logic robust
+	# to room changes mid-walk or mid-window.
+	for m in to_spawn:
+		meeting_spawning.emit(m)
 	for m in to_start:
 		meeting_started.emit(m)
 	for m in to_miss:
 		_mark_missed(m)
+		
+func visible_meetings_at(minute: int) -> Array:
+	var result: Array = []
+	for m in _meetings.values():
+		if m.is_visible_at(minute):
+			result.append(m)
+	return result
 
-func is_meeting_active_now(meeting_id: StringName) -> bool:
-	var m: Meeting = get_meeting(meeting_id)
-	if m == null:
-		return false
-	return m.is_active_at(TimeSystem.total_minutes)
+
+func visible_meetings_now() -> Array:
+	return visible_meetings_at(TimeSystem.total_minutes)
+
 
 func _mark_missed(m: Meeting) -> void:
 	m.status = Meeting.Status.MISSED
@@ -184,6 +257,10 @@ func mark_completed(meeting_id: StringName) -> void:
 		c.affinity = min(c.affinity + 2, 100)
 	DealerExperience.award_for_sale(m.quantity_requested)
 	meeting_completed.emit(m)
+	var spot_info: Dictionary = get_spot_info(m.spot_id)
+	var pos: Vector2 = spot_info.get("position", Vector2.ZERO)
+	var area: StringName = StringName(String(spot_info.get("scene_path", "")).get_file().get_basename())
+	CrimeSystem.report_instant_crime(&"weed_deal", pos, area)
 
 func get_meeting(id: StringName) -> Meeting:
 	return _meetings.get(String(id), null)
@@ -209,6 +286,7 @@ func upcoming_meetings() -> Array:
 		and m.scheduled_minute > TimeSystem.total_minutes:
 			result.append(m)
 	return result
+
 
 
 # --- Formatting ---
@@ -241,6 +319,11 @@ func debug_print() -> void:
 			format_minute(m.scheduled_minute), m.quantity_requested,
 			status_names[m.status],
 		])
+		print("[Meeting] Scheduled %s: %s at %s (spawn %s), %s (qty %d)" % [
+		m.id, c.display_name, get_spot_display_name(m.spot_id),
+		format_minute(m.spawn_minute), format_minute(m.scheduled_minute), m.quantity_requested,
+	])
+	
 
 
 # --- Save/load ---

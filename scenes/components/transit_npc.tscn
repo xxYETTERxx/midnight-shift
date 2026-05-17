@@ -1,0 +1,9 @@
+[gd_scene format=3 uid="uid://carqkuq5i7bgq"]
+
+[ext_resource type="Script" uid="uid://c2hd1eh837u8j" path="res://scripts/systems/transit_npc.gd" id="1_ky6yo"]
+[ext_resource type="PackedScene" uid="uid://b2jrqxgb1qsd1" path="res://scenes/components/character_sprite.tscn" id="2_p165l"]
+
+[node name="TransitNpc" type="Node2D" unique_id=24768604]
+script = ExtResource("1_ky6yo")
+
+[node name="Sprite" parent="." unique_id=75059540 instance=ExtResource("2_p165l")]

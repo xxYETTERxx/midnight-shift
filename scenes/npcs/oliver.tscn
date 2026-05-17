@@ -9,6 +9,7 @@
 [ext_resource type="Texture2D" uid="uid://b0rkepct77snr" path="res://art/sprites/NPCs/Oliver/walk_N.png" id="4_jc23l"]
 [ext_resource type="Texture2D" uid="uid://2lkbjndn2m6m" path="res://art/sprites/NPCs/Oliver/walk_S.png" id="5_ywl7f"]
 [ext_resource type="Texture2D" uid="uid://w1l5mjq0xuhl" path="res://art/sprites/NPCs/Oliver/walk_W.png" id="6_hvoad"]
+[ext_resource type="PackedScene" uid="uid://ckmtquqh30tjd" path="res://scenes/components/witness.tscn" id="10_hvoad"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_pm47u"]
 atlas = ExtResource("3_ywl7f")
@@ -372,7 +373,8 @@ sprite_frames = SubResource("SpriteFrames_yex0d")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=741110396]
 sprite_frames = SubResource("SpriteFrames_yex0d")
-animation = &"walk_east"
+animation = &"idle"
+frame_progress = 1.0
 
 [node name="Interactable" parent="." unique_id=1257357166 instance=ExtResource("3_qj50d")]
 prompt_text = "Talk"
@@ -387,3 +389,5 @@ shape = SubResource("RectangleShape2D_wm8wc")
 [node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D" unique_id=2063336480]
 position = Vector2(0, -1)
 shape = SubResource("RectangleShape2D_e0lax")
+
+[node name="Witness" parent="." unique_id=1378371639 instance=ExtResource("10_hvoad")]

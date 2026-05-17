@@ -40,6 +40,8 @@ var _action_player: Node = null
 var _action_elapsed: float = 0.0
 var _action_duration: float = 0.0
 
+var _active_crime_id: int = 0
+
 signal looted(drops: Array)
 
 
@@ -84,19 +86,24 @@ func _on_interacted(player: Node) -> void:
 		_action_duration = ACTION_DURATION_UNLOCKED
 	
 	_action_player = player
+	_active_crime_id = CrimeSystem.begin_crime(&"car_loot", self, global_position)
 	_action_elapsed = 0.0
 	progress_bar.visible = true
 	progress_bar.value = 0.0
 
 
 func _cancel_action() -> void:
+	if _active_crime_id != 0:
+		CrimeSystem.end_crime(_active_crime_id, CrimeSystem.Outcome.CANCELLED)
+		_active_crime_id = 0
 	_action_player = null
 	_action_elapsed = 0.0
 	progress_bar.visible = false
 
 
 func _complete_action() -> void:
-	
+	var crime_id := _active_crime_id
+	_active_crime_id = 0
 	var player := _action_player
 	_cancel_action()
 	
@@ -128,7 +135,9 @@ func _complete_action() -> void:
 		CriminalExperience.adjust(CRIM_XP_PER_TIER[tier])
 	if is_locked:
 		PlayerSkills.adjust(&"lockpicking", LOCKPICK_XP_PER_SUCCESS)
-
+	
+	if _active_crime_id != 0:
+		CrimeSystem.end_crime(crime_id, CrimeSystem.Outcome.COMPLETED)
 	looted.emit(drops)
 	_mark_looted()
 

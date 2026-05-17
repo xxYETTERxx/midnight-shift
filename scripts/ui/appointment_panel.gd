@@ -78,7 +78,7 @@ func _rebuild_list() -> void:
 		if customer == null:
 			continue
 		var lbl := Label.new()
-		var prefix: String = "[NOW] " if m.is_active_at(now) else ""
+		var prefix: String = "[NOW] " if m.is_visible_at(now) else ""
 		lbl.text = "%s%s — %s @ %s, qty %d" % [
 			prefix,
 			customer.display_name,

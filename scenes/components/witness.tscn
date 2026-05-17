@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://ckmtquqh30tjd"]
+
+[ext_resource type="Script" uid="uid://dwra71dwdcy3y" path="res://scripts/components/witness_component.gd" id="1_v17sv"]
+
+[node name="Witness" type="Node2D" unique_id=1378371639]
+script = ExtResource("1_v17sv")
+
+[node name="VisibleOnScreenNotifier2D" type="VisibleOnScreenNotifier2D" parent="." unique_id=1019288071]

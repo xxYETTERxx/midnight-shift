@@ -14,3 +14,4 @@ func _ready() -> void:
 	if waypoint_id == &"":
 		push_warning("Waypoint at %s has no waypoint_id" % get_path())
 	add_to_group("waypoints")
+	#waypoint_id = StringName(name)

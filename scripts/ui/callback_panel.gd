@@ -59,18 +59,29 @@ func _rebuild_list() -> void:
 		var customer: Customer = p.get_customer()
 		if customer == null:
 			continue
-		var row := HBoxContainer.new()
+		var entry := VBoxContainer.new()
+
+		var top := HBoxContainer.new()
 		var info := Label.new()
 		info.text = "%s — wants %d  (%dm left)" % [
 			customer.display_name, p.quantity_requested, p.minutes_remaining,
 		]
 		info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		row.add_child(info)
+		top.add_child(info)
 		var btn := Button.new()
 		btn.text = "Return Call"
 		btn.pressed.connect(_on_return_call_pressed.bind(p))
-		row.add_child(btn)
-		list_container.add_child(row)
+		top.add_child(btn)
+		entry.add_child(top)
+
+		if customer.default_dialogue != "":
+			var quote := Label.new()
+			quote.text = "  \"%s\"" % customer.default_dialogue
+			quote.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			quote.add_theme_color_override("font_color", Color(0.7, 0.7, 0.7))
+			entry.add_child(quote)
+
+		list_container.add_child(entry)
 
 
 func _on_return_call_pressed(page: PendingPage) -> void:
