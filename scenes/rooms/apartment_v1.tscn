@@ -3,27 +3,23 @@
 [ext_resource type="TileSet" uid="uid://bjb71lebq7nab" path="res://data/tilesets/InteriorWall.tres" id="2_0vbor"]
 [ext_resource type="TileSet" uid="uid://c25juxu377jw" path="res://data/tilesets/InteriorFloor.tres" id="3_iuhad"]
 [ext_resource type="PackedScene" uid="uid://yyg1vmqtao4e" path="res://scenes/components/bed.tscn" id="5_f5k1h"]
-[ext_resource type="Texture2D" uid="uid://cf7vr1eg1sjq5" path="res://art/objects/Interactables/Doors/Interior4.png" id="6_l4eva"]
 [ext_resource type="PackedScene" uid="uid://cu0qiy18mj116" path="res://scenes/components/doorway.tscn" id="6_txc16"]
 [ext_resource type="PackedScene" uid="uid://cbl82j3yw8xvq" path="res://scenes/components/door.tscn" id="7_66ocw"]
-[ext_resource type="Texture2D" uid="uid://dguppxekethma" path="res://art/objects/Interactables/Doors/Interior3.png" id="7_vr86a"]
-[ext_resource type="Texture2D" uid="uid://cyi48130t18ek" path="res://art/objects/Interactables/Doors/Interior2.png" id="8_h6tbt"]
-[ext_resource type="Texture2D" uid="uid://cs2lb004trp5o" path="res://art/objects/Interactables/Doors/Interior1.png" id="9_q42vy"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_kkbnh"]
 animations = [{
 "frames": [{
 "duration": 1.0,
-"texture": ExtResource("6_l4eva")
+"texture": null
 }, {
 "duration": 1.0,
-"texture": ExtResource("7_vr86a")
+"texture": null
 }, {
 "duration": 1.0,
-"texture": ExtResource("8_h6tbt")
+"texture": null
 }, {
 "duration": 1.0,
-"texture": ExtResource("9_q42vy")
+"texture": null
 }],
 "loop": false,
 "name": &"close",
@@ -31,16 +27,16 @@ animations = [{
 }, {
 "frames": [{
 "duration": 1.0,
-"texture": ExtResource("9_q42vy")
+"texture": null
 }, {
 "duration": 1.0,
-"texture": ExtResource("8_h6tbt")
+"texture": null
 }, {
 "duration": 1.0,
-"texture": ExtResource("7_vr86a")
+"texture": null
 }, {
 "duration": 1.0,
-"texture": ExtResource("6_l4eva")
+"texture": null
 }],
 "loop": false,
 "name": &"default",
@@ -48,23 +44,23 @@ animations = [{
 }, {
 "frames": [{
 "duration": 1.0,
-"texture": ExtResource("9_q42vy")
+"texture": null
 }, {
 "duration": 1.0,
-"texture": ExtResource("8_h6tbt")
+"texture": null
 }, {
 "duration": 1.0,
-"texture": ExtResource("7_vr86a")
+"texture": null
 }, {
 "duration": 1.0,
-"texture": ExtResource("6_l4eva")
+"texture": null
 }],
 "loop": false,
 "name": &"open",
 "speed": 5.0
 }]
 
-[node name="ApartementV1" type="Node2D" unique_id=950279835 groups=["placement_allowed"]]
+[node name="ApartmentV1" type="Node2D" unique_id=950279835 groups=["placement_allowed"]]
 y_sort_enabled = true
 
 [node name="WallsTop" type="TileMap" parent="." unique_id=2035431669]

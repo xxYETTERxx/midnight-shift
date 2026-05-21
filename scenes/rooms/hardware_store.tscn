@@ -66,7 +66,7 @@ position = Vector2(4, -9)
 
 [node name="Waypoints" type="Node2D" parent="." unique_id=1215555829]
 
-[node name="Waypoint" parent="Waypoints" unique_id=1614579198 instance=ExtResource("4_df7sl")]
+[node name="counter" parent="Waypoints" unique_id=1614579198 instance=ExtResource("4_df7sl")]
 position = Vector2(136, 169)
 waypoint_id = &"counter"
 facing = "east"

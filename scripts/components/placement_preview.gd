@@ -1,7 +1,7 @@
 class_name PlacementPreview
 extends Node2D
 
-const TILE_SIZE: int = 32
+const TILE_SIZE: int = 16
 
 const COLOR_VALID: Color = Color(0.4, 1.0, 0.4, 0.35)
 const COLOR_INVALID: Color = Color(1.0, 0.4, 0.4, 0.35)

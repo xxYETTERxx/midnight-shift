@@ -49,7 +49,11 @@ func register_npc(npc_id: StringName, scene: PackedScene, display_name: String =
 
 func _register_all_npcs() -> void:
 	var oliver_scene: PackedScene = load("res://scenes/npcs/oliver.tscn")
+	var erik_scene: PackedScene = load("res://scenes/npcs/erik.tscn")
+	var felix_scene: PackedScene = load("res://scenes/npcs/felix.tscn")
 	register_npc(&"oliver", oliver_scene, "Oliver")
+	register_npc(&"erik", erik_scene, "Erik")
+	register_npc(&"felix", felix_scene, "Felix")
 
 
 # --- Schedule queries ---------------------------------------------------

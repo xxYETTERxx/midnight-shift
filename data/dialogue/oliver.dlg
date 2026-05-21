@@ -8,14 +8,15 @@ default
 # --- Bare weekday keys (specificity 1)
 
 mon
-    $h It's gonna be a great week! I can feel it %name?
+    $h It's gonna be a great week! I can feel it.
 
 wed
     $n You doing alright?
 
 fri
-    $s Friday's are the worse $h what am I going to do if i'm not at work
-
+    $s Friday's are the worse 
+	$b
+	$h what am I going to do if i'm not at work
 
 #Dialogue cheat sheet
 
@@ -27,7 +28,7 @@ fri
 
 # Inline preconditions after `|`, a
 #mon | trust >= 30 ; has_item baggie
-#fri | event_done bodega_introa
+#fri | event_done bodega_introaa
 
 # Body markup:
 #$h $s $a $w $n             # portrait codes (extend as you add art)
@@ -37,7 +38,7 @@ fri
 
 # Inside a $q block:
 #--> "Response text" | affinity +5 ; trust +2
-    Optional follow-up body specific to this response
+#    Optional follow-up body specific to this response
 #--> "Other response" | set first_meeting
 #    Effects can also flip flags
 #$r

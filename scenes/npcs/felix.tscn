@@ -1,0 +1,163 @@
+[gd_scene format=3 uid="uid://cgwqvkmy7m0fb"]
+
+[ext_resource type="Script" uid="uid://dncj60ghofjmn" path="res://scripts/systems/scheduledNPC.gd" id="1_hmkar"]
+[ext_resource type="Texture2D" uid="uid://b7gfa0eg7ki78" path="res://art/sprites/NPCs/Felix/idle_sheet.png" id="2_lgaxo"]
+[ext_resource type="Texture2D" uid="uid://cnefmckvg8vnk" path="res://art/sprites/NPCs/Felix/walk_east.png" id="3_pl3me"]
+[ext_resource type="Texture2D" uid="uid://cy84vcavowo3h" path="res://art/sprites/NPCs/Felix/walk_north.png" id="4_hmkar"]
+[ext_resource type="Texture2D" uid="uid://c3kq6lw41xnnk" path="res://art/sprites/NPCs/Felix/walk_south.png" id="5_8vyv2"]
+[ext_resource type="Texture2D" uid="uid://dyarvkqe6kut3" path="res://art/sprites/NPCs/Felix/walk_west.png" id="6_vesb4"]
+[ext_resource type="PackedScene" uid="uid://l6jfg123c1fw" path="res://scenes/components/interactable.tscn" id="9_n73bw"]
+[ext_resource type="PackedScene" uid="uid://ckmtquqh30tjd" path="res://scenes/components/witness.tscn" id="10_jyuah"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_uymua"]
+atlas = ExtResource("2_lgaxo")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_yih0e"]
+atlas = ExtResource("3_pl3me")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_8e63q"]
+atlas = ExtResource("3_pl3me")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_w0r6g"]
+atlas = ExtResource("3_pl3me")
+region = Rect2(64, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ifcmi"]
+atlas = ExtResource("3_pl3me")
+region = Rect2(96, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_n73bw"]
+atlas = ExtResource("4_hmkar")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jyuah"]
+atlas = ExtResource("4_hmkar")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ia0mm"]
+atlas = ExtResource("5_8vyv2")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_k86ne"]
+atlas = ExtResource("5_8vyv2")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_dut1i"]
+atlas = ExtResource("6_vesb4")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_l1878"]
+atlas = ExtResource("6_vesb4")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_gsq81"]
+atlas = ExtResource("6_vesb4")
+region = Rect2(64, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_l5r4a"]
+atlas = ExtResource("6_vesb4")
+region = Rect2(96, 0, 32, 32)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_pbxi4"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_uymua")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_yih0e")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_8e63q")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_w0r6g")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ifcmi")
+}],
+"loop": true,
+"name": &"walk_east",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_n73bw")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_jyuah")
+}],
+"loop": true,
+"name": &"walk_north",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ia0mm")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_k86ne")
+}],
+"loop": true,
+"name": &"walk_south",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_dut1i")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_l1878")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_gsq81")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_l5r4a")
+}],
+"loop": true,
+"name": &"walk_west",
+"speed": 5.0
+}]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_wm8wc"]
+size = Vector2(28, 36)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_e0lax"]
+size = Vector2(20, 5)
+
+[node name="Felix" type="Node2D" unique_id=2048820101]
+y_sort_enabled = true
+script = ExtResource("1_hmkar")
+npc_id = "felix"
+display_name = "Felix"
+sprite_frames = SubResource("SpriteFrames_pbxi4")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=741110396]
+y_sort_enabled = true
+sprite_frames = SubResource("SpriteFrames_pbxi4")
+animation = &"idle"
+
+[node name="Interactable" parent="." unique_id=1257357166 instance=ExtResource("9_n73bw")]
+prompt_text = "Talk"
+interact_priority = 40
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Interactable" unique_id=182377266]
+position = Vector2(0, -1)
+shape = SubResource("RectangleShape2D_wm8wc")
+
+[node name="StaticBody2D" type="StaticBody2D" parent="." unique_id=501027561]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D" unique_id=2063336480]
+position = Vector2(0, -1.5)
+shape = SubResource("RectangleShape2D_e0lax")
+
+[node name="Witness" parent="." unique_id=1378371639 instance=ExtResource("10_jyuah")]

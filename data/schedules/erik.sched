@@ -1,0 +1,17 @@
+# oliver.sched — Oliver runs the hardware store on weekdays.
+
+# Default weekday plan:
+default
+	09:00 stand city_central eriks_tent
+	14:30 walk:walk city_central eriks_tent->NW_NW_Corner->N_NE_Corner->N_SE_Corner->gas_station_corner->behind_gas_station
+	14:55 stand city_central behind_gas_station
+	20:35 walk:walk city_central behind_gas_station->N_SE_Corner->N_NE_Corner->NW_NW_Corner->eriks_tent
+	21:00 stand city_central eriks_tent
+
+
+# After the bodega incident — he's worried, opens late, no break out front
+default | event_done bodega_intro
+	10:55 transit city_central home_door->store_door
+	11:00 stand hardware_store counter south
+	19:55 transit city_central store_door->home_door
+	20:00 stand oliver_house living_room northa

@@ -49,12 +49,8 @@ func _ready() -> void:
 	# NEW: re-arbitrate interactions when the player's held item changes
 	inventory.active_slot_changed.connect(_on_active_slot_changed)
 	inventory.slot_changed.connect(_on_inventory_slot_changed)
-	inventory.add(ItemRegistry.get_item(&"skateboard_1"), 1)
-	inventory.add(ItemRegistry.get_item(&"slim_jim"), 1)
-	inventory.add(ItemRegistry.get_item(&"weed_buds"), 20)
-	inventory.add(ItemRegistry.get_item(&"weed_seed"), 20)
-	inventory.add(ItemRegistry.get_item(&"lighter"), 3)
-	inventory.add(ItemRegistry.get_item(&"calling_card_30"), 3)
+	inventory.add(ItemRegistry.get_item(&"pot_basic"), 3)
+	inventory.add(ItemRegistry.get_item(&"calling_card_30"), 1)
 	_settle_idle()
 
 

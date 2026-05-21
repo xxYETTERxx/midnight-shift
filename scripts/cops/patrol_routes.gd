@@ -15,7 +15,7 @@ extends RefCounted
 # Adding a new area: new top-level key.
 
 const ROUTES: Dictionary = {
-	&"ext_central": [
+	&"city_central": [
 		# North perimeter sweep, west → east
 		[&"N_W_Entry", &"N_NW_Corner", &"N_NE_Corner", &"N_E_Entry"],
 		# North perimeter sweep, east → west (reverse)

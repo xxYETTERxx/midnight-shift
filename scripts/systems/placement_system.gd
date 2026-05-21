@@ -4,16 +4,16 @@ const PREVIEW_SCRIPT := preload("res://scripts/components/placement_preview.gd")
 
 var _preview: PlacementPreview = null
 
-const TILE_SIZE: int = 32
+const TILE_SIZE: int = 16
 
 const PLAYER_FEET_OFFSET: Vector2 = Vector2(10, -10)
 
 # Direction vectors keyed by player.last_direction.
 const DIRECTION_OFFSETS: Dictionary = {
-	"n": Vector2(0, -1),
+	"n": Vector2(0, -3),
 	"s": Vector2(0, 1),
-	"e": Vector2(1, 0),
-	"w": Vector2(-1, 0),
+	"e": Vector2(1, -1),
+	"w": Vector2(-1, -1),
 }
 
 func _process(_delta: float) -> void:
@@ -70,7 +70,7 @@ func _is_placement_valid(item: PlaceableItemDef, tile_center: Vector2) -> bool:
 	return true
 
 
-# Snap a world position to the center of its 32×32 tile.
+# Snap a world position to the center of its 16×16 tile.
 func snap_to_tile(world_pos: Vector2) -> Vector2:
 	return Vector2(
 		floor(world_pos.x / TILE_SIZE) * TILE_SIZE + TILE_SIZE / 2.0,
@@ -89,18 +89,18 @@ func _tile_is_valid_surface(world_pos: Vector2, surface: int) -> bool:
 	if room == null:
 		return false
 	var coords: Vector2i = _world_to_tile_coords(world_pos)
-	var floor_map := room.get_node_or_null("Floor") as TileMap
-	var walls_base := room.get_node_or_null("WallsBase") as TileMap
-	var walls_top := room.get_node_or_null("WallsTop") as TileMap
+	var floor_map := room.get_node_or_null("Floor") as TileMapLayer
+	var walls_base := room.get_node_or_null("WallsBase") as TileMapLayer
+	var walls_top := room.get_node_or_null("WallsTop") as TileMapLayer
 	match surface:
 		PlaceableItemDef.Surface.FLOOR:
 			if floor_map == null:
 				return false
-			if floor_map.get_cell_source_id(0, coords) == -1:
+			if floor_map.get_cell_source_id(coords) == -1:
 				return false
-			if walls_base != null and walls_base.get_cell_source_id(0, coords) != -1:
+			if walls_base != null and walls_base.get_cell_source_id(coords) != -1:
 				return false
-			if walls_top != null and walls_top.get_cell_source_id(0, coords) != -1:
+			if walls_top != null and walls_top.get_cell_source_id(coords) != -1:
 				return false
 			return true
 		PlaceableItemDef.Surface.CEILING:

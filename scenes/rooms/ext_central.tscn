@@ -1,13 +1,13 @@
-[gd_scene format=4 uid="uid://d04jjxj7h6l1p"]
+[gd_scene format=3 uid="uid://d04jjxj7h6l1p"]
 
 [ext_resource type="TileSet" uid="uid://c462vawa7m2bw" path="res://data/tilesets/Exterior_ground.tres" id="1_k68g5"]
 [ext_resource type="TileSet" uid="uid://0w8lw4ppxio0" path="res://data/tilesets/ext_city.tres" id="1_tv6qr"]
 [ext_resource type="TileSet" uid="uid://cupwnky87nyt2" path="res://data/tilesets/fences_walls.tres" id="2_2x5vl"]
 [ext_resource type="PackedScene" uid="uid://c5k1isfwli6lh" path="res://scenes/components/waypoint.tscn" id="3_h34bw"]
 [ext_resource type="PackedScene" uid="uid://cu0qiy18mj116" path="res://scenes/components/doorway.tscn" id="4_bfwhg"]
-[ext_resource type="Texture2D" uid="uid://bq3yygdq1yf8" path="res://art/objects/Interactables/Doors/Condo_Door_32x32_4.png" id="4_byuh8"]
+[ext_resource type="Texture2D" path="res://art/objects/Interactables/Doors/Condo_Door_32x32_4.png" id="4_byuh8"]
 [ext_resource type="PackedScene" uid="uid://cbl82j3yw8xvq" path="res://scenes/components/door.tscn" id="5_n33n2"]
-[ext_resource type="Texture2D" uid="uid://bo35bsukq80we" path="res://art/objects/Interactables/Doors/Hardware_Store_Door_32x32.png" id="6_h34bw"]
+[ext_resource type="Texture2D" path="res://art/objects/Interactables/Doors/Hardware_Store_Door_32x32.png" id="6_h34bw"]
 [ext_resource type="PackedScene" uid="uid://hw82pd7bflqo" path="res://scenes/components/payphone.tscn" id="6_qs6rr"]
 [ext_resource type="PackedScene" uid="uid://ctijaiye5o1y2" path="res://scenes/components/meet_spot.tscn" id="7_2aqov"]
 [ext_resource type="Script" uid="uid://co6tm1fqapbpq" path="res://scripts/components/car_spawn_point.gd" id="9_23t1f"]
@@ -419,7 +419,6 @@ y_sort_enabled = true
 
 [node name="TileMapLayer" type="TileMapLayer" parent="." unique_id=252592320]
 z_index = -5
-tile_map_data = PackedByteArray("AADo/+7/AAAHAD0AAADo/+//AAAHAD4AAADp/+7/AAAIAD0AAADp/+//AAAIAD4AAADq/+7/AAAHAD0AAADq/+//AAAHAD4AAADr/+7/AAAIAD0AAADr/+//AAAIAD4AAADs/+7/AAAHAD0AAADs/+//AAAHAD4AAADt/+7/AAAIAD0AAADt/+//AAAIAD4AAADu/+7/AAAHAD0AAADu/+//AAAHAD4AAADv/+7/AAAIAD0AAADv/+//AAAIAD4AAADw/+7/AAAHAD0AAADw/+//AAAHAD4AAADx/+7/AAAIAD0AAADx/+//AAAIAD4AAADy/+7/AAAHAD0AAADy/+//AAAHAD4AAADz/+7/AAAIAD0AAADz/+//AAAIAD4AAAD0/+7/AAAHAD0AAAD0/+//AAAHAD4AAAD1/+7/AAAIAD0AAAD1/+//AAAIAD4AAAD2/+7/AAAHAD0AAAD2/+//AAAHAD4AAAD3/+7/AAAIAD0AAAD3/+//AAAIAD4AAAD4/+7/AAAHAD0AAAD4/+//AAAHAD4AAAD5/+7/AAAIAD0AAAD5/+//AAAIAD4AAADo//D/AAABADMAAADo//H/AAABADQAAADp//D/AAACADMAAADp//H/AAAKADUAAADq//D/AAADADMAAADq//H/AAADADQAAADr//D/AAABADMAAADr//H/AAABADQAAADs//D/AAACADMAAADs//H/AAACADQAAADt//D/AAADADMAAADt//H/AAAKADUAAADu//D/AAABADMAAADu//H/AAABADQAAADv//D/AAACADMAAADv//H/AAACADQAAADw//D/AAADADMAAADw//H/AAADADQAAADx//D/AAABADMAAADx//H/AAAKADUAAADy//D/AAACADMAAADy//H/AAACADQAAADz//D/AAADADMAAADz//H/AAADADQAAAD0//D/AAABADMAAAD0//H/AAABADQAAAD1//D/AAACADMAAAD1//H/AAAKADUAAAD2//D/AAADADMAAAD2//H/AAADADQAAAD3//D/AAABADMAAAD3//H/AAABADQAAAD4//D/AAACADMAAAD4//H/AAACADQAAAD5//D/AAADADMAAAD5//H/AAAKADUAAADo//L/AAABADMAAADo//P/AAABADQAAADp//L/AAACADMAAADp//P/AAACADQAAADq//L/AAADADMAAADq//P/AAADADQAAADr//L/AAABADMAAADr//P/AAABADQAAADs//L/AAACADMAAADs//P/AAACADQAAADt//L/AAADADMAAADt//P/AAADADQAAADu//L/AAABADMAAADu//P/AAABADQAAADv//L/AAACADMAAADv//P/AAACADQAAADw//L/AAADADMAAADw//P/AAADADQAAADx//L/AAABADMAAADx//P/AAABADQAAADy//L/AAACADMAAADy//P/AAACADQAAADz//L/AAADADMAAADz//P/AAADADQAAAD0//L/AAABADMAAAD0//P/AAABADQAAAD1//L/AAACADMAAAD1//P/AAACADQAAAD2//L/AAADADMAAAD2//P/AAADADQAAAD3//L/AAABADMAAAD3//P/AAABADQAAAD4//L/AAACADMAAAD4//P/AAACADQAAAD5//L/AAADADMAAAD5//P/AAADADQAAAA=")
 tile_set = ExtResource("1_k68g5")
 
 [node name="Floors" type="TileMap" parent="." unique_id=637510645]
@@ -622,7 +621,7 @@ target_room = "uid://cuc7tr377sgsc"
 target_spawn = "from_outside"
 
 [node name="ApartmentDoor" parent="Interactables" unique_id=1554111407 instance=ExtResource("5_n33n2")]
-position = Vector2(368, 94)
+position = Vector2(339, 104)
 scale = Vector2(1, 1)
 sprite_frames = SubResource("SpriteFrames_hh78n")
 time_close = "09:30"

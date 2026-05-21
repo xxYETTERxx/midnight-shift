@@ -1,0 +1,48 @@
+#Felix.dlg
+
+# --- Default fallback (lowest priority — fires only when nothing else matches)
+
+default
+    $n Hey
+
+# --- Bare weekday keys (specificity 1)
+
+mon
+    $n Come by the shop man. Lots of good stuff came in
+	
+pawn_shop.mon
+	$h Hey man! Welcome to my store
+
+wed
+    $h How you been man? 
+
+
+fri
+    $w You know where I can find some blow?
+
+
+#Dialogue cheat sheet
+
+#default                    # absolute fallback (specificity -1)
+#mon                        # any single tag (weekday/location/timeofday/weather/flag)
+#bodega.mon.rainy           # multiple tags (all must match; specificity = tag count)
+#*                          # match anything (specificity 0)
+#event:bodega_introa         # one-shot, only fires when queued
+
+# Inline preconditions after `|`, a
+#mon | trust >= 30 ; has_item baggie
+#fri | event_done bodega_introa
+
+# Body markup:
+#$h $s $a $w $n             # portrait codes (extend as you add art)
+#$b                         # page break
+#$q ... $r                  # question block
+#%player %name              # substitutions (rendered by 4b runtime)
+
+# Inside a $q block:
+#--> "Response text" | affinity +5 ; trust +2
+#    Optional follow-up body specific to this response
+#--> "Other response" | set first_meeting
+#    Effects can also flip flags
+#$r
+#After $r, body continues with whatever was below the question.
