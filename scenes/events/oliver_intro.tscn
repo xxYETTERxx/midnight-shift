@@ -53,7 +53,7 @@ layer_0/y_sort_enabled = true
 [node name="Event" type="Node2D" parent="." unique_id=1747946042]
 script = ExtResource("2_jwpyt")
 id = "oliver_intro"
-conditions = Array[String](["room == hardware_store", "npc_in_scene oliver"])
+conditions = Array[String](["room == false", "npc_in_scene oliver"])
 return_room_path = "uid://cuc7tr377sgsc"
 return_spawn = "from_outside"
 
@@ -132,5 +132,5 @@ text = "Nothing to say? Damn kids are so rude these days"
 portrait_override = "a"
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=160148223]
-position = Vector2(274, 222)
+position = Vector2(-1, 0)
 enabled = false

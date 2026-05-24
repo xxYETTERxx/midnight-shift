@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://uoeae42pfx7p"]
+
+[ext_resource type="Script" uid="uid://buh0x7nk8qcnh" path="res://scripts/events/wait.gd" id="1_l2kbm"]
+
+[node name="WaitStep" type="Node" unique_id=1980916796]
+script = ExtResource("1_l2kbm")

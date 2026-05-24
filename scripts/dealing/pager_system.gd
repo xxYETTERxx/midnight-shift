@@ -17,10 +17,12 @@ const CALLBACK_DEADLINE_HOURS: int = 6
 var _last_page_minute: Dictionary = {}
 var _pending: Array[PendingPage] = []
 var _rng: RandomNumberGenerator = RandomNumberGenerator.new()
+var has_pager: bool = false
 
 signal page_received(page: PendingPage)
 signal page_consumed(page: PendingPage)
 signal page_expired(page: PendingPage)
+signal pager_aquired()
 signal queue_changed()
 
 
@@ -29,6 +31,10 @@ func _ready() -> void:
 	_rng.seed = Time.get_ticks_usec()
 	TimeSystem.minute_tick.connect(_on_minute_tick)
 
+
+func activate() -> void:
+	has_pager = true
+	pager_aquired.emit()
 
 # --- Public API ---
 
@@ -71,6 +77,8 @@ func debug_force_page(customer_id: StringName = &"") -> void:
 # --- Tick logic ---
 
 func _on_minute_tick(_total: int) -> void:
+	if !has_pager:
+		return
 	if _is_sleep_window():
 		return
 	# Tick deadlines first so newly-created pages get the full budget.
@@ -150,6 +158,7 @@ func save_state() -> Dictionary:
 	return {
 		"last_page_minute": _last_page_minute.duplicate(),
 		"pending": pending_data,
+		"has_pager": has_pager,
 	}
 
 
@@ -157,6 +166,9 @@ func load_state(data: Dictionary) -> void:
 	_last_page_minute = data.get("last_page_minute", {}).duplicate()
 	_pending.clear()
 	var pending_data: Array = data.get("pending", [])
+	has_pager = data.get("has_pager")
 	for entry in pending_data:
 		_pending.append(PendingPage.from_dict(entry))
 	queue_changed.emit()
+	if has_pager:
+		pager_aquired.emit()

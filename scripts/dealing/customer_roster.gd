@@ -25,6 +25,7 @@ func _ready() -> void:
 	SaveSystem.register_savable("customer_roster", self)
 	_rng.seed = Time.get_ticks_usec()
 	DealerExperience.tier_unlocked.connect(_on_tier_unlocked)
+	PagerSystem.pager_aquired.connect(seed_starter_customer)
 
 
 # --- Public API ---

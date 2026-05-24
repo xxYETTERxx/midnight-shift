@@ -3,6 +3,8 @@
 # Default weekday plan:
 default
 	15:00 stand city_central felix_break
+	16:00 walk:walk city_central pawn_shop_door
+	16:05 stand pawn_shop counter
 
 
 

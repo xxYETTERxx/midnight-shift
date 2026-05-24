@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://ctugl5chw5dum"]
+
+[ext_resource type="Script" uid="uid://rt0jesbcc8no" path="res://scripts/events/move_step.gd" id="1_0mf4w"]
+
+[node name="MoveStep" type="Node" unique_id=1186256359]
+script = ExtResource("1_0mf4w")

@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://rt6cejp63r6y"]
+
+[ext_resource type="Script" uid="uid://b0i378w2bkp8b" path="res://scripts/events/dialogue_step.gd" id="1_cu5ra"]
+
+[node name="DialogueStep" type="Node" unique_id=940822578]
+script = ExtResource("1_cu5ra")

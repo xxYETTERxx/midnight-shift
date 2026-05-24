@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="ItemDef" format=3 uid="uid://ce6csoade2m8b"]
+
+[ext_resource type="Texture2D" uid="uid://bkdrxr28lrw5u" path="res://art/icons/pager1.png" id="1_1xyn4"]
+[ext_resource type="Script" uid="uid://2ndmr7htrd8w" path="res://scripts/items/item_def.gd" id="2_mv08d"]
+
+[resource]
+script = ExtResource("2_mv08d")
+id = &"pager"
+tool_id = &"pager"
+display_name = "Pager"
+icon = ExtResource("1_1xyn4")
+max_stack = 1
+category = 0
+description = "Total normal and legit one-way communicaton system"
+base_value = 80
+giftable = false
+metadata/_custom_type_script = "uid://2ndmr7htrd8w"

@@ -9,7 +9,7 @@ extends Node2D
 const WALK_PREFIX: String = "walk"
 const IDLE_PREFIX: String = "idle"
 
-@onready var head: Sprite2D = $Head
+@onready var head: AnimatedSprite2D = $Head
 @onready var body: AnimatedSprite2D = $Body
 
 @export var bob_frames: Array[int] = [2]
@@ -27,25 +27,35 @@ func _ready() -> void:
 func apply_appearance(category: StringName, head_index: int, body_index: int) -> void:
 	_category = category
 	_head_index = head_index
-	_refresh_head()
 	var body_frames: SpriteFrames = NPCGenerator.get_body_frames(category, body_index)
+	var head_frames: SpriteFrames = NPCGenerator.get_head_frames(category, body_index)
 	if body_frames != null:
 		body.sprite_frames = body_frames
 		_apply_body_anim(IDLE_PREFIX, _facing)
+	if head_frames != null:
+		head.sprite_frames = head_frames
+		_apply_head_anim(_facing)
 
 
 func play_anim(prefix: String, facing: String) -> void:
 	_facing = facing
-	_refresh_head()
+	_apply_head_anim(facing)
 	_apply_body_anim(prefix, facing)
 
 
-func _refresh_head() -> void:
-	if head == null or _head_index < 0:
+func _apply_head_anim(facing: String) -> void:
+	if head == null or head.sprite_frames == null:
 		return
-	var tex: Texture2D = NPCGenerator.get_head_texture(_category, _head_index, _facing)
-	if tex != null:
-		head.texture = tex
+	var candidates: Array[String] = [
+		facing,   # walk_s
+		"idle",
+	]
+	for n in candidates:
+		if head.sprite_frames.has_animation(n):
+			if head.animation != n:
+				head.play(n)
+			return		
+
 
 
 func _apply_body_anim(prefix: String, facing: String) -> void:

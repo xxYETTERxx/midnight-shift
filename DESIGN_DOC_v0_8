@@ -86,7 +86,7 @@ The player starts in a shitty apartment in a rough neighborhood. They earn money
 - Rain and night are visual events, not just lighting toggles
 
 **Asset pipeline:**
-- Tilesets split by function (interior_floor, interior_wall_base, interior_wall_top, outdoor_ground, outdoor_decoration) rather than by aesthetic — same node structure across rooms means swapping a tileset is a one-line change
+- Tilesets split by function (interior_floor, interior_wall, outdoor_ground, outdoor buildings, outdoor_decoration) rather than by aesthetic — same node structure across rooms means swapping a tileset is a one-line change
 - Outdoor terrain uses 47-tile autotile templates (purchased asset pack) configured as Godot terrain sets. Probability weighting handles variant tiles within a terrain
 - Hand-authored work concentrates on characters, key props, decorations. Terrain/ground is largely purchased + recolored
 - Palette discipline upstream: every new tile passes through an indexed-palette pass in Aseprite before entering Godot
@@ -1082,7 +1082,7 @@ See §11.5, §11.6.
 - ✅ Integration with dialogue system (DialogueStep, ChoiceStep) and flag system (SetFlagStep, perfect-gift trigger pattern)
 - Remaining work is content: authoring 3-5 more events for §20 Definition of Done item 13
 
-### Stage 12: Heat System (light MVP)
+### Stage 12: Heat System (light MVP) ✅ COMPLETE
 - Single witness check per crime
 - Random patrol cop spawn on witnessed crime
 - NavigationAgent2D + NavigationRegion2D introduced here for cop pursuit
@@ -1263,14 +1263,14 @@ Per-day caps prevent degenerate spam where applicable.
 
 ### Initial skill set
 
-### Athletics
+### Athletics (implemented)
 - XP accrues per pixel of player movement, committed via fractional accumulator.
 - Speed scales linearly: `1.0 + level * 0.015`. L50 = 140 px/s (base 80).
 - Capability thresholds: `vault_low` at L10, `vault_medium` at L25, `vault_high` at L50.
 - Each threshold fires a one-time notification.
 - XP curve: `round(20 * pow(level, 1.6))` cumulative. ~12,649 XP to reach L50.
 
-### Vault (implemented)
+### Vault (loosly implemented)
 - Authoring: 1-tile-thick rule in the traversal axis. Stacked vaultables are rejected.
 - Vaultable tiles painted in a per-room `TileMap` named "Vaultables" with a
   `vault_tier` custom data layer (0/1/2 = low/medium/high).
@@ -1289,7 +1289,7 @@ Per-day caps prevent degenerate spam where applicable.
   Reset to 0 in completion callback.
 - Stamina cost: 2 per vault.
 
-### Strength
+### Strength (loosly implemented)
 - XP accrues on movement, multiplied by filled inventory slots.
 - Inventory expands by chunks at threshold levels:
   - Start: 6 slots
@@ -1297,7 +1297,7 @@ Per-day caps prevent degenerate spam where applicable.
 - `Inventory` listens to `PlayerSkills.level_up` and resizes itself on threshold;
   emits `capacity_changed` so dependent UIs (hotbar, inventory panel) rebuild.
 
-### Lockpicking
+### Lockpicking (loosly implemented)
 - Flat 3 XP per successful locked car loot. (Tune after playtest — currently slow.)
 - Duration reduction: `max(0.1, 1.0 - level * 0.012)`. L50 = 40% faster picks.
 - No capability gates currently — slim jim + skill scaling only.
@@ -1326,7 +1326,7 @@ Deferred — design intent recorded: cops can't vault medium until high pursuit 
 
 ---
 
-### Vault as the headline capability
+### Vault
 
 Vaultable objects are placed throughout outdoor scenes — low fences, mid-height walls, dumpsters, rooftop ledges. Each is tagged with a tier (low / medium / high). Player can vault objects of tiers they've unlocked.
 

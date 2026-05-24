@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://d0nfka4wrt2r0"]
+
+[ext_resource type="Script" uid="uid://d0e74fnnnyhgy" path="res://scripts/events/choice_step.gd" id="1_style"]
+
+[node name="ChoiceStep" type="Node" unique_id=1103774293]
+script = ExtResource("1_style")

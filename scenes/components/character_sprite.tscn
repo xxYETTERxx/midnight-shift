@@ -5,11 +5,11 @@
 
 [node name="CharacterSprite" type="Node2D" unique_id=75059540]
 script = ExtResource("1_monyv")
-bob_frames = Array[int]([1])
+bob_frames = Array[int]([])
+bob_offset = 0.0
 
 [node name="Body" type="AnimatedSprite2D" parent="." unique_id=1352093023]
 
-[node name="Head" type="Sprite2D" parent="." unique_id=713874383]
-offset = Vector2(0, 2)
+[node name="Head" type="AnimatedSprite2D" parent="." unique_id=1707538531]
 
 [node name="Witness" parent="." unique_id=1378371639 instance=ExtResource("2_6q03v")]

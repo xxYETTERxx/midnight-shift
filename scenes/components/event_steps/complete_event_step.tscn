@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://50pcpaumkudm"]
+
+[ext_resource type="Script" uid="uid://4nnt2revmeut" path="res://scripts/events/mark_event_done_step.gd" id="1_d4tai"]
+
+[node name="CompleteEventStep" type="Node" unique_id=1119757983]
+script = ExtResource("1_d4tai")

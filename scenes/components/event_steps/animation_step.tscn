@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://cqy5i1f0ty4p0"]
+
+[ext_resource type="Script" uid="uid://op3h4rtxgapq" path="res://scripts/events/animation_step.gd" id="1_052gy"]
+
+[node name="AnimationStep" type="Node" unique_id=461694790]
+script = ExtResource("1_052gy")

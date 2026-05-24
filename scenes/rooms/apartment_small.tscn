@@ -27,15 +27,15 @@ y_sort_enabled = true
 [node name="Bed" parent="Interactables" unique_id=1771853149 instance=ExtResource("2_xqw01")]
 position = Vector2(-161, 17)
 
-[node name="Markers" type="Node2D" parent="." unique_id=605545023]
-
-[node name="from_hall" type="Marker2D" parent="Markers" unique_id=1194040583]
-position = Vector2(-129, 61)
-
-[node name="default" type="Marker2D" parent="Markers" unique_id=1732033360]
-position = Vector2(-152, 51)
-
-[node name="Doorway" parent="Markers" unique_id=2084805160 instance=ExtResource("3_es2m1")]
+[node name="Doorway" parent="Interactables" unique_id=2084805160 instance=ExtResource("3_es2m1")]
 position = Vector2(-23, 45)
 target_room = "uid://huc6tubl0gxv"
 target_spawn = "from_apartment_small"
+
+[node name="SpawnPoints" type="Node2D" parent="." unique_id=605545023]
+
+[node name="from_hall" type="Marker2D" parent="SpawnPoints" unique_id=1194040583]
+position = Vector2(-129, 61)
+
+[node name="default" type="Marker2D" parent="SpawnPoints" unique_id=1732033360]
+position = Vector2(-152, 51)

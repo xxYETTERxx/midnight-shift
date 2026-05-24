@@ -17,6 +17,26 @@ wed
 
 fri
     $s You holding man?
+	
+event:greeting
+	$w Hey man, you got any change?
+	$q
+	--> "(Ignore him)" | affinity -1
+		$a whatever
+	--> "Sorry, I've got nothing, I need some myself"
+		$h ha ha ha! Yeah it's tough out here. 
+	$r
+	$n Have you met Hank?
+		$q
+		--> "Hank?"
+			$h He lives just past the camp. If you need to make some cash, he might be able to help
+		--> "no"
+			$h He lives just past the camp.
+			$b
+			$n If you need to make some cash, he might be able to help
+		$r
+	See you around man
+
 
 
 #Dialogue cheat sheet

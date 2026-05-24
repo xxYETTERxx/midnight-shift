@@ -39,6 +39,8 @@ signal stamina_changed(current: float, maximum: float)
 
 var last_direction: String = "s"
 
+var has_pager: bool = false
+
 func _ready() -> void:
 	TimeSystem.minute_tick.connect(_on_minute_tick)
 	TimeSystem.hour_tick.connect(_on_hour_tick)
@@ -49,8 +51,6 @@ func _ready() -> void:
 	# NEW: re-arbitrate interactions when the player's held item changes
 	inventory.active_slot_changed.connect(_on_active_slot_changed)
 	inventory.slot_changed.connect(_on_inventory_slot_changed)
-	inventory.add(ItemRegistry.get_item(&"pot_basic"), 3)
-	inventory.add(ItemRegistry.get_item(&"calling_card_30"), 1)
 	_settle_idle()
 
 
@@ -448,7 +448,7 @@ func _capability_for_tier(tier: int) -> StringName:
 		2: return &"vault_high"
 		_: return &""
 
-#----------------Skateboard---------------
+#----------------Tool Use---------------
 func _try_tool_interact() -> bool:
 	if active_mode != &"":
 		_exit_active_mode()
@@ -465,6 +465,9 @@ func _try_tool_interact() -> bool:
 		&"skateboard":
 			_try_enter_skateboard(stack.item)
 			return true
+		&"pager":
+			PagerSystem.activate()
+			inventory.consume_active(1)
 	return false
 
 

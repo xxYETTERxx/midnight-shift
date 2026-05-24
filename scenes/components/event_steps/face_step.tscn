@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://bvg7ui27xonsi"]
+
+[ext_resource type="Script" uid="uid://5bhr6rnewto" path="res://scripts/events/face_step.gd" id="1_nrw66"]
+
+[node name="FaceStep" type="Node" unique_id=1157425806]
+script = ExtResource("1_nrw66")

@@ -1,0 +1,739 @@
+# `.dlg` Authoring Cheat Sheet
+
+A field guide to writing dialogue files for the `DialogueDatabase` / `DialogueParser` / `DialogueRuntime` stack.
+
+---
+
+## File basics
+
+- **Location:** `res://data/dialogue/<npc_id>.dlg`
+- **`npc_id`:** filename basename (so `mira.dlg` → `npc_id = "mira"`)
+- **Encoding:** plain UTF-8 text
+- **Comments:** anything from `#` to end-of-line is stripped (works mid-line too)
+- **Blank lines:** ignored
+- **Indentation:** body of an entry must be indented deeper than the key line. Tabs count as 4 spaces for purposes of indent comparison — don't mix, pick one and stick to it within a block.
+
+**Hot reload:** in debug builds, files are polled every 1s and re-parsed on save. Press **F5** to force a full reload (catches new/deleted files).
+
+---
+
+## Anatomy of an entry
+
+```
+KEY [| clause ; clause ; ...]
+    body...
+```
+
+The key line decides *when* the entry is eligible. The body is *what plays*.
+
+---
+
+## Keys (selection grammar)
+
+| Key form | Specificity | Matches |
+|---|---|---|
+| `default` | **−1** | nothing else matches |
+| `*` | **0** | always (pair with preconditions) |
+| `mon` / `evening` / `bodega` / ... | **1** | one context tag |
+| `bodega.mon` / `fri.evening` | **N** | all dotted tags must be in context (AND) |
+| `event:bodega_intro` | (special) | only fires when queued via `push_dialogue` — never matched by normal lookup |
+
+### Tie-breaking
+1. Highest specificity wins.
+2. If tied, **later in the file wins**. Convention: keep generic blocks at the top, patches/overrides below.
+
+### Context tags automatically present each lookup
+Built-in keys (from the caller's `context` dict): `weekday`, `timeofday`, `weather`, `location` — each contributes its **value** as a tag (e.g. `weekday: "mon"` adds the tag `mon`).
+
+Also injected by the database:
+- `knows` if `RelationshipSystem.get_knows(npc)` is true, otherwise `!knows`
+- Every set per-NPC flag (name only)
+- Every set global flag (name only)
+- Any other boolean key in `context` whose value is `true`
+
+So `bodega.mon` matches when the player is in the bodega on a Monday. `* | first_meeting` matches anywhere as long as the `first_meeting` flag is set on the NPC (or globally).
+
+---
+
+## Preconditions (after `|`)
+
+Separate multiple with `;` — **all must be true** (AND).
+
+| Form | Meaning |
+|---|---|
+| `flag_name` | NPC flag *or* global flag is set; or context bool key is true; or `knows` (special) |
+| `!flag_name` | inverse of the above |
+| `event_done X` | `X` is in `RelationshipSystem._events_done` |
+| `has_item X` | player inventory has item id `X` (runtime checks via player group) |
+| `stat OP value` | comparison; ops: `>`, `>=`, `<`, `<=`, `==`, `!=` |
+
+### Stats resolvable in comparisons
+- `affinity` → `RelationshipSystem.get_affinity(npc)`
+- `trust` → `RelationshipSystem.get_trust(npc)`
+- `day` → `TimeSystem.day_index() + 1` (1-based)
+- `hour` → `TimeSystem.current_hour()`
+- Any other name falls through to `context[name]` (so you can pass in custom numeric stats per-lookup)
+
+### Value coercion (RHS of comparisons)
+The parser auto-coerces: `42` → int, `1.5` → float, `true`/`false` → bool, anything else → string.
+
+---
+
+## Body markers
+
+Inside an entry's body, every line is either a **text line**, a **marker**, or part of a question block.
+
+### Text lines — portrait codes
+
+```
+$n How you been?
+$h Manic Monday. Nothing on tonight, %name?
+```
+
+- `$<code>` at the start sets the portrait for this segment.
+- Built-in codes: `n` neutral, `h` happy, `s` sad, `a` angry, `w` worried.
+- Any other letter/word works too — falls back to `res://art/portraits/<code>.png`. So `$smug` → `smug.png`.
+- A **bare** `$h` on its own line just switches the portrait without producing visible text — the next un-prefixed line's text uses it.
+- Un-prefixed continuation lines append to the previous segment (joined with `\n`).
+- Portrait **persists** across page breaks until something changes it. The runtime remembers the last code shown.
+
+### `$b` — page break
+
+Forces the dialogue box to commit the current segment and start fresh. The runtime advances past it silently — the player still presses interact/Enter between text segments regardless.
+
+### `$q ... $r` — question/response block
+
+```
+$q
+--> "Yeah!" | affinity +5 ; trust +2
+    $h Awesome!
+--> "Nope, those are tomatoes" | affinity -2
+    $s Right. Of course
+--> "..."
+$r
+Anyway. What can I do for you.
+```
+
+- `$q` opens. Each `-->` line is a response. `$r` closes the block.
+- Body lines **after** `$r` resume the main entry — Mira's "Anyway. What can I do for you." plays after any choice.
+- Responses indented under `-->` become **follow-up body** for that choice (any of: text, `$b`, even nested `$q`).
+- If all responses get gated out by preconditions, the runtime **skips the question entirely** rather than softlocking (warning logged).
+- The runtime automatically advances into a question without requiring a separate keypress after a preceding text segment.
+
+---
+
+## Response syntax (`-->` lines)
+
+```
+--> "TEXT"  [| clause ; clause ; ...]
+    follow-up body...
+```
+
+- Text is preferably **quoted** with `"..."` (handles embedded `|` and pipes cleanly).
+- Unquoted form is tolerated — everything up to the first `|` is the response text.
+- Clauses after `|` are either **preconditions** (gate this choice) or **effects** (apply on pick). The parser detects which by syntax — see below.
+
+### Effects (only valid on response clauses)
+
+| Form | Action |
+|---|---|
+| `affinity +5` | add 5 to affinity (per-NPC) |
+| `affinity -3` | subtract 3 |
+| `trust +2` / `trust -2` | same, for trust |
+| `set FLAG_NAME` | set per-NPC flag |
+| `clear FLAG_NAME` | clear per-NPC flag |
+| `set global:FLAG_NAME` | set global flag (prefix `global:`) |
+| `clear global:FLAG_NAME` | clear global flag |
+
+Anything else in the clause list that isn't an effect is parsed as a precondition. You can mix freely on the same line.
+
+> **Note:** effects on the key line (after `|`) are *parsed* but currently only `_eval_precondition` is invoked at key-lookup time — putting effects on a key has no runtime effect today. Keep effects on responses.
+
+---
+
+## Text substitutions
+
+| Token | Replaced with |
+|---|---|
+| `%name` | NPC's `display_name` (passed into `DialogueRuntime.start`) |
+
+That's the full set right now. Easy place to extend later — see `DialogueRuntime._substitute`.
+
+---
+
+## Event entries
+
+```
+event:bodega_intro
+    $w We need to talk.
+    $b
+    Things at the shop... they've been getting bad.
+```
+
+- **Never matched** by normal context lookup.
+- Fire by calling `RelationshipSystem.push_dialogue(npc_id, "bodega_intro")`.
+- On the **next** interaction with that NPC, `DialogueDatabase.get_line` pops the queue and returns this entry — overriding all regular matching.
+- Queue is FIFO, per-NPC. Multiple pushes stack. `clear_queue(npc_id)` wipes them.
+- Missing event names log a warning and are dropped from the queue.
+
+Use events for: scripted beats triggered by world state, "I need to tell you something next time we meet" hooks, post-event follow-ups.
+
+---
+
+## Lookup order at runtime
+
+`DialogueDatabase.get_line(npc_id, context)` does the following:
+
+1. Peek the NPC's dialogue queue. If non-empty and the event exists → pop & return it.
+2. Build current tag set from `context` + per-NPC flags + global flags + `knows`/`!knows`.
+3. Iterate all regular entries for that NPC:
+   - Skip event entries.
+   - Skip if any key tag isn't in current tag set.
+   - Skip if any precondition fails.
+   - Track best by **(specificity, file index)** — higher specificity wins; ties go to later index.
+4. Return the winner (or `{}` if nothing matched).
+
+If you get `{}` and don't expect it: you're missing a `default` block, or your context isn't supplying a tag you assumed was present.
+
+---
+
+## Worked example, annotated
+
+```dlg
+# Always-available fallback. Specificity -1 — only fires if nothing else matches.
+default
+    $n How you been?
+
+# Specificity 1 — fires on Mondays when nothing more specific applies.
+mon
+    $h Manic Monday. Nothing on tonight, %name?
+
+# Specificity 2 — beats the bare `mon` block whenever Mira's in the bodega.
+bodega.mon
+    $n Slow at the shop today.
+
+# Same key as the bare `mon`, but preconditioned. Whichever is true wins;
+# if both match, file order breaks the tie — this block is below `mon`,
+# so it wins when affinity > 40 AND !knows.
+mon | affinity > 40 ; !knows
+    $h I was hoping I'd see you today.
+
+# Wildcard: only fires when the flag is set, but works on any day/place.
+* | first_meeting
+    $n You must be the new neighbor. Mira.
+    $b
+    Don't break anything.
+
+# Trust gate + branching question. Affects stats on pick.
+greeting | trust < 20
+    $w You grow weed?
+    $q
+    --> "Yeah!" | affinity +5 ; trust +2
+        $h Awesome!
+    --> "Nope, those are tomatoes" | affinity -2
+        $s Right. Of course
+    --> "..."
+    $r
+    Anyway. What can I do for you.
+
+# One-shot scripted beat — only fires when pushed onto the queue.
+event:bodega_intro
+    $w We need to talk.
+    $b
+    Things at the shop... they've been getting bad.
+    $b
+    $s I don't know who else to ask.
+```
+
+---
+
+## Gotchas & tips
+
+- **Tabs vs spaces:** mixed indentation can cause subtle "indented line with no preceding key" errors. Pick one per file.
+- **Empty `$q` after gating:** if every response is gated out, the question silently skips. If you need a guaranteed exit, leave one ungated response (like `--> "..."`).
+- **Portrait drift:** since portraits persist across `$b`, a long entry that switches between speakers' emotions needs explicit codes on every emotion change.
+- **Forgetting `$r`:** parser logs `Question block ended without $r` and bails out of the block. Question still runs but trailing body is consumed weirdly. Always close `$q` with `$r`.
+- **Specificity vs preconditions:** preconditions don't increase specificity. `mon | affinity > 40` is still specificity 1. Use file order to layer variants.
+- **Effects on key lines:** parsed but inert today. If you need state changes when an entry plays (vs. when a response is picked), do it from script for now.
+- **`has_item` in `DialogueRuntime`:** the runtime's `_eval_precondition` currently returns `false` for `has_item` on **response** clauses — only the database honors `has_item` (for key-line gates). If you need item-gated responses, that's a small one-line fix in `dialogue_runtime.gd`.
+- **Unknown stats:** comparing on a stat name not in the resolver and not in context logs `unknown stat 'X', defaulting to 0` and the comparison runs against 0. Watch the output panel for these.
+- **Self-test:** uncomment `_SELF_TEST_ON_READY` paths at the bottom of `dialogue_database.gd` to print what key/line wins for a handful of canned scenarios on boot.
+
+---
+
+## Quick reference card
+
+```
+KEYS                          PRECONDITIONS                EFFECTS (responses only)
+  default          (-1)         flag                         stat +N   /  stat -N
+  *                (0)          !flag                        set NAME
+  tag              (1)          event_done X                 clear NAME
+  tag.tag          (N)          has_item X                   set global:NAME
+  event:NAME      (queue)       stat OP value                clear global:NAME
+
+BODY MARKERS                  CONTEXT TAGS (from caller)   STATS
+  $code text       (portrait)    weekday  → tag              affinity, trust  (per-NPC)
+  $b               (page break)  timeofday → tag             day  (1-based)
+  $q ... $r        (question)    weather  → tag              hour
+  --> "text" |...  (response)    location → tag              <context[name]>
+
+SUBSTITUTIONS                 PORTRAIT CODES
+  %name → display name          n h s a w  → built-in
+                                anything else → <code>.png
+```
+
+
+
+# `.dlg` Authoring Cheat Sheet
+
+Reference for authoring dialogue files. Pairs with `DialogueParser`, `DialogueDatabase`, `DialogueRuntime`.
+
+---
+
+## 1. File basics
+
+- **Location:** `res://data/dialogue/<npc_id>.dlg`
+- **Filename = NPC id.** `mira.dlg` → looked up by `npc_id = "mira"`. The NPC scene's `npc_id` export must match.
+- **Hot reload:** in debug builds, `DialogueDatabase` polls every 1s and re-parses changed files. **F5** forces a full folder reload (also catches new/deleted files).
+- **Comments:** `#` to end of line. Works on any line.
+- **Indentation:** tabs or spaces, mixed OK (tab = 4 spaces internally). Pick one per file for sanity.
+
+---
+
+## 2. Top-level structure
+
+Each top-level **entry** is one block — a *key line* (no leading whitespace) followed by an indented body.
+
+```
+KEY [| precondition ; precondition ; ...]
+    body...
+    body...
+
+ANOTHER_KEY
+    body...
+```
+
+Blank lines and comment-only lines between entries are ignored. The body of an entry continues as long as following non-empty lines are indented more than the key.
+
+---
+
+## 3. Key types
+
+| Key | Specificity | What it matches |
+|---|---|---|
+| `default` | **-1** | Only when nothing else matches. The safety net. |
+| `*` | 0 | Always matches (useful with `\|` preconditions for "any context, but…"). |
+| `mon`, `evening`, `bodega`, etc. | 1 | One context tag must be active. |
+| `bodega.mon` | 2 | All tags must be active (AND). |
+| `bodega.fri.evening` | 3 | All three. |
+| `event:NAME` | (special) | Not in normal lookup — see §9. |
+
+**Tag matching is AND.** Order inside the dotted key doesn't matter (`mon.bodega` == `bodega.mon`).
+
+**Tie-breaking:** highest specificity wins. Same specificity → **later in the file wins.** Convention: put "patch" / override entries lower.
+
+---
+
+## 4. The auto-built tag set
+
+When you talk to an NPC, the runtime builds the set of currently-active tags from the context dict plus relationship/flag state. Your key matches if all its tags are in this set.
+
+Tags added every interaction (from `npc.gd::_build_context`):
+
+| Tag source | Possible values |
+|---|---|
+| `weekday` | `mon` `tue` `wed` `thu` `fri` `sat` `sun` |
+| `timeofday` | `morning` (6–12), `afternoon` (12–18), `evening` (18–22), `night` (22–6) |
+| `location` | Current room's scene basename, e.g. `apartment_living`, `bodega`, `hardwood_store` |
+
+Tags added from `RelationshipSystem`:
+
+- `knows` **or** `!knows` (always exactly one — based on whether NPC knows about player's activities)
+- Every per-NPC flag set via `set_npc_flag(npc_id, flag, true)`
+- Every global flag set via `set_global_flag(flag, true)`
+
+So `first_meeting`, `bodega_intro_done`, `relocated` etc. can all be used as bare key tags after you've set them.
+
+---
+
+## 5. Preconditions (after `|`)
+
+Anything after `|` on a key line, separated by `;`. **All must be true.**
+
+```
+mon | affinity > 40 ; !knows ; trust >= 10
+```
+
+### Forms
+
+| Syntax | Meaning |
+|---|---|
+| `flag_name` | NPC flag, global flag, or context bool is set |
+| `!flag_name` | …is NOT set |
+| `knows` / `!knows` | NPC's `knows` boolean |
+| `event_done EVENT_ID` | `RelationshipSystem.is_event_done()` |
+| `has_item ITEM_ID` | Player inventory contains item with this id |
+| `<stat> <op> <value>` | Comparison |
+
+### Comparison stats
+
+- `affinity` — per-NPC, range −100..100
+- `trust` — per-NPC, range 0..100
+- `day` — `TimeSystem.day_index() + 1`
+- `hour` — `TimeSystem.current_hour()` (0..23)
+- Plus anything in the context dict that's numeric
+
+### Operators
+
+`>` `<` `>=` `<=` `==` `!=` — RHS is coerced to int/float/bool/string automatically (`"5"` → `5`, `"true"` → `true`).
+
+> **Effects are NOT allowed on key lines.** The clause list on a key is preconditions only. Effects only appear on response lines — see §8.
+
+---
+
+## 6. Text lines & portraits
+
+Inside a body, a line starting with `$<code>` switches the speaker portrait and starts a new text segment.
+
+```
+mon
+    $h Hey, good to see you.
+    $n Anyway — what's up?
+```
+
+### Built-in portrait codes
+
+| Code | File |
+|---|---|
+| `$n` | `neutral.png` |
+| `$h` | `happy.png` |
+| `$s` | `sad.png` |
+| `$a` | `angry.png` |
+| `$w` | `worried.png` |
+
+Anything else: `$smug` → `smug.png`, `$shocked` → `shocked.png`. Falls back to `neutral.png` if missing.
+
+**Path:** `res://art/portraits/<npc_id>/<code>.png`
+
+### Multi-line text
+
+A line *without* a `$` prefix appends to the current segment with a newline:
+
+```
+mon
+    $n Listen.
+    The thing is, I've been thinking about it.
+    And I'm not sure.
+```
+
+All three lines render as one dialogue bubble with `neutral`.
+
+### Bare portrait switches
+
+A `$<code>` line with nothing after it switches portrait and waits for continuation lines:
+
+```
+$s
+I don't know what to say.
+That was rough.
+```
+
+### Page break: `$b`
+
+Splits the current dialogue into separate "pages" — the player presses E/Enter to advance.
+
+```
+$h Hey!
+$b
+$n ...anyway. About the rent.
+```
+
+---
+
+## 7. Substitutions
+
+Inside text, the runtime substitutes:
+
+| Token | Replacement |
+|---|---|
+| `%name` | NPC's `display_name` |
+
+(That's the only one wired up right now — more would land in `DialogueRuntime._substitute`.)
+
+---
+
+## 8. Questions & responses
+
+A `$q` block opens a player-choice menu. Each response is `-->`. `$r` closes the block; anything below `$r` plays after the player picks any response.
+
+```
+greeting | trust < 20
+    $w You grow weed?
+    $q
+    --> "Yeah!" | affinity +5 ; trust +2
+        $h Awesome!
+        Where'd you learn?
+    --> "Nope, those are tomatoes" | affinity -2
+        $s Right. Of course.
+    --> "..." | trust < 5
+    $r
+    Anyway. What can I do for you?
+```
+
+### Response syntax
+
+```
+--> "Response text" | clause ; clause ; ...
+    follow_up_body...
+```
+
+- **Quoted form preferred** (`-->` "..."). Unquoted is tolerated up to the `|`.
+- **Clauses can be EITHER preconditions or effects** — recognized by syntax. Mixed freely, separated by `;`.
+- **Follow-up body** is the indented block under the response. Plays *immediately* when the response is picked, before any text below `$r`.
+- **Responses are filtered by their preconditions before the menu shows.** If all responses get filtered out, the question is silently skipped (with a warning) rather than soft-locking.
+
+### Effect syntax (response clauses only)
+
+| Form | Meaning |
+|---|---|
+| `affinity +5` | Add 5 to affinity (clamped −100..100) |
+| `trust -2` | Subtract 2 from trust (clamped 0..100) |
+| `set flag_name` | Set per-NPC flag |
+| `set global:rent_paid` | Set global flag (note the `global:` prefix) |
+| `clear flag_name` | Clear per-NPC flag |
+| `clear global:rent_paid` | Clear global flag |
+
+Stats: only `affinity` and `trust` are valid stat-delta targets. `day +1` etc. won't do anything useful.
+
+### What `$r` actually does
+
+`$r` is just "end of question, what follows is post-question content that plays after any choice." It's *optional* — a question with no `$r` and no body below it just ends after the follow-up.
+
+---
+
+## 9. One-shot events (`event:NAME`)
+
+Event entries are **not** considered during normal lookup. They're delivered manually by pushing onto an NPC's queue:
+
+```
+# In some .dlg file:
+event:bodega_intro
+    $w We need to talk.
+    $b
+    Things at the shop... they've been getting bad.
+```
+
+```gdscript
+# From any system that wants to queue the conversation:
+RelationshipSystem.push_dialogue("mira", "bodega_intro")
+```
+
+Next time the player talks to Mira, the queued event takes precedence over any normal entry. The queue is FIFO — push multiple, they deliver in order, one per interaction. Popped after delivery.
+
+This is also the channel **inline reaction dialogue** uses (gift reactions etc.) — except those construct the entry dict in code and call `DialogueRuntime.start()` directly, bypassing the database.
+
+---
+
+## 10. Lookup algorithm (mental model)
+
+When `DialogueDatabase.get_line(npc_id, ctx)` is called:
+
+1. **Queued event check.** If `RelationshipSystem.peek_dialogue(npc_id)` returns a name and that name exists in this NPC's events, pop it and return. (If queued event doesn't exist → warning + drop.)
+2. **Build current tag set** from `ctx` + knows + per-NPC flags + global flags.
+3. **Walk every non-event entry** in file order, filtering by:
+   - All key tags must be in current tag set, AND
+   - All preconditions must evaluate true.
+4. **Pick highest specificity.** Tie → later in file.
+5. Return that entry, or `{}` if nothing matched.
+
+---
+
+## 11. Quick API reference
+
+### Setting state for dialogue to react to
+
+```gdscript
+# Stats
+RelationshipSystem.add_affinity("mira", 10)
+RelationshipSystem.set_trust("mira", 50)
+
+# Knows
+RelationshipSystem.set_knows("mira", true)
+
+# Flags
+RelationshipSystem.set_npc_flag("mira", "first_meeting", true)
+RelationshipSystem.set_global_flag("rent_paid", true)
+
+# Events
+RelationshipSystem.mark_event_done("oliver_intro")
+RelationshipSystem.push_dialogue("mira", "bodega_intro")
+```
+
+### Bypassing the database (inline reaction dialogue)
+
+```gdscript
+var entry := {
+    "body": [
+        {"kind": "text", "portrait": "h", "text": "Thanks, this is great!"},
+    ]
+}
+DialogueRuntime.start("mira", "Mira", entry)
+```
+
+### Reload from script
+
+```gdscript
+DialogueDatabase.reload()        # full folder rescan
+# F5 in-game does the same
+```
+
+### Useful signals
+
+```gdscript
+DialogueRuntime.dialogue_started(npc_id)
+DialogueRuntime.dialogue_ended()
+RelationshipSystem.affinity_changed(npc_id, new_value)
+RelationshipSystem.npc_flag_changed(npc_id, flag, value)
+DialogueDatabase.reloaded()
+```
+
+---
+
+## 12. Player input during dialogue
+
+| Key | Action |
+|---|---|
+| **E** (interact) | Advance text page; during a question, activate focused choice |
+| **Enter / Space** (ui_accept) | Advance text page; native button activation on focused choice |
+| **↑ / ↓** | Navigate choices |
+| **1–9** | Direct-select choice by number (keyboard fallback) |
+| **Click** | Click choice button |
+
+`TimeSystem.pause()` fires on dialogue start and `resume()` on end.
+
+---
+
+## 13. Cookbook
+
+### First-meeting variant
+
+```
+# Game sets first_meeting on world init or first proximity trigger:
+#   RelationshipSystem.set_npc_flag("mira", "first_meeting", true)
+# Then on first conversation, clear it:
+#   - via effect inside the response, OR
+#   - in code after DialogueRuntime.dialogue_ended fires
+
+* | first_meeting
+    $n Oh — you must be the new neighbor.
+    $b
+    Mira. Don't break anything.
+```
+
+### Knows-aware branching
+
+```
+mon
+    $h Manic Monday.
+
+mon | knows
+    $w You're not bringing trouble through here, are you?
+```
+
+The `knows` variant has specificity 1 same as `mon`, but the precondition only lets it match when knows is true. Same-specificity tie → later in file wins.
+
+### Affinity-gated warmth
+
+```
+fri
+    $n Friday.
+
+fri | affinity > 40
+    $h Friday. Finally. I was hoping I'd see you.
+
+fri | affinity < 0
+    $a Whatever it is, no.
+```
+
+### Location-specific greeting
+
+```
+bodega.fri.evening
+    $h Almost off. You sticking around?
+```
+
+### Question that changes state and unlocks future dialogue
+
+```
+greeting
+    $w You okay?
+    $q
+    --> "Yeah, fine." | affinity +1
+    --> "Actually... no." | trust +5 ; set vented_to_mira
+    $r
+    Alright.
+
+# Later, gated on the flag:
+* | vented_to_mira
+    $n You holding up?
+```
+
+### One-shot story beat
+
+```
+event:bodega_intro
+    $w We need to talk.
+    $b
+    Things at the shop... they've been getting bad.
+    $b
+    $s I don't know who else to ask.
+```
+
+Trigger it from anywhere:
+
+```gdscript
+RelationshipSystem.push_dialogue("mira", "bodega_intro")
+```
+
+### Gated response choices
+
+```
+greeting
+    $n What do you need?
+    $q
+    --> "Just chatting."
+    --> "Can I borrow some cash?" | affinity > 60 ; trust > 40
+    --> "I need a favor." | event_done bodega_intro
+    $r
+```
+
+The cash and favor options simply don't appear until the player's earned them.
+
+---
+
+## 14. Common authoring gotchas
+
+- **Effects on entry key lines do nothing.** They're parsed as preconditions and silently fail to match. Effects live on responses.
+- **Tags inside dotted keys must be in the auto-built tag set** at lookup time. A typo (`bodega.frd` instead of `fri`) just silently never matches.
+- **Same-specificity entries are won by file order (later wins).** If a variant isn't firing, check it's below its baseline.
+- **`default` is specificity −1**, so it loses to literally any other matching entry — but also wins when nothing else matches, even `*`. Use it as a safety net so the NPC always has *something* to say.
+- **`*` is specificity 0**, *not* a fallback. It only matches when its preconditions pass; if there are none, it'll beat `default` but lose to any tagged entry.
+- **`knows` is reserved.** Don't use it as a regular flag name.
+- **The `global:` prefix is only for effect-set/clear.** In preconditions, just write the flag name; the check looks at per-NPC flags first, then global, then context bools.
+- **Question follow-up vs `$r` body:** the follow-up under a response runs *first* (only if that response was picked), then the `$r` body runs (regardless of pick). Both are optional.
+- **No nested questions.** `$q` inside a `$q` follow-up will parse but the parser doesn't support it cleanly — flatten with flags + separate entries instead.
+- **Source line shows up in warnings.** When something doesn't match or fails to parse, `entry.source_line` is in the warning. Search the file by line.
+- **Empty `default` is fine but silent.** If you forget to author one and lookup returns `{}`, the NPC just doesn't open a dialogue box.
+
+---
+
+## 15. Debug checklist
+
+When dialogue isn't firing the way you expect:
+
+1. Check the Godot output panel — `DialogueDatabase` prints parse errors with line numbers on load.
+2. F5 to force-reload after edits if hot-reload didn't catch it.
+3. Enable `_SELF_TEST_ON_READY = true` in `dialogue_database.gd` and uncomment the `call_deferred("_print_self_test")` in `_ready` — prints which entry wins for sample contexts.
+4. Watch the active context — `print(npc._build_context())` from a debug breakpoint to see what tags are live.
+5. Check `RelationshipSystem.get_npc_flags(npc_id)` and `get_global_flags()` to confirm flags you think are set actually are.
+6. For event entries: `RelationshipSystem.peek_dialogue(npc_id)` to confirm it's queued.

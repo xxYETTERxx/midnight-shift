@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://fl5hpw5h5nsk"]
+
+[ext_resource type="Script" uid="uid://dwmgmy4slpe2v" path="res://scripts/events/branch.gd" id="1_txgjx"]
+
+[node name="BranchStep" type="Node" unique_id=2050938380]
+script = ExtResource("1_txgjx")

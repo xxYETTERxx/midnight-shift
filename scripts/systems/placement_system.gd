@@ -10,10 +10,10 @@ const PLAYER_FEET_OFFSET: Vector2 = Vector2(10, -10)
 
 # Direction vectors keyed by player.last_direction.
 const DIRECTION_OFFSETS: Dictionary = {
-	"n": Vector2(0, -3),
-	"s": Vector2(0, 1),
-	"e": Vector2(1, -1),
-	"w": Vector2(-1, -1),
+	"n": Vector2(0, -1),
+	"s": Vector2(0, 2),
+	"e": Vector2(1.5, 1.0),
+	"w": Vector2(-1.5, 1.0),
 }
 
 func _process(_delta: float) -> void:

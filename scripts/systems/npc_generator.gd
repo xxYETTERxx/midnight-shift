@@ -15,36 +15,16 @@ extends Node
 const POOLS: Dictionary = {
 			&"customer": {
 					"heads": [
-			{
-				"s": preload("res://art/sprites/NPCs/Random/Heads/head1_s.png"),
-				"w": preload("res://art/sprites/NPCs/Random/Heads/head1_w.png"),
-				"e": preload("res://art/sprites/NPCs/Random/Heads/head1_e.png"),
-				"n": preload("res://art/sprites/NPCs/Random/Heads/head1_n.png"),
-			},
-			{
-				"s": preload("res://art/sprites/NPCs/Random/Heads/head2_s.png"),
-				"w": preload("res://art/sprites/NPCs/Random/Heads/head2_w.png"),
-				"e": preload("res://art/sprites/NPCs/Random/Heads/head2_e.png"),
-				"n": preload("res://art/sprites/NPCs/Random/Heads/head2_n.png"),
-			},
-			{
-				"s": preload("res://art/sprites/NPCs/Random/Heads/head3_s.png"),
-				"w": preload("res://art/sprites/NPCs/Random/Heads/head3_w.png"),
-				"e": preload("res://art/sprites/NPCs/Random/Heads/head3_e.png"),
-				"n": preload("res://art/sprites/NPCs/Random/Heads/head3_n.png"),
-			},
-			{
-				"s": preload("res://art/sprites/NPCs/Random/Heads/head4_s.png"),
-				"w": preload("res://art/sprites/NPCs/Random/Heads/head4_w.png"),
-				"e": preload("res://art/sprites/NPCs/Random/Heads/head4_e.png"),
-				"n": preload("res://art/sprites/NPCs/Random/Heads/head4_n.png"),
-			},
+				preload("res://art/npc_frames/random/heads/head_0.tres"),
+				preload("res://art/npc_frames/random/heads/head_1.tres"),
+				preload("res://art/npc_frames/random/heads/head_2.tres"),
+				preload("res://art/npc_frames/random/heads/head_3.tres"),
 		],
 		"bodies": [
-			preload("res://art/npc_frames/random/body_0.tres"),
-			preload("res://art/npc_frames/random/body_1.tres"),
-			preload("res://art/npc_frames/random/body_2.tres"),
-			preload("res://art/npc_frames/random/body_3.tres"),
+			preload("res://art/npc_frames/random/bodys/body_0.tres"),
+			preload("res://art/npc_frames/random/bodys/body_1.tres"),
+			preload("res://art/npc_frames/random/bodys/body_2.tres"),
+			preload("res://art/npc_frames/random/bodys/body_3.tres"),
 		],
 		"first_names": [
 			"Marco", "Tonya", "Dee", "Kev", "Reggie", "Sam", "Tasha", "Vince",
@@ -62,37 +42,16 @@ const POOLS: Dictionary = {
 	},
 			&"transit": {
 				"heads": [
-					{
-					"s": preload("res://art/sprites/NPCs/Random/Heads/head1_s.png"),
-					"w": preload("res://art/sprites/NPCs/Random/Heads/head1_w.png"),
-					"e": preload("res://art/sprites/NPCs/Random/Heads/head1_e.png"),
-					"n": preload("res://art/sprites/NPCs/Random/Heads/head1_n.png"),
-				},
-				{
-					"s": preload("res://art/sprites/NPCs/Random/Heads/head2_s.png"),
-					"w": preload("res://art/sprites/NPCs/Random/Heads/head2_w.png"),
-					"e": preload("res://art/sprites/NPCs/Random/Heads/head2_e.png"),
-					"n": preload("res://art/sprites/NPCs/Random/Heads/head2_n.png"),
-				},
-				{
-					"s": preload("res://art/sprites/NPCs/Random/Heads/head3_s.png"),
-					"w": preload("res://art/sprites/NPCs/Random/Heads/head3_w.png"),
-					"e": preload("res://art/sprites/NPCs/Random/Heads/head3_e.png"),
-					"n": preload("res://art/sprites/NPCs/Random/Heads/head3_n.png"),
-				},
-				{
-					"s": preload("res://art/sprites/NPCs/Random/Heads/head4_s.png"),
-					"w": preload("res://art/sprites/NPCs/Random/Heads/head4_w.png"),
-					"e": preload("res://art/sprites/NPCs/Random/Heads/head4_e.png"),
-					"n": preload("res://art/sprites/NPCs/Random/Heads/head4_n.png"),
-				},
-				# ... however many you want, mix-and-match with customer heads is fine
+				preload("res://art/npc_frames/random/heads/head_0.tres"),
+				preload("res://art/npc_frames/random/heads/head_1.tres"),
+				preload("res://art/npc_frames/random/heads/head_2.tres"),
+				preload("res://art/npc_frames/random/heads/head_3.tres"),
 			],
 			"bodies": [
-				preload("res://art/npc_frames/random/body_0.tres"),
-				preload("res://art/npc_frames/random/body_1.tres"),
-				preload("res://art/npc_frames/random/body_2.tres"),
-				preload("res://art/npc_frames/random/body_3.tres"),
+				preload("res://art/npc_frames/random/bodys/body_0.tres"),
+				preload("res://art/npc_frames/random/bodys/body_1.tres"),
+				preload("res://art/npc_frames/random/bodys/body_2.tres"),
+				preload("res://art/npc_frames/random/bodys/body_3.tres"),
 				# ...
 			],
 			"first_names": [],   # unused — transit names aren't displayed
@@ -156,20 +115,13 @@ func reclaim_head(category: StringName, head_index: int) -> void:
 
 # --- Pool lookup (used by CharacterSprite) -----------------------------
 
-func get_head_texture(category: StringName, head_index: int, facing: String) -> Texture2D:
+
+func get_head_frames(category: StringName, head_index: int) -> SpriteFrames:
 	var pool: Dictionary = POOLS.get(category, {})
 	var heads: Array = pool.get("heads", [])
 	if head_index < 0 or head_index >= heads.size():
 		return null
-	var entry: Variant = heads[head_index]
-	if not (entry is Dictionary):
-		push_warning("NPCGenerator: head pool entry %d is not a Dictionary" % head_index)
-		return null
-	var head_set: Dictionary = entry
-	var result: Variant = head_set.get(facing, head_set.get("s", null))
-	if result is Texture2D:
-		return result
-	return null
+	return heads[head_index]
 
 
 func get_body_frames(category: StringName, body_index: int) -> SpriteFrames:

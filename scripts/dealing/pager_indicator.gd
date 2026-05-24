@@ -12,12 +12,15 @@ var _blink_timer: float = 0.0
 var _blink_on: bool = false
 
 
+
 func _ready() -> void:
 	count_label.visible = false
+	icon.visible = false
 	icon.mouse_filter = Control.MOUSE_FILTER_STOP
 	icon.gui_input.connect(_on_icon_gui_input)
 	PagerSystem.page_received.connect(_on_page_received)
 	PagerSystem.queue_changed.connect(_refresh)
+	PagerSystem.pager_aquired.connect(show_icon)
 	_refresh()
 
 
@@ -44,8 +47,13 @@ func _on_page_received(_page: PendingPage) -> void:
 	if beep_player.stream != null:
 		beep_player.play()
 
+func show_icon() -> void:
+	icon.visible = true
+
 
 func _refresh() -> void:
+	if icon.visible == false:
+		return
 	var count := PagerSystem.pending_count()
 	if count > 1:
 		count_label.visible = true

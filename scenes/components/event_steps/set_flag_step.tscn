@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://cqqkmb8j7784u"]
+
+[ext_resource type="Script" uid="uid://b4xpsiiuk1xjr" path="res://scripts/events/set_flag_step.gd" id="1_5scll"]
+
+[node name="SetFlagStep" type="Node" unique_id=579306141]
+script = ExtResource("1_5scll")
