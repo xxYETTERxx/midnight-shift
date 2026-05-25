@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="ItemDef" format=3 uid="uid://c2kb8hhfadpsh"]
+
+[ext_resource type="Script" uid="uid://2ndmr7htrd8w" path="res://scripts/items/item_def.gd" id="1_05gg1"]
+[ext_resource type="Texture2D" uid="uid://4jlbqsmrnc76" path="res://art/objects/Items/Consumable/Food/chips.png" id="1_5pom8"]
+
+[resource]
+script = ExtResource("1_05gg1")
+id = &"chips"
+tool_id = &"chips"
+display_name = "Chips"
+icon = ExtResource("1_5pom8")
+category = 3
+description = "Salty snack"
+base_value = 2
+hunger_restore = 30.0
+thirst_restore = -10.0
+metadata/_custom_type_script = "uid://2ndmr7htrd8w"

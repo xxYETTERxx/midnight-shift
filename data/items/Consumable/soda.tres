@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="ItemDef" format=3 uid="uid://j71mbprut5yu"]
+
+[ext_resource type="Script" uid="uid://2ndmr7htrd8w" path="res://scripts/items/item_def.gd" id="1_pvgmb"]
+[ext_resource type="Texture2D" uid="uid://c8jy5nbmvmfq7" path="res://art/objects/Items/Consumable/Food/pop.png" id="1_yul4m"]
+
+[resource]
+script = ExtResource("1_pvgmb")
+id = &"soda"
+tool_id = &"soda"
+display_name = "Soda"
+icon = ExtResource("1_yul4m")
+category = 3
+description = "Sugary fix"
+base_value = 2
+hunger_restore = -5.0
+thirst_restore = 60.0
+metadata/_custom_type_script = "uid://2ndmr7htrd8w"

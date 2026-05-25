@@ -222,10 +222,16 @@ func _apply_pose(npc: ScheduledNPC, entry: Dictionary, window: Dictionary) -> vo
 
 func _despawn(npc_id: StringName) -> void:
 	var key := String(npc_id)
-	var npc: ScheduledNPC = _live_npcs.get(key, null)
+	if not _live_npcs.has(key):
+		return
+	var raw = _live_npcs[key]   # untyped read first
 	_live_npcs.erase(key)
-	if is_instance_valid(npc):
-		npc.queue_free()
+	if raw == null or not is_instance_valid(raw):
+		# already gone — fire signal anyway in case listeners track presence
+		npc_despawned.emit(npc_id)
+		return
+	var npc: ScheduledNPC = raw
+	npc.queue_free()
 	npc_despawned.emit(npc_id)
 
 

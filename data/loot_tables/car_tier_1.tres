@@ -1,9 +1,9 @@
 [gd_resource type="Resource" script_class="LootTable" format=3 uid="uid://dknmmcovr64x4"]
 
 [ext_resource type="Script" uid="uid://bhvj6yn2k0c8b" path="res://scripts/items/loot_table.gd" id="1_65tjy"]
-[ext_resource type="Resource" uid="uid://d1ciphqy0cmrd" path="res://data/items/weed_buds.tres" id="1_bu83g"]
+[ext_resource type="Resource" uid="uid://d1ciphqy0cmrd" path="res://data/items/Misc/weed_buds.tres" id="1_bu83g"]
 [ext_resource type="Script" uid="uid://dndj8rbs0qhgm" path="res://scripts/items/loot_table_entry.gd" id="2_1k3kc"]
-[ext_resource type="Resource" uid="uid://oarmelcb0vo5" path="res://data/items/weed_seed.tres" id="3_xoqxf"]
+[ext_resource type="Resource" uid="uid://oarmelcb0vo5" path="res://data/items/Misc/weed_seed.tres" id="3_xoqxf"]
 
 [sub_resource type="Resource" id="Resource_0gwbe"]
 script = ExtResource("2_1k3kc")

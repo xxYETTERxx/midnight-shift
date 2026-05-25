@@ -55,6 +55,9 @@ TransitSpawner="*uid://c34laa6kvkory"
 DebtSystem="*uid://c5kldrsxmas80"
 StreetDealSession="*uid://d02xiioffqljb"
 SpotHeatTracker="*uid://f7enji3e2q2r"
+HungerSystem="*uid://32gy5gbu88vn"
+ThirstSystem="*uid://b38qyr2ng1r4f"
+CollapseSystem="*uid://oynxsie731h5"
 
 [display]
 

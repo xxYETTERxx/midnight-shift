@@ -14,7 +14,7 @@
 [ext_resource type="Script" uid="uid://cdlvaiw6lv6cf" path="res://scenes/rooms/area_trigger.gd" id="10_2xsfw"]
 [ext_resource type="PackedScene" uid="uid://cu0qiy18mj116" path="res://scenes/components/doorway.tscn" id="10_qm4ro"]
 [ext_resource type="PackedScene" uid="uid://citlrvhb0bdsr" path="res://scenes/npcs/vendor.tscn" id="11_1hh2x"]
-[ext_resource type="Resource" uid="uid://d1ciphqy0cmrd" path="res://data/items/weed_buds.tres" id="12_cq4bk"]
+[ext_resource type="Resource" uid="uid://d1ciphqy0cmrd" path="res://data/items/Misc/weed_buds.tres" id="12_cq4bk"]
 [ext_resource type="PackedScene" uid="uid://djty3dpee26fn" path="res://scenes/components/deal_spot.tscn" id="13_cq4bk"]
 [ext_resource type="Script" uid="uid://cpmthf7uhrdrd" path="res://scripts/components/customer_archetype.gd" id="14_6dlou"]
 [ext_resource type="Resource" uid="uid://bbt83koqrxjid" path="res://data/street_customers/normal.tres" id="15_psha4"]
@@ -2027,6 +2027,9 @@ facing = "north"
 position = Vector2(1775, 117)
 waypoint_id = &"E_S_Entry"
 facing = "north"
+
+[node name="WakeAnchor" type="Marker2D" parent="Waypoints" unique_id=1067922783 groups=["apartment_exterior_anchor"]]
+position = Vector2(-16, -35)
 
 [node name="VehicleSpawns" type="Node2D" parent="." unique_id=384753612]
 position = Vector2(-17, 2)

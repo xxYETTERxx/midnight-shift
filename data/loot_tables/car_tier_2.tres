@@ -1,9 +1,9 @@
 [gd_resource type="Resource" script_class="LootTable" format=3 uid="uid://ep7xfdhib5c1"]
 
 [ext_resource type="Script" uid="uid://bhvj6yn2k0c8b" path="res://scripts/items/loot_table.gd" id="1_4efj5"]
-[ext_resource type="Resource" uid="uid://m1dymf8u7d1" path="res://data/items/loose_change.tres" id="1_yl25p"]
+[ext_resource type="Resource" uid="uid://m1dymf8u7d1" path="res://data/items/Misc/loose_change.tres" id="1_yl25p"]
 [ext_resource type="Script" uid="uid://dndj8rbs0qhgm" path="res://scripts/items/loot_table_entry.gd" id="2_qrkiu"]
-[ext_resource type="Resource" uid="uid://b8aeskkp8dgtx" path="res://data/items/stash_box.tres" id="3_yjtih"]
+[ext_resource type="Resource" uid="uid://b8aeskkp8dgtx" path="res://data/items/Misc/stash_box.tres" id="3_yjtih"]
 
 [sub_resource type="Resource" id="Resource_dhwgv"]
 script = ExtResource("2_qrkiu")

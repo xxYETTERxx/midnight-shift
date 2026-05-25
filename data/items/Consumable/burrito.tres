@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ItemDef" format=3 uid="uid://bajs270cyynhv"]
+
+[ext_resource type="Texture2D" uid="uid://crp2pol1wivrl" path="res://art/objects/Items/Consumable/Food/burrito.png" id="1_khk0w"]
+[ext_resource type="Script" uid="uid://2ndmr7htrd8w" path="res://scripts/items/item_def.gd" id="1_lpikb"]
+
+[resource]
+script = ExtResource("1_lpikb")
+id = &"burrito"
+tool_id = &"burrito"
+display_name = "Burrito"
+icon = ExtResource("1_khk0w")
+category = 3
+description = "Real food sort of"
+base_value = 4
+hunger_restore = 60.0
+metadata/_custom_type_script = "uid://2ndmr7htrd8w"

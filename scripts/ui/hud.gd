@@ -1,14 +1,16 @@
 extends CanvasLayer
 
 @onready var clock_label: Label = $ClockLabel
-@onready var stamina_label: Label = $StaminaLabel
 @onready var interact_prompt: Label = $InteractPrompt
 @onready var cash_label: Label = $CashLabel
 @onready var rent_label: Label = $RentDueLabel
 @onready var skill_debug: Label = $SkillDebug
 
-var timer: int = 0
+@onready var stamina_bar: ProgressBar = $StaminaBar
+@onready var hunger_bar: ProgressBar = $HungerBar
+@onready var thirst_bar: ProgressBar = $ThirstBar
 
+var timer: int = 0
 
 func _ready() -> void:
 	_refresh_clock()
@@ -19,14 +21,19 @@ func _ready() -> void:
 	var player := get_tree().get_first_node_in_group("player")
 	player.stamina_changed.connect(_on_stamina_changed)
 	_on_stamina_changed(player.stamina, player.stamina_max)
-	# UPDATED: was active_changed, now winner_changed
+
+	HungerSystem.hunger_changed.connect(_on_hunger_changed)
+	HungerSystem.threshold_crossed.connect(_on_hunger_threshold)
+	_on_hunger_changed(HungerSystem.current_value(), HungerSystem.MAX_VALUE)
+
+	ThirstSystem.thirst_changed.connect(_on_thirst_changed)
+	ThirstSystem.threshold_crossed.connect(_on_thirst_threshold)
+	_on_thirst_changed(ThirstSystem.current_value(), ThirstSystem.MAX_VALUE)
+
 	InteractionManager.winner_changed.connect(_on_winner_changed)
 	_on_winner_changed(InteractionManager.active)
 	RentSystem.rent_due_warning.connect(_fire_rent_warning)
 	rent_label.visible = false
-	skill_debug.visible = false
-	PlayerSkills.skill_changed.connect(_on_skill_debug_refresh)
-	_refresh_skill_debug()
 
 func _on_winner_changed(interactable: Node) -> void:
 	if interactable == null:
@@ -52,14 +59,57 @@ func _refresh_clock() -> void:
 
 
 func _on_stamina_changed(current: float, maximum: float) -> void:
-	stamina_label.text = "STA %d/%d" % [int(current), int(maximum)]
+	stamina_bar.max_value = maximum
+	stamina_bar.value = current
+	# Color the fill via modulate based on band.
 	var pct := current / maximum
 	if pct <= 0.2:
-		stamina_label.modulate = Color(1.0, 0.4, 0.4)  # red
+		stamina_bar.modulate = Color(1.0, 0.4, 0.4)
 	elif pct <= 0.5:
-		stamina_label.modulate = Color(1.0, 0.85, 0.5)  # amber
+		stamina_bar.modulate = Color(1.0, 0.85, 0.5)
 	else:
-		stamina_label.modulate = Color.WHITE
+		stamina_bar.modulate = Color.WHITE
+
+func _on_hunger_changed(current: float, maximum: float) -> void:
+	hunger_bar.max_value = maximum
+	hunger_bar.value = current
+	var pct := current / maximum
+	if pct <= 0.1:
+		hunger_bar.modulate = Color(1.0, 0.3, 0.3)
+	elif pct <= 0.25:
+		hunger_bar.modulate = Color(1.0, 0.6, 0.3)
+	elif pct <= 0.5:
+		hunger_bar.modulate = Color(1.0, 0.9, 0.5)
+	else:
+		hunger_bar.modulate = Color.WHITE
+
+
+func _on_hunger_threshold(band: String) -> void:
+	match band:
+		"peckish": NotificationSystem.warn("You're getting hungry.")
+		"hungry": NotificationSystem.warn("You should eat.")
+		"starving": NotificationSystem.warn("You need to eat NOW.")
+
+
+func _on_thirst_changed(current: float, maximum: float) -> void:
+	thirst_bar.max_value = maximum
+	thirst_bar.value = current
+	var pct := current / maximum
+	if pct <= 0.1:
+		thirst_bar.modulate = Color(0.5, 0.3, 1.0)
+	elif pct <= 0.25:
+		thirst_bar.modulate = Color(0.6, 0.5, 1.0)
+	elif pct <= 0.5:
+		thirst_bar.modulate = Color(0.7, 0.7, 1.0)
+	else:
+		thirst_bar.modulate = Color.WHITE
+
+
+func _on_thirst_threshold(band: String) -> void:
+	match band:
+		"parched": NotificationSystem.warn("You're getting thirsty.")
+		"thirsty": NotificationSystem.warn("You need a drink.")
+		"dehydrated": NotificationSystem.warn("You're dehydrated!")
 
 func _refresh_cash() -> void:
 	cash_label.text = Wallet.format_balance()

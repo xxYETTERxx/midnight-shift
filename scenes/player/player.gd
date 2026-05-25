@@ -43,6 +43,9 @@ var last_direction: String = "s"
 
 var has_pager: bool = false
 
+var _collapsing: bool = false
+
+
 func _ready() -> void:
 	TimeSystem.minute_tick.connect(_on_minute_tick)
 	TimeSystem.hour_tick.connect(_on_hour_tick)
@@ -53,6 +56,9 @@ func _ready() -> void:
 	# NEW: re-arbitrate interactions when the player's held item changes
 	inventory.active_slot_changed.connect(_on_active_slot_changed)
 	inventory.slot_changed.connect(_on_inventory_slot_changed)
+	inventory.add(ItemRegistry.get_item(&"burrito"), 1)
+	inventory.add(ItemRegistry.get_item(&"chips"), 3)
+	inventory.add(ItemRegistry.get_item(&"soda"), 2)
 	_settle_idle()
 
 
@@ -87,7 +93,7 @@ func _physics_process(delta: float) -> void:
 		move_multiplier *= sprint_multiplier
 		spend_stamina(sprint_drain_per_second * delta)
 
-	velocity = input_vector * speed * move_multiplier
+	velocity = input_vector * speed * move_multiplier * _survival_speed_multiplier()
 	move_and_slide()
 
 	# Athletics XP from distance actually moved (post-collision velocity).
@@ -199,12 +205,20 @@ func _on_minute_tick(_total: int) -> void:
 func spend_stamina(amount: float) -> void:
 	stamina = clampf(stamina - amount, 0.0, stamina_max)
 	stamina_changed.emit(stamina, stamina_max)
+	if stamina <= 0.0 and not _collapsing:
+		_collapsing = true
+		CollapseSystem.trigger_exhaustion()
+		_collapsing = false
 
 
 func restore_stamina(amount: float) -> void:
 	stamina = clampf(stamina + amount, 0.0, stamina_max)
 	stamina_changed.emit(stamina, stamina_max)
 
+func _survival_speed_multiplier() -> float:
+	# Worst-of policy: hunger and thirst each impose a penalty independently;
+	# we use the more punishing of the two rather than stacking multiplicatively.
+	return min(HungerSystem.speed_multiplier(), ThirstSystem.speed_multiplier())
 
 func is_exhausted() -> bool:
 	return stamina <= 0.0
@@ -475,8 +489,18 @@ func _try_tool_interact() -> bool:
 		&"pager":
 			PagerSystem.activate()
 			inventory.consume_active(1)
+	if stack.item.hunger_restore > 0.0 or stack.item.thirst_restore > 0.0:
+		_consume_active_food(stack.item)
+		return true
 	return false
 
+func _consume_active_food(item: ItemDef) -> void:
+	if item.hunger_restore > 0.0:
+		HungerSystem.restore(item.hunger_restore)
+	if item.thirst_restore > 0.0:
+		ThirstSystem.restore(item.thirst_restore)
+	inventory.consume_active(1)
+	NotificationSystem.warn("Ate %s." % item.display_name)
 
 func _try_enter_skateboard(item: ItemDef) -> void:
 	

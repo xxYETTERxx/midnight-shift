@@ -12,6 +12,12 @@ extends Resource
 @export var base_value: int = 0
 @export var sellable: bool = false
 
+# Consumable effects — non-zero values mean this item can be eaten/drunk.
+# An item with hunger_restore > 0 is treated as food; thirst_restore > 0 as drink.
+# Items with both bonuses (sodas with sugar, burritos with moisture) are allowed
+# but for now we keep them clean per the chat decision.
+@export var hunger_restore: float = 0.0
+@export var thirst_restore: float = 0.0
 
 # Gift-system fields.
 # If non-empty, giving this item to the named NPC counts as "perfect"

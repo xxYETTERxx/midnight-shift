@@ -4,8 +4,8 @@
 [ext_resource type="PackedScene" uid="uid://cu0qiy18mj116" path="res://scenes/components/doorway.tscn" id="2_3en5p"]
 [ext_resource type="PackedScene" uid="uid://citlrvhb0bdsr" path="res://scenes/npcs/vendor.tscn" id="3_4wxvl"]
 [ext_resource type="Script" uid="uid://2ndmr7htrd8w" path="res://scripts/items/item_def.gd" id="4_sqsuf"]
-[ext_resource type="Resource" uid="uid://bp42lp8ylxupe" path="res://data/items/calling_card_30.tres" id="5_li083"]
-[ext_resource type="Resource" uid="uid://xlgh2akouke6" path="res://data/items/calling_card_120.tres" id="6_3en5p"]
+[ext_resource type="Resource" uid="uid://bp42lp8ylxupe" path="res://data/items/Misc/calling_card_30.tres" id="5_li083"]
+[ext_resource type="Resource" uid="uid://xlgh2akouke6" path="res://data/items/Misc/calling_card_120.tres" id="6_3en5p"]
 [ext_resource type="PackedScene" uid="uid://c5k1isfwli6lh" path="res://scenes/components/waypoint.tscn" id="6_r0wl8"]
 
 [node name="GasStation" type="Node2D" unique_id=1419844553]

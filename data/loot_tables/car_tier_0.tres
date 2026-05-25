@@ -1,10 +1,10 @@
 [gd_resource type="Resource" script_class="LootTable" format=3 uid="uid://dbhqoagkykuit"]
 
-[ext_resource type="Resource" uid="uid://m1dymf8u7d1" path="res://data/items/loose_change.tres" id="1_swhvm"]
+[ext_resource type="Resource" uid="uid://m1dymf8u7d1" path="res://data/items/Misc/loose_change.tres" id="1_swhvm"]
 [ext_resource type="Script" uid="uid://bhvj6yn2k0c8b" path="res://scripts/items/loot_table.gd" id="1_yksnb"]
 [ext_resource type="Script" uid="uid://dndj8rbs0qhgm" path="res://scripts/items/loot_table_entry.gd" id="2_pd8x8"]
-[ext_resource type="Resource" uid="uid://cs4u45qelwlui" path="res://data/items/lighter.tres" id="3_iblvt"]
-[ext_resource type="Resource" uid="uid://d3d1fny61k4im" path="res://data/items/cigarette_pack.tres" id="4_j6j0k"]
+[ext_resource type="Resource" uid="uid://cs4u45qelwlui" path="res://data/items/Misc/lighter.tres" id="3_iblvt"]
+[ext_resource type="Resource" uid="uid://d3d1fny61k4im" path="res://data/items/Misc/cigarette_pack.tres" id="4_j6j0k"]
 
 [sub_resource type="Resource" id="Resource_1p6rp"]
 script = ExtResource("2_pd8x8")

@@ -4,9 +4,9 @@
 [ext_resource type="PackedScene" uid="uid://cu0qiy18mj116" path="res://scenes/components/doorway.tscn" id="2_q2kwb"]
 [ext_resource type="PackedScene" uid="uid://citlrvhb0bdsr" path="res://scenes/npcs/vendor.tscn" id="3_dqwc3"]
 [ext_resource type="Script" uid="uid://2ndmr7htrd8w" path="res://scripts/items/item_def.gd" id="4_om1fm"]
-[ext_resource type="Resource" uid="uid://ce6csoade2m8b" path="res://data/items/pager.tres" id="5_tv1wn"]
+[ext_resource type="Resource" uid="uid://ce6csoade2m8b" path="res://data/items/Tools/pager.tres" id="5_tv1wn"]
 [ext_resource type="PackedScene" uid="uid://c5k1isfwli6lh" path="res://scenes/components/waypoint.tscn" id="6_gthbd"]
-[ext_resource type="Resource" uid="uid://crawqx1nri2v6" path="res://data/items/soil_bag.tres" id="6_q2kwb"]
+[ext_resource type="Resource" uid="uid://crawqx1nri2v6" path="res://data/items/Misc/soil_bag.tres" id="6_q2kwb"]
 
 [node name="PawnStore" type="Node2D" unique_id=1419844553]
 
@@ -50,7 +50,6 @@ target_spawn = "from_pawn"
 [node name="Vendor" parent="Interactables" unique_id=1592916993 instance=ExtResource("3_dqwc3")]
 position = Vector2(146, -59)
 vendor_name = "Felix"
-vendor_owner = &"felix"
 initial_stock = Array[ExtResource("4_om1fm")]([ExtResource("5_tv1wn"), ExtResource("6_q2kwb")])
 initial_stock_counts = Array[int]([1, 5])
 
