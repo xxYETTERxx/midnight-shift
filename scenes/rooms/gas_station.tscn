@@ -50,7 +50,6 @@ target_spawn = "from_gas_station"
 [node name="Vendor" parent="Interactables" unique_id=1592916993 instance=ExtResource("3_4wxvl")]
 position = Vector2(-57, 56)
 vendor_name = "Jason"
-vendor_owner = &"jason"
 initial_stock = Array[ExtResource("4_sqsuf")]([ExtResource("5_li083"), ExtResource("6_3en5p")])
 initial_stock_counts = Array[int]([1, 1])
 

@@ -155,7 +155,8 @@ prompt_text = ""
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=2101006928]
 sprite_frames = SubResource("SpriteFrames_b7lda")
-animation = &"walk_w"
+animation = &"idle"
+frame_progress = 0.8617403
 
 [node name="Interactable" parent="." unique_id=702434313 instance=ExtResource("2_jp0na")]
 prompt_text = ""

@@ -1,0 +1,83 @@
+[gd_resource type="Resource" script_class="CustomerArchetype" format=3 uid="uid://bbt83koqrxjid"]
+
+[ext_resource type="Script" uid="uid://cpmthf7uhrdrd" path="res://scripts/components/customer_archetype.gd" id="1_5oj2q"]
+[ext_resource type="Texture2D" uid="uid://yhwje6f8s1eg" path="res://art/sprites/NPCs/Random/Full/Normal/normal1_walk_e.png" id="2_7dk84"]
+[ext_resource type="Texture2D" uid="uid://bkg3du1lol7se" path="res://art/sprites/NPCs/Random/Full/Normal/normal1_walk_w.png" id="3_qg3af"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_u8rds"]
+atlas = ExtResource("2_7dk84")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2t0pr"]
+atlas = ExtResource("2_7dk84")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_60my1"]
+atlas = ExtResource("2_7dk84")
+region = Rect2(64, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_efm6w"]
+atlas = ExtResource("2_7dk84")
+region = Rect2(96, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_oj781"]
+atlas = ExtResource("3_qg3af")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_safke"]
+atlas = ExtResource("3_qg3af")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_8l3k2"]
+atlas = ExtResource("3_qg3af")
+region = Rect2(64, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_giao0"]
+atlas = ExtResource("3_qg3af")
+region = Rect2(96, 0, 32, 32)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_dbucw"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_u8rds")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2t0pr")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_60my1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_efm6w")
+}],
+"loop": true,
+"name": &"walk_e",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_oj781")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_safke")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_8l3k2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_giao0")
+}],
+"loop": true,
+"name": &"walk_w",
+"speed": 5.0
+}]
+
+[resource]
+script = ExtResource("1_5oj2q")
+archetype_id = &"normal"
+display_name = "Normal"
+sprite_frames_pool = Array[SpriteFrames]([SubResource("SpriteFrames_dbucw")])
+purchase_chance_min = 0.4
+purchase_chance_max = 0.6
+metadata/_custom_type_script = "uid://cpmthf7uhrdrd"

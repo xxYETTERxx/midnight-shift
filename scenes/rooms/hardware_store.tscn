@@ -47,14 +47,14 @@ layer_0/y_sort_enabled = true
 [node name="Doorway" parent="Interactables" unique_id=1347923647 instance=ExtResource("2_3en5p")]
 position = Vector2(0, 95)
 target_room = "uid://ksdfvpuee8e8"
-target_spawn = "from_hardwood"
+target_spawn = "from_hardware"
 
 [node name="Vendor" parent="Interactables" unique_id=1592916993 instance=ExtResource("3_4wxvl")]
 position = Vector2(-76, -43)
+vendor_id = &"oliver"
 vendor_name = "Oliver"
-vendor_owner = &"oliver"
 initial_stock = Array[ExtResource("4_sqsuf")]([ExtResource("5_ew3ow"), ExtResource("6_jhc4k"), ExtResource("7_kd3ts"), ExtResource("8_0i55a")])
-initial_stock_counts = Array[int]([5, 50, 4, 1])
+initial_stock_counts = Array[int]([4, 20, 4, 1])
 
 [node name="SpawnPoints" type="Node2D" parent="." unique_id=814176097]
 position = Vector2(5, 16)

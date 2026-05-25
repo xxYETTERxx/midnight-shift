@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://djty3dpee26fn"]
+
+[ext_resource type="Script" uid="uid://bgwqflfxia1b4" path="res://scripts/dealing/deal_spot.gd" id="1_p31q0"]
+[ext_resource type="PackedScene" uid="uid://l6jfg123c1fw" path="res://scenes/components/interactable.tscn" id="2_lva66"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ot5g3"]
+
+[node name="DealSpot" type="Node2D" unique_id=1266881367]
+script = ExtResource("1_p31q0")
+area_id = &"alleyway"
+
+[node name="Interactable" parent="." unique_id=702434313 instance=ExtResource("2_lva66")]
+prompt_text = "Deal"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Interactable" unique_id=1487896941]
+shape = SubResource("RectangleShape2D_ot5g3")

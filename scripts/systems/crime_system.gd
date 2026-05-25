@@ -37,6 +37,8 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	if _active.is_empty():
 		return
+	if int(Time.get_ticks_msec() / 1000) % 2 == 0 and _eval_timer == 0.0:
+		print("[CrimeSystem] active crimes: %s" % str(_active))
 	_eval_timer += delta
 	if _eval_timer < EVAL_INTERVAL:
 		return

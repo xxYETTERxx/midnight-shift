@@ -35,6 +35,8 @@ var active_mode_speed: float = 0.0
 
 var stamina: float = 100.0
 
+var input_locked: bool = false
+
 signal stamina_changed(current: float, maximum: float)
 
 var last_direction: String = "s"
@@ -58,6 +60,11 @@ func _physics_process(delta: float) -> void:
 	if not TimeSystem.is_running():
 		return
 	if _is_vaulting:
+		return
+	if input_locked:
+		velocity = Vector2.ZERO
+		move_and_slide()
+		_update_animation(Vector2.ZERO)
 		return
 	
 	var input_vector := Vector2(

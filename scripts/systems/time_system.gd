@@ -34,6 +34,9 @@ var total_minutes: int = 0
 var _real_time_accumulator: float = 0.0
 var _pause_count: int = 0
 
+var _speed_stack: Array[float] = []
+var _base_seconds_per_minute: float = 0.0
+
 # --- Signals ----------------------------------------------------------
 
 signal minute_tick(total_minutes: int)
@@ -44,6 +47,7 @@ signal day_rolled(day_of_week: int, day_of_month: int)
 
 func _ready() -> void:
 	SaveSystem.register_savable("time_system", self)
+	_base_seconds_per_minute = real_seconds_per_minute
 
 func _process(delta: float) -> void:
 	if not is_running():
@@ -61,6 +65,36 @@ func pause() -> void:
 
 func resume() -> void:
 	_pause_count = max(0, _pause_count - 1)
+
+# Speed multiplier stack — callers push when they want time to run faster
+# (e.g. minigame idle skip) and pop when they're done. Multipliers compose
+# (push 2.0 then push 3.0 = 6x speed). Always pair push/pop.
+func push_speed(multiplier: float) -> void:
+	if multiplier <= 0.0:
+		push_warning("TimeSystem.push_speed called with non-positive multiplier")
+		return
+	_speed_stack.append(multiplier)
+	_recalc_speed()
+
+
+func pop_speed() -> void:
+	if _speed_stack.is_empty():
+		return
+	_speed_stack.pop_back()
+	_recalc_speed()
+
+
+# Defensive — for scene teardown or error recovery. Drops all multipliers.
+func clear_speed_stack() -> void:
+	_speed_stack.clear()
+	_recalc_speed()
+
+
+func _recalc_speed() -> void:
+	var mult: float = 1.0
+	for m in _speed_stack:
+		mult *= m
+	real_seconds_per_minute = _base_seconds_per_minute / mult
 
 func is_running() -> bool:
 	return _pause_count == 0

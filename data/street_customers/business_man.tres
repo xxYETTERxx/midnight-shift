@@ -1,0 +1,82 @@
+[gd_resource type="Resource" script_class="CustomerArchetype" format=3 uid="uid://fjdsrumapawb"]
+
+[ext_resource type="Script" uid="uid://cpmthf7uhrdrd" path="res://scripts/components/customer_archetype.gd" id="1_stjf5"]
+[ext_resource type="Texture2D" uid="uid://ux8immluk7cn" path="res://art/sprites/NPCs/Random/Full/BusinessMan/bus1_walk_e.png" id="2_jylfa"]
+[ext_resource type="Texture2D" uid="uid://q00fgpdj5c61" path="res://art/sprites/NPCs/Random/Full/BusinessMan/bus1_walk_w.png" id="3_pscxg"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_837cl"]
+atlas = ExtResource("2_jylfa")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_q0xdq"]
+atlas = ExtResource("2_jylfa")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_kpjw1"]
+atlas = ExtResource("2_jylfa")
+region = Rect2(64, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1vu6b"]
+atlas = ExtResource("2_jylfa")
+region = Rect2(96, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0tur"]
+atlas = ExtResource("3_pscxg")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3isj7"]
+atlas = ExtResource("3_pscxg")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_hres7"]
+atlas = ExtResource("3_pscxg")
+region = Rect2(64, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_t1r2x"]
+atlas = ExtResource("3_pscxg")
+region = Rect2(96, 0, 32, 32)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_lh38h"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_837cl")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_q0xdq")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_kpjw1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1vu6b")
+}],
+"loop": true,
+"name": &"walk_e",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_p0tur")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3isj7")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_hres7")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_t1r2x")
+}],
+"loop": true,
+"name": &"walk_w",
+"speed": 5.0
+}]
+
+[resource]
+script = ExtResource("1_stjf5")
+archetype_id = &"business_man"
+display_name = "Business Man"
+sprite_frames_pool = Array[SpriteFrames]([SubResource("SpriteFrames_lh38h")])
+purchase_chance_max = 0.3
+metadata/_custom_type_script = "uid://cpmthf7uhrdrd"

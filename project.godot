@@ -52,6 +52,9 @@ PoliceSystem="*uid://dlku8cu5weusc"
 WitnessRegistry="*uid://cbacx76rfy1ov"
 NPCGenerator="*uid://cfwqtkm6kkv5s"
 TransitSpawner="*uid://c34laa6kvkory"
+DebtSystem="*uid://c5kldrsxmas80"
+StreetDealSession="*uid://d02xiioffqljb"
+SpotHeatTracker="*uid://f7enji3e2q2r"
 
 [display]
 

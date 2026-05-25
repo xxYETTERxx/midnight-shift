@@ -112,6 +112,15 @@ func _add_customer(c: Customer) -> void:
 		[c.display_name, c.tier, c.quantity_min, c.quantity_max,
 		c.head_index, c.body_index])
 
+# Public wrapper for spontaneous customer acquisition (e.g., from street
+# dealing once the pager is online). Returns the new customer, or null
+# if PagerSystem isn't active yet.
+func add_random_customer(tier: int = 0) -> Customer:
+	if not PagerSystem.has_pager:
+		return null
+	var c := _generate_customer(tier)
+	_add_customer(c)
+	return c
 
 # --- Debug ---
 

@@ -25,7 +25,7 @@ position = Vector2(0, -1.5)
 shape = SubResource("RectangleShape2D_nvogo")
 
 [node name="WakeSpot" type="Marker2D" parent="." unique_id=1113180362]
-position = Vector2(-34, -18)
+position = Vector2(41, -18)
 
 [node name="StaticBody2D" type="StaticBody2D" parent="." unique_id=1192510255]
 position = Vector2(-1, 0)
