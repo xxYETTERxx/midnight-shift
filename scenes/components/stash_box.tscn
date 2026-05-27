@@ -13,6 +13,7 @@ size = Vector2(38, 39)
 size = Vector2(26, 2.75)
 
 [node name="StorageContainer" type="Node2D" unique_id=1895804887]
+scale = Vector2(0.7, 0.7)
 script = ExtResource("1_j8mx1")
 closed_texture = ExtResource("2_0xkfx")
 open_texture = ExtResource("3_0oe37")

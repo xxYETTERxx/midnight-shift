@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="ItemDef" load_steps=2 format=3]
+ 
+[ext_resource type="Script" path="res://scripts/items/item_def.gd" id="1_script"]
+ 
+[resource]
+script = ExtResource("1_script")
+id = &"concert_ticket_stub"
+display_name = "Concert Ticket Stub"
+max_stack = 99
+category = 11
+description = "Faded ink on perforated cardboard. Worth nothing and everything."
+base_value = 0
+sellable = false

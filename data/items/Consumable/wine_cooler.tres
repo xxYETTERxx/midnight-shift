@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemDef" format=3 uid="uid://bat45tt03ri5g"]
+
+[ext_resource type="Texture2D" uid="uid://db3ypklria75h" path="res://art/icons/art_items/wine_cooler.png" id="1_5roq7"]
+[ext_resource type="Script" uid="uid://2ndmr7htrd8w" path="res://scripts/items/item_def.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"wine_cooler"
+display_name = "Wine Cooler"
+icon = ExtResource("1_5roq7")
+category = 8
+description = "Pre-mixed, sickly sweet, four-pack price split into ones at the bodega."
+base_value = 6
+thirst_restore = 40.0

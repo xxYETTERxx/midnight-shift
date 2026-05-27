@@ -17,10 +17,9 @@ func _ready() -> void:
 	TimeSystem.minute_tick.connect(_on_minute_tick)
 	Wallet.balance_changed.connect(_on_balance_changed)
 	_refresh_cash()
-	await get_tree().process_frame
-	var player := get_tree().get_first_node_in_group("player")
-	player.stamina_changed.connect(_on_stamina_changed)
-	_on_stamina_changed(player.stamina, player.stamina_max)
+
+	StaminaSystem.stamina_changed.connect(_on_stamina_changed)
+	_on_stamina_changed(StaminaSystem.current_value(), StaminaSystem.maximum())
 
 	HungerSystem.hunger_changed.connect(_on_hunger_changed)
 	HungerSystem.threshold_crossed.connect(_on_hunger_threshold)

@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="ItemDef" load_steps=2 format=3]
+ 
+[ext_resource type="Script" path="res://scripts/items/item_def.gd" id="1_script"]
+ 
+[resource]
+script = ExtResource("1_script")
+id = &"beanie_baby"
+display_name = "Beanie Baby"
+max_stack = 99
+category = 13
+description = "Bean-filled plush, with a tag still attached. Someone, somewhere, thinks these will pay for a college education."
+base_value = 8
+sellable = true

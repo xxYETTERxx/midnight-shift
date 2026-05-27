@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemDef" format=3 uid="uid://4fpq7usk83ge"]
+
+[ext_resource type="Texture2D" uid="uid://dmxs2mcpsor77" path="res://art/icons/art_items/arizona_iced_tea.png" id="1_3gcib"]
+[ext_resource type="Script" uid="uid://2ndmr7htrd8w" path="res://scripts/items/item_def.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"arizona_iced_tea"
+display_name = "Arizona Iced Tea"
+icon = ExtResource("1_3gcib")
+category = 8
+description = "Big can, ninety-nine cents printed right on the side."
+base_value = 1
+thirst_restore = 45.0

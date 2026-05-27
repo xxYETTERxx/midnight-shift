@@ -5,7 +5,8 @@ extends Node
 # batch at registered spawn points. Cars persist their looted state across
 # saves/loads within a day, but don't survive day rollovers.
 
-const CAR_SCENE: PackedScene = preload("res://scenes/components/vehicle.tscn")
+const CAR_SCENE_N_S: PackedScene = preload("res://scenes/components/vehicleN_S.tscn")
+const CAR_SCENE_E_W: PackedScene = preload("res://scenes/components/vehicleE_W.tscn")
 
 # Indexed as: SPRITES_BY_TIER[tier][orientation] = Array[Texture2D]
 # Each [tier][orientation] cell is an array of variants to pick from randomly.
@@ -177,15 +178,25 @@ func _materialize_cars_for_current_scene() -> void:
 
 
 func _instantiate_car(parent: Node, state: Dictionary) -> void:
-	var car: LootableCar = CAR_SCENE.instantiate()
+	var orientation: int = state.get("orientation", CarSpawnPoint.Orientation.SOUTH)
+	var scene: PackedScene = _scene_for_orientation(orientation)
+	var car: LootableCar = scene.instantiate()
 	parent.add_child(car)
 	car.from_state(state)
 	var tier: int = state.get("tier", 0)
 	if tier >= 0 and tier < _loot_tables.size():
 		car.loot_table = _loot_tables[tier]
 	_apply_sprite(car, state)
-	car.is_locked = LootableCar.roll_locked_for_tier(car.tier,_rng)
+	car.is_locked = LootableCar.roll_locked_for_tier(car.tier, _rng)
 	car.looted.connect(func(_drops): _on_car_looted(car.car_id))
+
+
+func _scene_for_orientation(orientation: int) -> PackedScene:
+	match orientation:
+		CarSpawnPoint.Orientation.NORTH, CarSpawnPoint.Orientation.SOUTH:
+			return CAR_SCENE_N_S
+		_:
+			return CAR_SCENE_E_W
 
 func _apply_sprite(car: LootableCar, state: Dictionary) -> void:
 	var tier: int = state.get("tier", 0)

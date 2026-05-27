@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="ItemDef" format=3 uid="uid://dtk8j8stw4dwb"]
+
+[ext_resource type="Texture2D" uid="uid://dk6t217yaemks" path="res://art/icons/art_items/hair_scrunchie.png" id="1_3hwyt"]
+[ext_resource type="Script" uid="uid://2ndmr7htrd8w" path="res://scripts/items/item_def.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"hair_scrunchie"
+display_name = "Hair Scrunchie"
+icon = ExtResource("1_3hwyt")
+category = 12
+description = "Stretchy fabric loop, neon, very mid-90s."
+base_value = 2

@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="ItemDef" load_steps=2 format=3]
+ 
+[ext_resource type="Script" path="res://scripts/items/item_def.gd" id="1_script"]
+ 
+[resource]
+script = ExtResource("1_script")
+id = &"mag_tattoo"
+display_name = "Tattoo Magazine"
+max_stack = 99
+category = 11
+description = "Flash sheets, artist profiles, photos of fresh ink."
+base_value = 3
+sellable = true

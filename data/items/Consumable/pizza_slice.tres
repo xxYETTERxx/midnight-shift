@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemDef" format=3 uid="uid://c1hn12a2mvt31"]
+
+[ext_resource type="Texture2D" uid="uid://dxajp6tdcchig" path="res://art/icons/art_items/pizza_slice.png" id="1_q25ed"]
+[ext_resource type="Script" uid="uid://2ndmr7htrd8w" path="res://scripts/items/item_def.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"pizza_slice"
+display_name = "Pizza Slice"
+icon = ExtResource("1_q25ed")
+category = 7
+description = "Two-buck slice. Folded right, it doesn't drip."
+base_value = 4
+hunger_restore = 60.0

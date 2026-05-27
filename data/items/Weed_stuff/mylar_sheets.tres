@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemDef" load_steps=2 format=3]
+ 
+[ext_resource type="Script" path="res://scripts/items/item_def.gd" id="1_script"]
+ 
+[resource]
+script = ExtResource("1_script")
+id = &"mylar_sheets"
+display_name = "Mylar Sheets"
+max_stack = 99
+category = 2
+description = "Reflective sheeting. Tape it to the walls around your plants and the light works harder."
+base_value = 8
+sellable = true
+giftable = false

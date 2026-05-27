@@ -6,7 +6,6 @@
 [resource]
 script = ExtResource("1_05gg1")
 id = &"chips"
-tool_id = &"chips"
 display_name = "Chips"
 icon = ExtResource("1_5pom8")
 category = 3

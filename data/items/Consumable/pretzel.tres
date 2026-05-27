@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemDef" format=3 uid="uid://br31sohn3y53t"]
+
+[ext_resource type="Texture2D" uid="uid://b6l8lp6m3uhw" path="res://art/icons/art_items/pretzel.png" id="1_i5lwc"]
+[ext_resource type="Script" uid="uid://2ndmr7htrd8w" path="res://scripts/items/item_def.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"pretzel"
+display_name = "Soft Pretzel"
+icon = ExtResource("1_i5lwc")
+category = 7
+description = "Doughy, salt-dusted, served in a paper sleeve."
+base_value = 1
+hunger_restore = 20.0

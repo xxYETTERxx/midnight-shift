@@ -23,10 +23,9 @@ func _on_notification(message: String, kind: int) -> void:
 	label.text = message
 	label.modulate = _color_for(kind)
 	add_child(label)
-	# Push new ones to the top so latest is most visible.
 	move_child(label, 0)
+	_schedule_fade(label)   # set up the tween BEFORE trim so the meta exists
 	_trim_excess()
-	_schedule_fade(label)
 
 
 func _color_for(kind: int) -> Color:
@@ -37,14 +36,16 @@ func _color_for(kind: int) -> Color:
 		_: return COLOR_INFO
 
 
-func _trim_excess() -> void:
-	while get_child_count() > MAX_VISIBLE:
-		var oldest := get_child(get_child_count() - 1)
-		oldest.queue_free()
-
-
 func _schedule_fade(label: Label) -> void:
-	var tween := create_tween()
+	var tween := label.create_tween()
+	label.set_meta("fade_tween", tween)
 	tween.tween_interval(DISPLAY_DURATION)
 	tween.tween_property(label, "modulate:a", 0.0, FADE_DURATION)
 	tween.tween_callback(label.queue_free)
+
+
+func _trim_excess() -> void:
+	while get_child_count() > MAX_VISIBLE:
+		var oldest := get_child(get_child_count() - 1)
+		remove_child(oldest)
+		oldest.queue_free()

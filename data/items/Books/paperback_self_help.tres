@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemDef" format=3 uid="uid://b12sxolyjyukb"]
+
+[ext_resource type="Texture2D" uid="uid://bjnnik5ms22nr" path="res://art/icons/art_items/paperback_self_help.png" id="1_qiar7"]
+[ext_resource type="Script" uid="uid://2ndmr7htrd8w" path="res://scripts/items/item_def.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"paperback_self_help"
+display_name = "Self-Help Paperback"
+icon = ExtResource("1_qiar7")
+category = 11
+description = "Seven habits, eight rules, ten chapters. Pages of the first chapter dog-eared."
+base_value = 3
+sellable = true

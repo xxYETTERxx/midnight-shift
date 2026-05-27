@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemDef" format=3 uid="uid://h57ac8m0oerd"]
+
+[ext_resource type="Texture2D" uid="uid://b7gknfxj2ovlc" path="res://art/icons/art_items/premium_cigar.png" id="1_h8hiq"]
+[ext_resource type="Script" uid="uid://2ndmr7htrd8w" path="res://scripts/items/item_def.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"premium_cigar"
+display_name = "Premium Cigar"
+icon = ExtResource("1_h8hiq")
+category = 14
+description = "Hand-rolled, in a wooden tube. The kind of thing you save for an occasion."
+base_value = 12
+sellable = true

@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemDef" format=3 uid="uid://ccwtxehleg44h"]
+
+[ext_resource type="Texture2D" uid="uid://batxvdhxk6nxq" path="res://art/icons/art_items/tv_dinner.png" id="1_k78ee"]
+[ext_resource type="Script" uid="uid://2ndmr7htrd8w" path="res://scripts/items/item_def.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"tv_dinner"
+display_name = "TV Dinner"
+icon = ExtResource("1_k78ee")
+category = 7
+description = "Salisbury steak, mashed potato puck, peas, and a brownie. Eat it on the couch."
+base_value = 5
+hunger_restore = 75.0

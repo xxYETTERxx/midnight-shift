@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemDef" load_steps=2 format=3]
+ 
+[ext_resource type="Script" path="res://scripts/items/item_def.gd" id="1_script"]
+ 
+[resource]
+script = ExtResource("1_script")
+id = &"mason_jar"
+display_name = "Mason Jar"
+max_stack = 99
+category = 2
+description = "Glass jar with a screw lid. Cures buds properly. Smells better, sells higher."
+base_value = 3
+sellable = true
+giftable = false

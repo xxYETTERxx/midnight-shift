@@ -22,14 +22,13 @@ signal collapsed(cause: int, summary: String)
 func _ready() -> void:
 	HungerSystem.collapsed.connect(_on_hunger_collapsed)
 	ThirstSystem.collapsed.connect(_on_thirst_collapsed)
+	StaminaSystem.collapsed.connect(_on_stamina_collapsed)
 
+
+func _on_stamina_collapsed() -> void:
+	_collapse(Cause.EXHAUSTION)
 
 # --- Entry points -------------------------------------------------------
-
-# Called from player.gd when stamina hits 0. Player calls this directly
-# rather than going through a signal so it can guard against repeat fires.
-func trigger_exhaustion() -> void:
-	_collapse(Cause.EXHAUSTION)
 
 
 func _on_hunger_collapsed() -> void:
@@ -118,14 +117,10 @@ func _restore_post_collapse(cause: int) -> void:
 
 	match cause:
 		Cause.EXHAUSTION:
-			# Half stamina, leave hunger/thirst alone — you passed out from
-			# overwork, you're still hungry/thirsty if you were.
-			player.stamina = player.stamina_max * 0.5
-			player.stamina_changed.emit(player.stamina, player.stamina_max)
+			StaminaSystem.set_value(StaminaSystem.maximum() * 0.5)
 		Cause.HUNGER, Cause.THIRST:
 			# Hospital topped you up — full bars.
-			player.stamina = player.stamina_max
-			player.stamina_changed.emit(player.stamina, player.stamina_max)
+			StaminaSystem.set_value(StaminaSystem.maximum() * 0.5)
 			HungerSystem.restore(HungerSystem.MAX_VALUE)
 			ThirstSystem.restore(ThirstSystem.MAX_VALUE)
 

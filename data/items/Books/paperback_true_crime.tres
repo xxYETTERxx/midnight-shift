@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemDef" format=3 uid="uid://cfvi2ud7d4ssk"]
+
+[ext_resource type="Texture2D" uid="uid://uxs2t2j11hvg" path="res://art/icons/art_items/paperback_true_crime.png" id="1_7dgb0"]
+[ext_resource type="Script" uid="uid://2ndmr7htrd8w" path="res://scripts/items/item_def.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"paperback_true_crime"
+display_name = "True Crime Paperback"
+icon = ExtResource("1_7dgb0")
+category = 11
+description = "Real case, real names, lurid cover, eight pages of black-and-white photos in the middle."
+base_value = 3
+sellable = true

@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemDef" load_steps=2 format=3]
+ 
+[ext_resource type="Script" path="res://scripts/items/item_def.gd" id="1_script"]
+ 
+[resource]
+script = ExtResource("1_script")
+id = &"carbon_filter"
+display_name = "Carbon Filter"
+max_stack = 99
+category = 2
+description = "Activated charcoal in a metal sleeve. Eats the smell of a grow op."
+base_value = 25
+sellable = true
+giftable = false

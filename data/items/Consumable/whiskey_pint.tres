@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemDef" format=3 uid="uid://dq12dwa2w0g65"]
+
+[ext_resource type="Script" uid="uid://2ndmr7htrd8w" path="res://scripts/items/item_def.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://brxm57l2gmf3k" path="res://art/icons/art_items/whiskey_pint.png" id="1_w1hct"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"whiskey_pint"
+display_name = "Pint of Whiskey"
+icon = ExtResource("1_w1hct")
+category = 8
+description = "Cheap rye in a glass flask. Fits in a back pocket."
+base_value = 8
+thirst_restore = 30.0

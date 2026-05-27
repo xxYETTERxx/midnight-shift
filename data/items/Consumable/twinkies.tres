@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemDef" format=3 uid="uid://cphfcpf5cipar"]
+
+[ext_resource type="Texture2D" uid="uid://h5m8i534xo2h" path="res://art/icons/art_items/twinkies.png" id="1_2ey3u"]
+[ext_resource type="Script" uid="uid://2ndmr7htrd8w" path="res://scripts/items/item_def.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"twinkies"
+display_name = "Hostess Twinkies"
+icon = ExtResource("1_2ey3u")
+category = 7
+description = "Will outlive us all"
+base_value = 2
+hunger_restore = 30.0

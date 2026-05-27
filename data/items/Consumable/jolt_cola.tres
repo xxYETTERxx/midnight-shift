@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemDef" format=3 uid="uid://cp3gjmncep2et"]
+
+[ext_resource type="Texture2D" uid="uid://bqryacquct3jl" path="res://art/icons/art_items/jolt_cola.png" id="1_nuqsh"]
+[ext_resource type="Script" uid="uid://2ndmr7htrd8w" path="res://scripts/items/item_def.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"jolt_cola"
+display_name = "Jolt Cola"
+icon = ExtResource("1_nuqsh")
+category = 8
+description = "All the sugar and twice the caffeine. Slogan checks out."
+base_value = 3
+thirst_restore = 20.0
+stamina_restore = 40.0

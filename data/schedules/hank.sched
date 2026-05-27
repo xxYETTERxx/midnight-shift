@@ -1,7 +1,7 @@
 a# hank.sched — Hank
 
 # Default weekday plan: 
-default
+default | 
 	09:00 stand city_central hank_shack
 	
 

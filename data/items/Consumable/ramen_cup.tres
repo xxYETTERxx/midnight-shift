@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemDef" format=3 uid="uid://n181guukk27f"]
+
+[ext_resource type="Texture2D" uid="uid://dir1ehru5t3fi" path="res://art/icons/art_items/ramen_cup.png" id="1_6rgtk"]
+[ext_resource type="Script" uid="uid://2ndmr7htrd8w" path="res://scripts/items/item_def.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"ramen_cup"
+display_name = "Cup Ramen"
+icon = ExtResource("1_6rgtk")
+category = 7
+description = "Hot water and three minutes. The sodium will outlive you."
+base_value = 1
+hunger_restore = 20.0

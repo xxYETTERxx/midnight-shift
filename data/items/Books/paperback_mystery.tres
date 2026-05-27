@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemDef" format=3 uid="uid://bhlt5cg8a6sf"]
+
+[ext_resource type="Texture2D" uid="uid://cqe7x3kdwgeo2" path="res://art/icons/art_items/paperback_mystery.png" id="1_1wods"]
+[ext_resource type="Script" uid="uid://2ndmr7htrd8w" path="res://scripts/items/item_def.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"paperback_mystery"
+display_name = "Mystery Paperback"
+icon = ExtResource("1_1wods")
+category = 11
+description = "Detective novel. Spine cracked open exactly halfway through."
+base_value = 3
+sellable = true

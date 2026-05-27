@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="ItemDef" load_steps=2 format=3]
+ 
+[ext_resource type="Script" path="res://scripts/items/item_def.gd" id="1_script"]
+ 
+[resource]
+script = ExtResource("1_script")
+id = &"boombox"
+display_name = "Boombox"
+max_stack = 1
+category = 11
+description = "Dual-deck cassette, radio, shoulder strap. The bigger the better."
+base_value = 35
+sellable = true

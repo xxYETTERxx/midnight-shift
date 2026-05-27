@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemDef" format=3 uid="uid://dgp61ixjllf7l"]
+
+[ext_resource type="Texture2D" uid="uid://cujldlh2w103k" path="res://art/icons/art_items/hot_dog.png" id="1_45830"]
+[ext_resource type="Script" uid="uid://2ndmr7htrd8w" path="res://scripts/items/item_def.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"hot_dog"
+display_name = "Hot Dog"
+icon = ExtResource("1_45830")
+category = 7
+description = "Off the gas station roller. Been on there a while."
+base_value = 2
+hunger_restore = 40.0

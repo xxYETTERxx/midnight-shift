@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemDef" format=3 uid="uid://6bqwbpsbqsj1"]
+
+[ext_resource type="Texture2D" uid="uid://clanewiumoad7" path="res://art/icons/art_items/friendship_bracelet.png" id="1_5muj8"]
+[ext_resource type="Script" uid="uid://2ndmr7htrd8w" path="res://scripts/items/item_def.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"friendship_bracelet"
+display_name = "Friendship Bracelet"
+icon = ExtResource("1_5muj8")
+category = 10
+description = "Embroidery floss braided in a chevron pattern. Knotted by hand."
+base_value = 3
+sellable = true

@@ -14,7 +14,7 @@
 [ext_resource type="Script" uid="uid://cdlvaiw6lv6cf" path="res://scenes/rooms/area_trigger.gd" id="10_2xsfw"]
 [ext_resource type="PackedScene" uid="uid://cu0qiy18mj116" path="res://scenes/components/doorway.tscn" id="10_qm4ro"]
 [ext_resource type="PackedScene" uid="uid://citlrvhb0bdsr" path="res://scenes/npcs/vendor.tscn" id="11_1hh2x"]
-[ext_resource type="Resource" uid="uid://d1ciphqy0cmrd" path="res://data/items/Misc/weed_buds.tres" id="12_cq4bk"]
+[ext_resource type="Resource" uid="uid://d1ciphqy0cmrd" path="res://data/items/Weed_stuff/weed_buds.tres" id="12_6dlou"]
 [ext_resource type="PackedScene" uid="uid://djty3dpee26fn" path="res://scenes/components/deal_spot.tscn" id="13_cq4bk"]
 [ext_resource type="Script" uid="uid://cpmthf7uhrdrd" path="res://scripts/components/customer_archetype.gd" id="14_6dlou"]
 [ext_resource type="Resource" uid="uid://bbt83koqrxjid" path="res://data/street_customers/normal.tres" id="15_psha4"]
@@ -1852,8 +1852,9 @@ shape = SubResource("RectangleShape2D_prmeh")
 position = Vector2(-923, -445)
 vendor_id = &"hank"
 vendor_name = "Hank"
+daily_buy_budget = 160
 offers_front = true
-front_offer_item = ExtResource("12_cq4bk")
+front_offer_item = ExtResource("12_6dlou")
 front_offer_count = 28
 front_offer_debt = 180
 
@@ -2035,29 +2036,107 @@ position = Vector2(-16, -35)
 position = Vector2(-17, 2)
 
 [node name="FitnessN2" type="Node2D" parent="VehicleSpawns" unique_id=358108426]
-position = Vector2(-119, 655)
+position = Vector2(-104, 655)
 script = ExtResource("8_1iqrl")
 spawn_id = &"FitnessN2"
 orientation = 0
 
+[node name="FitnessN8" type="Node2D" parent="VehicleSpawns" unique_id=433143600]
+position = Vector2(-151, 656)
+script = ExtResource("8_1iqrl")
+spawn_id = &"FitnessN2"
+orientation = 0
+
+[node name="FitnessN9" type="Node2D" parent="VehicleSpawns" unique_id=939236883]
+position = Vector2(-200, 656)
+script = ExtResource("8_1iqrl")
+spawn_id = &"FitnessN2"
+orientation = 0
+
+[node name="FitnessN10" type="Node2D" parent="VehicleSpawns" unique_id=1215170177]
+position = Vector2(-248, 656)
+script = ExtResource("8_1iqrl")
+spawn_id = &"FitnessN2"
+orientation = 0
+
+[node name="FitnessN3" type="Node2D" parent="VehicleSpawns" unique_id=1233344627]
+position = Vector2(-56, 655)
+script = ExtResource("8_1iqrl")
+spawn_id = &"FitnessN2"
+orientation = 0
+
+[node name="FitnessN4" type="Node2D" parent="VehicleSpawns" unique_id=2086537829]
+position = Vector2(-56, 582)
+script = ExtResource("8_1iqrl")
+spawn_id = &"FitnessN2"
+orientation = 1
+
+[node name="FitnessN5" type="Node2D" parent="VehicleSpawns" unique_id=750263577]
+position = Vector2(-105, 584)
+script = ExtResource("8_1iqrl")
+spawn_id = &"FitnessN2"
+orientation = 1
+
+[node name="FitnessN6" type="Node2D" parent="VehicleSpawns" unique_id=2103252932]
+position = Vector2(-151, 584)
+script = ExtResource("8_1iqrl")
+spawn_id = &"FitnessN2"
+orientation = 1
+
+[node name="FitnessN7" type="Node2D" parent="VehicleSpawns" unique_id=724716666]
+position = Vector2(-200, 582)
+script = ExtResource("8_1iqrl")
+spawn_id = &"FitnessN2"
+orientation = 1
+
 [node name="FrontApartment2" type="Node2D" parent="VehicleSpawns" unique_id=1884007641]
-position = Vector2(-229, -2)
+position = Vector2(-230, -8)
 script = ExtResource("8_1iqrl")
 spawn_id = &"apartment2"
 
 [node name="SchoolW" type="Node2D" parent="VehicleSpawns" unique_id=1388008027]
-position = Vector2(819, 5)
+position = Vector2(819, -2)
 script = ExtResource("8_1iqrl")
 spawn_id = &"SchoolW"
 
 [node name="BodegaE" type="Node2D" parent="VehicleSpawns" unique_id=89481140]
-position = Vector2(575, 67)
+position = Vector2(575, 77)
 script = ExtResource("8_1iqrl")
 spawn_id = &"bodegaE"
 orientation = 2
 
 [node name="FitnessN" type="Node2D" parent="VehicleSpawns" unique_id=424804988]
-position = Vector2(-263, 585)
+position = Vector2(-248, 582)
+script = ExtResource("8_1iqrl")
+spawn_id = &"fitness_n"
+orientation = 1
+
+[node name="FitnessN11" type="Node2D" parent="VehicleSpawns" unique_id=692405455]
+position = Vector2(-247, 774)
+script = ExtResource("8_1iqrl")
+spawn_id = &"fitness_n"
+orientation = 1
+
+[node name="FitnessN12" type="Node2D" parent="VehicleSpawns" unique_id=777488927]
+position = Vector2(-200, 774)
+script = ExtResource("8_1iqrl")
+spawn_id = &"fitness_n"
+orientation = 1
+
+[node name="FitnessN13" type="Node2D" parent="VehicleSpawns" unique_id=778358415]
+position = Vector2(-151, 774)
+script = ExtResource("8_1iqrl")
+spawn_id = &"fitness_n"
+orientation = 1
+
+[node name="FitnessN14" type="Node2D" parent="VehicleSpawns" unique_id=168860822]
+position = Vector2(-103, 774)
+script = ExtResource("8_1iqrl")
+spawn_id = &"fitness_n"
+orientation = 1
+
+[node name="FitnessN15" type="Node2D" parent="VehicleSpawns" unique_id=1261504798]
+position = Vector2(-56, 775)
 script = ExtResource("8_1iqrl")
 spawn_id = &"fitness_n"
 orientation = 1

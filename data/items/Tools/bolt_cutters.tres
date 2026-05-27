@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemDef" load_steps=2 format=3]
+ 
+[ext_resource type="Script" path="res://scripts/items/item_def.gd" id="1_script"]
+ 
+[resource]
+script = ExtResource("1_script")
+id = &"bolt_cutters"
+display_name = "Bolt Cutters"
+max_stack = 1
+category = 0
+description = "Two feet of leverage. Chains, padlocks, fences."
+base_value = 15
+sellable = true
+giftable = false

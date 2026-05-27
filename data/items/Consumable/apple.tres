@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemDef" format=3 uid="uid://ievbotk1ckwh"]
+
+[ext_resource type="Texture2D" uid="uid://cecjx51sxgy3p" path="res://art/icons/art_items/apple.png" id="1_85wud"]
+[ext_resource type="Script" uid="uid://2ndmr7htrd8w" path="res://scripts/items/item_def.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"apple"
+display_name = "Apple"
+icon = ExtResource("1_85wud")
+category = 7
+description = "Red, shiny, slightly bruised on one side."
+base_value = 1
+hunger_restore = 25.0

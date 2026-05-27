@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemDef" format=3 uid="uid://cwsysvnq8qqo3"]
+
+[ext_resource type="Script" uid="uid://2ndmr7htrd8w" path="res://scripts/items/item_def.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://cmocshm5sbief" path="res://art/icons/art_items/encyclopedia_volume.png" id="1_vijdl"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"encyclopedia_volume"
+display_name = "Encyclopedia Volume"
+icon = ExtResource("1_vijdl")
+category = 11
+description = "One volume of twenty-six. Someone's parents bought a set."
+base_value = 25
+sellable = true

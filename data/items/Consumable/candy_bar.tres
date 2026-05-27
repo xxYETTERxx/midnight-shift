@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemDef" format=3 uid="uid://dnrxta5b12mxa"]
+
+[ext_resource type="Texture2D" uid="uid://pc7qhaqy7f7o" path="res://art/icons/art_items/candy_bar.png" id="1_qgbd7"]
+[ext_resource type="Script" uid="uid://2ndmr7htrd8w" path="res://scripts/items/item_def.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"candy_bar"
+display_name = "Candy Bar"
+icon = ExtResource("1_qgbd7")
+category = 7
+description = "Generic chocolate. The wrapper is louder than the contents."
+base_value = 1
+hunger_restore = 20.0

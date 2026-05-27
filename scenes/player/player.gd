@@ -24,9 +24,8 @@ const VAULT_LANDING_OFFSET_HORIZONTAL: float = 10.0
 const VAULT_LANDING_OFFSET_VERTICAL: float = 0.0
 
 const MOVEMENT_TOOL_SCENES: Array[String] = [
-	"res://scenes/rooms/ext_central.tscn",
+	"res://scenes/rooms/city_central.tscn",
 ]
-const SKATEBOARD_DRAIN_MULTIPLIER: float = 0.4
 
 var _is_vaulting: bool = false
 
@@ -37,28 +36,21 @@ var stamina: float = 100.0
 
 var input_locked: bool = false
 
-signal stamina_changed(current: float, maximum: float)
-
 var last_direction: String = "s"
 
 var has_pager: bool = false
 
-var _collapsing: bool = false
 
 
 func _ready() -> void:
-	TimeSystem.minute_tick.connect(_on_minute_tick)
 	TimeSystem.hour_tick.connect(_on_hour_tick)
 	TimeSkipSystem.time_skipped.connect(_on_time_skipped)
 	RoomManager.room_changed.connect(_on_room_changed)
-	stamina_changed.emit(stamina, stamina_max)
 	SaveSystem.register_savable("player", self)
-	# NEW: re-arbitrate interactions when the player's held item changes
 	inventory.active_slot_changed.connect(_on_active_slot_changed)
 	inventory.slot_changed.connect(_on_inventory_slot_changed)
 	inventory.add(ItemRegistry.get_item(&"burrito"), 1)
-	inventory.add(ItemRegistry.get_item(&"chips"), 3)
-	inventory.add(ItemRegistry.get_item(&"soda"), 2)
+	inventory.add(ItemRegistry.get_item(&"lottery_scratchers"), 10)
 	_settle_idle()
 
 
@@ -86,15 +78,18 @@ func _physics_process(delta: float) -> void:
 	# moving at walk speed). Exhaustion / passout flow is a separate concern.
 	var moving: bool = input_vector.length_squared() > 0.01
 	var wants_sprint: bool = Input.is_action_pressed("sprint")
-	_is_sprinting = wants_sprint and moving and stamina > 0.0
+	_is_sprinting = wants_sprint and moving and not StaminaSystem.is_exhausted()
 
 	var move_multiplier: float = PlayerSkills.speed_multiplier()
 	if _is_sprinting:
 		move_multiplier *= sprint_multiplier
-		spend_stamina(sprint_drain_per_second * delta)
+		StaminaSystem.spend(StaminaSystem.SPRINT_DRAIN_PER_SECOND * delta)
 
 	velocity = input_vector * speed * move_multiplier * _survival_speed_multiplier()
 	move_and_slide()
+
+	# Tell StaminaSystem what state we're in so passive/movement decay knows.
+	StaminaSystem.set_movement_state(velocity.length() > 0.1, active_mode)
 
 	# Athletics XP from distance actually moved (post-collision velocity).
 	var dist := velocity.length() * delta
@@ -192,28 +187,8 @@ func _update_animation(input_vector: Vector2) -> void:
 	elif not sprite.is_playing():
 		sprite.play()
 
-func _on_minute_tick(_total: int) -> void:
-	var drain := passive_drain_per_minute
-	if velocity.length() > 0.1:
-		var movement_drain := movement_drain_per_minute
-		if active_mode == &"skateboard":
-			movement_drain *= SKATEBOARD_DRAIN_MULTIPLIER
-		drain += movement_drain
-	spend_stamina(drain)
 
 
-func spend_stamina(amount: float) -> void:
-	stamina = clampf(stamina - amount, 0.0, stamina_max)
-	stamina_changed.emit(stamina, stamina_max)
-	if stamina <= 0.0 and not _collapsing:
-		_collapsing = true
-		CollapseSystem.trigger_exhaustion()
-		_collapsing = false
-
-
-func restore_stamina(amount: float) -> void:
-	stamina = clampf(stamina + amount, 0.0, stamina_max)
-	stamina_changed.emit(stamina, stamina_max)
 
 func _survival_speed_multiplier() -> float:
 	# Worst-of policy: hunger and thirst each impose a penalty independently;
@@ -223,14 +198,9 @@ func _survival_speed_multiplier() -> float:
 func is_exhausted() -> bool:
 	return stamina <= 0.0
 
-func _on_time_skipped(_from: int, _to: int, context: Dictionary) -> void:
-	# Stamina restore on sleep
-	if context.get("kind") == "sleep":
-		var safe: bool = context.get("safe", true)
-		if safe:
-			restore_stamina(stamina_max)
-		else:
-			restore_stamina(stamina_max * 0.5)
+func _on_time_skipped(_from: int, _to: int, _context: Dictionary) -> void:
+	# Stamina restore on sleep is handled by StaminaSystem itself.
+	pass
 
 
 func _on_hour_tick(hour: int, _dow: int, _dom: int) -> void:
@@ -288,24 +258,27 @@ func save_state() -> Dictionary:
 		"position_x": global_position.x,
 		"position_y": global_position.y,
 		"current_room": RoomManager.current_room.scene_file_path if RoomManager.current_room else "",
-		"stamina": stamina,
-		"stamina_max": stamina_max,
 		"last_direction": last_direction,
-		"inventory": inventory.save_state(),  # NEW
+		"inventory": inventory.save_state(),
 		"active_mode": String(active_mode),
 		"active_mode_speed": active_mode_speed,
 	}
 
 
 func load_state(data: Dictionary) -> void:
-	stamina = data.get("stamina", stamina_max)
-	stamina_max = data.get("stamina_max", 100.0)
 	last_direction = data.get("last_direction", "s")
 	if data.has("inventory"):
 		inventory.load_state(data["inventory"])
-	stamina_changed.emit(stamina, stamina_max)
 	active_mode = StringName(data.get("active_mode", ""))
 	active_mode_speed = data.get("active_mode_speed", 0.0)
+	# Legacy save migration: older saves stored stamina under "player".
+	# Forward to StaminaSystem so people don't lose state on the first load
+	# after this refactor.
+	if data.has("stamina") or data.has("stamina_max"):
+		StaminaSystem.load_state({
+			"current": data.get("stamina", StaminaSystem.MAX_VALUE),
+			"max": data.get("stamina_max", StaminaSystem.MAX_VALUE),
+		})
 	_settle_idle()
 	
 #---- Inventory------------------------------------------------------
@@ -446,7 +419,7 @@ func _complete_vault(tier: int, collision: CollisionShape2D) -> void:
 	if collision != null:
 		collision.disabled = false
 	_is_vaulting = false
-	spend_stamina(VAULT_STAMINA_COST)
+	StaminaSystem.spend(VAULT_STAMINA_COST)
 	if tier >= 0 and tier < VAULT_XP_BY_TIER.size():
 		PlayerSkills.adjust(&"athletics", VAULT_XP_BY_TIER[tier])
 	z_index = 0
@@ -470,7 +443,17 @@ func _capability_for_tier(tier: int) -> StringName:
 		_: return &""
 
 #----------------Tool Use---------------
+
+# Routes the "interact" key when holding an item.
+# Returns true if the key was consumed (don't fall through to world interaction).
+#
+# Resolution order:
+#   1. Exit active mode if one is active (skateboard, etc.)
+#   2. Tool activation (anything with a tool_id) -- dispatch by tool_id
+#   3. Consumable (food, drink, hunger_restore or thirst_restore != 0)
+#   4. Not handled -- fall through
 func _try_tool_interact() -> bool:
+	# 1. Mode exit
 	if active_mode != &"":
 		_exit_active_mode()
 		return true
@@ -478,32 +461,64 @@ func _try_tool_interact() -> bool:
 	var stack := inventory.get_active_stack()
 	if stack == null or stack.item == null:
 		return false
-	var tool_id: StringName = stack.item.tool_id
-	if tool_id == &"":
-		return false
+	var item: ItemDef = stack.item
 
-	match tool_id:
+	# 2. Tool activation
+	if item.tool_id != &"":
+		return _try_use_tool(item)
+
+	# 3. Consumable. Either restore field being nonzero (positive OR negative)
+	# qualifies the item -- chips give hunger but take thirst, that's fine.
+	if item.hunger_restore != 0.0 or item.thirst_restore != 0.0 or item.stamina_restore != 0.0:
+		_consume_active_food(item)
+		return true
+	# 4. Not a recognized use
+	return false
+
+
+# Dispatch by tool_id. Each arm explicitly decides whether to consume.
+# Add new tool items here as you build them out.
+func _try_use_tool(item: ItemDef) -> bool:
+	match item.tool_id:
 		&"skateboard":
-			_try_enter_skateboard(stack.item)
+			_try_enter_skateboard(item)
 			return true
 		&"pager":
 			PagerSystem.activate()
 			inventory.consume_active(1)
-	if stack.item.hunger_restore > 0.0 or stack.item.thirst_restore > 0.0:
-		_consume_active_food(stack.item)
-		return true
-	return false
+			return true
+		&"lottery_scratchers":
+			LotterySystem.scratch()
+			inventory.consume_active(1)
+			return true
+		_:
+			return false
 
+
+# Consumable handler. Handles both positive restore (food, drink) and
+# negative side-effects (chips: +hunger, -thirst). Negatives are routed
+# through the same restore call with a negative value -- if your
+# HungerSystem/ThirstSystem clamp negatives, swap these for explicit
+# drain() calls instead.
 func _consume_active_food(item: ItemDef) -> void:
-	if item.hunger_restore > 0.0:
+	if item.hunger_restore != 0.0:
 		HungerSystem.restore(item.hunger_restore)
-	if item.thirst_restore > 0.0:
+	if item.thirst_restore != 0.0:
 		ThirstSystem.restore(item.thirst_restore)
+	if item.stamina_restore != 0.0:
+		StaminaSystem.restore(item.stamina_restore)
 	inventory.consume_active(1)
-	NotificationSystem.warn("Ate %s." % item.display_name)
+
+	# Phrasing reflects the dominant positive effect.
+	var verb := "Used"
+	if item.thirst_restore > item.hunger_restore and item.thirst_restore > item.stamina_restore:
+		verb = "Drank"
+	elif item.hunger_restore > 0.0 or item.thirst_restore > 0.0:
+		verb = "Ate"
+	NotificationSystem.warn("%s %s." % [verb, item.display_name])
+
 
 func _try_enter_skateboard(item: ItemDef) -> void:
-	
 	if not _in_movement_tool_scene():
 		NotificationSystem.warn("Not here.")
 		return

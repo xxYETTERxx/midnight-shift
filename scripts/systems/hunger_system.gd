@@ -6,8 +6,8 @@ extends Node
 
 # Tunables — see design notes in chat.
 const MAX_VALUE: float = 100.0
-const DECAY_PER_HOUR: float = 12.5
-const SLEEP_DECAY_MULT: float = 0.5   # was 1.0
+const DECAY_PER_HOUR: float = 4.5
+const SLEEP_DECAY_MULT: float = 0.3   
 const SLEEP_DECAY_CAP: float = 40.0   # NEW
 
 # Threshold bands (current >= threshold means we're in that band).
@@ -55,10 +55,11 @@ func speed_multiplier() -> float:
 
 
 func restore(amount: float) -> void:
-	if amount <= 0.0:
+	if amount == 0.0:
 		return
 	current = clampf(current + amount, 0.0, MAX_VALUE)
-	_zero_minutes = 0
+	if amount > 0.0:
+		_zero_minutes = 0
 	hunger_changed.emit(current, MAX_VALUE)
 	_check_band()
 

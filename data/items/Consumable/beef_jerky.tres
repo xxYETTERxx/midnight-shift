@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemDef" format=3 uid="uid://boulp08watk6o"]
+
+[ext_resource type="Texture2D" uid="uid://cg4dh4rtf62kh" path="res://art/icons/art_items/beef_jerky.png" id="1_di21n"]
+[ext_resource type="Script" uid="uid://2ndmr7htrd8w" path="res://scripts/items/item_def.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"beef_jerky"
+display_name = "Beef Jerky Stick"
+icon = ExtResource("1_di21n")
+category = 7
+description = "Smoked, salted, individually wrapped. Lasts forever in a pocket."
+base_value = 2
+hunger_restore = 35.0
+thirst_restore = -5.0

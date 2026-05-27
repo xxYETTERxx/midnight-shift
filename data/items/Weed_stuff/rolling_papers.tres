@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemDef" load_steps=2 format=3]
+ 
+[ext_resource type="Script" path="res://scripts/items/item_def.gd" id="1_script"]
+ 
+[resource]
+script = ExtResource("1_script")
+id = &"rolling_papers"
+display_name = "Rolling Papers"
+max_stack = 99
+category = 2
+description = "Booklet of thin papers. Pre-packaging without the scale."
+base_value = 2
+sellable = true
+giftable = false

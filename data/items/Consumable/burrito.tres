@@ -6,7 +6,6 @@
 [resource]
 script = ExtResource("1_lpikb")
 id = &"burrito"
-tool_id = &"burrito"
 display_name = "Burrito"
 icon = ExtResource("1_khk0w")
 category = 3

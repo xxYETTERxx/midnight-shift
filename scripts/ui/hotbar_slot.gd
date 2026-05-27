@@ -19,15 +19,18 @@ signal unhovered(slot_index: int)
 
 enum Action { INTERACT, SPLIT, TRANSFER, MOVE_ONE }
 
+const SLOT_SIZE: Vector2 = Vector2(48, 48)  # tune to taste
 
 func _ready() -> void:
+	custom_minimum_size = SLOT_SIZE
+	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	_build_styles()
 	_apply_style()
 	render(null)
 	mouse_entered.connect(func(): hover_entered.emit(slot_index))
 	mouse_entered.connect(_on_mouse_entered)
 	mouse_exited.connect(_on_mouse_exited)
-
 
 func _build_styles() -> void:
 	# Inactive: dim border (matches editor default)

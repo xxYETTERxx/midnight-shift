@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemDef" format=3 uid="uid://cvru2a38qb213"]
+
+[ext_resource type="Texture2D" uid="uid://d187hhlkt7pja" path="res://art/icons/art_items/pop_tarts.png" id="1_gf1ly"]
+[ext_resource type="Script" uid="uid://2ndmr7htrd8w" path="res://scripts/items/item_def.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"pop_tarts"
+display_name = "Pop-Tarts"
+icon = ExtResource("1_gf1ly")
+category = 7
+description = "Two in a foil sleeve. Toaster optional."
+base_value = 3
+hunger_restore = 50.0

@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemDef" load_steps=2 format=3]
+ 
+[ext_resource type="Script" path="res://scripts/items/item_def.gd" id="1_script"]
+ 
+[resource]
+script = ExtResource("1_script")
+id = &"flashlight"
+display_name = "Flashlight"
+max_stack = 1
+category = 0
+description = "Hand-sized, takes two D-cells. Cuts the dark in a tight beam."
+base_value = 8
+sellable = true
+giftable = false

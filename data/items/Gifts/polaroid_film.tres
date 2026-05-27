@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemDef" format=3 uid="uid://5dqnjup8glhm"]
+
+[ext_resource type="Script" uid="uid://2ndmr7htrd8w" path="res://scripts/items/item_def.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://bpyk07xrio0l8" path="res://art/icons/art_items/polaroid_film.png" id="1_v5n6j"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"polaroid_film"
+display_name = "Polaroid Film Pack"
+icon = ExtResource("1_v5n6j")
+description = "Ten exposures"
+base_value = 8
+sellable = true
+giftable = false

@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemDef" format=3 uid="uid://rb581mbk0yar"]
+
+[ext_resource type="Texture2D" uid="uid://opemxplrd8yg" path="res://art/icons/art_items/pills.png" id="1_8kuic"]
+[ext_resource type="Script" uid="uid://2ndmr7htrd8w" path="res://scripts/items/item_def.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"pills"
+display_name = "Pill Bottle"
+icon = ExtResource("1_8kuic")
+category = 14
+description = "Orange plastic, child-proof cap, label scratched off. Could be anything prescribed."
+base_value = 15
+sellable = true

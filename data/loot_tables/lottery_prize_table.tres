@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="LotteryPrizeTable" format=3 uid="uid://b46j2qpnvdm3n"]
+
+[ext_resource type="Script" uid="uid://xjv0whs0oduv" path="res://scripts/systems/lottery_prize_table.gd" id="1_e0spb"]
+
+[resource]
+script = ExtResource("1_e0spb")
+first_ticket_guaranteed_prize = 100
+metadata/_custom_type_script = "uid://xjv0whs0oduv"

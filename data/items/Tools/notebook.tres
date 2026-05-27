@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemDef" load_steps=2 format=3]
+ 
+[ext_resource type="Script" path="res://scripts/items/item_def.gd" id="1_script"]
+ 
+[resource]
+script = ExtResource("1_script")
+id = &"notebook"
+display_name = "Pocket Notebook"
+max_stack = 1
+category = 6
+description = "Spiral-bound, fits in a back pocket. You jot down what people tell you."
+base_value = 3
+sellable = false
+giftable = false

@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemDef" format=3 uid="uid://c13rod2roonce"]
+
+[ext_resource type="Script" uid="uid://2ndmr7htrd8w" path="res://scripts/items/item_def.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://dgj8qiq45680s" path="res://art/icons/art_items/sunflower_seeds.png" id="1_xcjo3"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"sunflower_seeds"
+display_name = "Sunflower Seeds"
+icon = ExtResource("1_xcjo3")
+category = 7
+description = "Salty and roasted"
+base_value = 1
+hunger_restore = 15.0

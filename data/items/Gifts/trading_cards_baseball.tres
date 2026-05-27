@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemDef" format=3 uid="uid://kycq5xj36w74"]
+
+[ext_resource type="Texture2D" uid="uid://k0vtce56qw3s" path="res://art/icons/art_items/trading_cards_baseball.png" id="1_e7nl0"]
+[ext_resource type="Script" uid="uid://2ndmr7htrd8w" path="res://scripts/items/item_def.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"trading_cards_baseball"
+display_name = "Baseball Cards"
+icon = ExtResource("1_e7nl0")
+category = 11
+description = "Foil pack. Smells like the gum stick inside."
+base_value = 5
+sellable = true

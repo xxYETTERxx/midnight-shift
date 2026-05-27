@@ -18,6 +18,7 @@ extends Resource
 # but for now we keep them clean per the chat decision.
 @export var hunger_restore: float = 0.0
 @export var thirst_restore: float = 0.0
+@export var stamina_restore: float = 0.0
 
 # Gift-system fields.
 # If non-empty, giving this item to the named NPC counts as "perfect"

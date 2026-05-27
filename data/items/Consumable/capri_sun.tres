@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemDef" format=3 uid="uid://ckhu6uk6432wl"]
+
+[ext_resource type="Texture2D" uid="uid://crmcau0lge802" path="res://art/icons/art_items/capri_sun.png" id="1_6baed"]
+[ext_resource type="Script" uid="uid://2ndmr7htrd8w" path="res://scripts/items/item_def.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"capri_sun"
+display_name = "Capri Sun"
+icon = ExtResource("1_6baed")
+category = 8
+description = "Fun under the sun!"
+base_value = 2
+thirst_restore = 40.0

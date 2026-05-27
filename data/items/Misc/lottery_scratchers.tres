@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemDef" format=3 uid="uid://ch6nqm0w13j0t"]
+
+[ext_resource type="Texture2D" uid="uid://dxlphhc2qi8fh" path="res://art/icons/art_items/lottery_scratchers.png" id="1_7k5uc"]
+[ext_resource type="Script" uid="uid://2ndmr7htrd8w" path="res://scripts/items/item_def.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"lottery_scratchers"
+tool_id = &"lottery_scratchers"
+display_name = "Scratcher Ticket"
+icon = ExtResource("1_7k5uc")
+category = 6
+description = "This one's the winner"
+base_value = 2
+sellable = true

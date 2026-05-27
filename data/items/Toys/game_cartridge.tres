@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="ItemDef" load_steps=2 format=3]
+ 
+[ext_resource type="Script" path="res://scripts/items/item_def.gd" id="1_script"]
+ 
+[resource]
+script = ExtResource("1_script")
+id = &"game_cartridge"
+display_name = "Game Cartridge"
+max_stack = 99
+category = 11
+description = "16-bit, label half-peeled. Blow on it before you load it."
+base_value = 8
+sellable = true

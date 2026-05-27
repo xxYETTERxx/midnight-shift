@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemDef" format=3 uid="uid://cct54xhnv4s"]
+
+[ext_resource type="Texture2D" uid="uid://cgb6tb11srh0o" path="res://art/icons/art_items/comic_book.png" id="1_ntcox"]
+[ext_resource type="Script" uid="uid://2ndmr7htrd8w" path="res://scripts/items/item_def.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"comic_book"
+display_name = "Comic Book"
+icon = ExtResource("1_ntcox")
+category = 11
+description = "Stapled, glossy cover, smells like newsprint. Bagged and boarded by a previous owner."
+base_value = 6
+sellable = true

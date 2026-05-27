@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemDef" format=3 uid="uid://jboasjnifb5b"]
+
+[ext_resource type="Script" uid="uid://2ndmr7htrd8w" path="res://scripts/items/item_def.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://bqyqfg1eigenf" path="res://art/icons/art_items/flask32.png" id="1_sdfsy"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"flask"
+display_name = "Hip Flask"
+icon = ExtResource("1_sdfsy")
+max_stack = 1
+category = 6
+description = "Fits the curve of a back pocket"
+base_value = 8
+sellable = true

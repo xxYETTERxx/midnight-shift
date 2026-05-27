@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemDef" format=3 uid="uid://b2unrqteemjba"]
+
+[ext_resource type="Texture2D" uid="uid://smjo4nd8osai" path="res://art/icons/art_items/malt_liquor_40.png" id="1_pq36g"]
+[ext_resource type="Script" uid="uid://2ndmr7htrd8w" path="res://scripts/items/item_def.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"malt_liquor_40"
+display_name = "40oz Malt Liquor"
+icon = ExtResource("1_pq36g")
+category = 8
+description = "Three bucks gets you a brown paper bag and a long walk home."
+base_value = 3
+thirst_restore = 30.0

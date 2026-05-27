@@ -84,3 +84,10 @@ layout_mode = 2
 [node name="DebtPayButton" type="Button" parent="PanelContainer/VBoxContainer/DebtView" unique_id=927200567]
 layout_mode = 2
 text = "Pay Debt"
+
+[node name="VendorCash" type="Label" parent="." unique_id=613289174]
+layout_mode = 0
+offset_left = 99.0
+offset_top = 63.0
+offset_right = 138.0
+offset_bottom = 86.0

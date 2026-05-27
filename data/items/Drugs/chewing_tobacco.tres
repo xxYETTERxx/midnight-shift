@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemDef" format=3 uid="uid://oci6ap6jp2ya"]
+
+[ext_resource type="Script" uid="uid://2ndmr7htrd8w" path="res://scripts/items/item_def.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://8nl4pi86umpu" path="res://art/icons/art_items/chewing_tobacco.png" id="1_x3ds0"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"chewing_tobacco"
+display_name = "Chewing Tobacco"
+icon = ExtResource("1_x3ds0")
+category = 14
+description = "Round tin, pinch goes between cheek and gum. Carry a cup."
+base_value = 4
+sellable = true

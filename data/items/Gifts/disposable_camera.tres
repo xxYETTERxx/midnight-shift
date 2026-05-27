@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemDef" format=3 uid="uid://cdkabgqqeqwky"]
+
+[ext_resource type="Texture2D" uid="uid://blkga48oua87g" path="res://art/icons/art_items/disposable_camera.png" id="1_hjuhg"]
+[ext_resource type="Script" uid="uid://2ndmr7htrd8w" path="res://scripts/items/item_def.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"disposable_camera"
+display_name = "Disposable Camera"
+icon = ExtResource("1_hjuhg")
+category = 11
+description = "27 exposures, no flash, drop it at the drug store when you're done."
+base_value = 8
+sellable = true

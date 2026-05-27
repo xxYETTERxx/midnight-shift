@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemDef" format=3 uid="uid://bntspldlmygcc"]
+
+[ext_resource type="Texture2D" uid="uid://dihxx5u42r7iw" path="res://art/icons/art_items/tobacco_pouch.png" id="1_j3bmy"]
+[ext_resource type="Script" uid="uid://2ndmr7htrd8w" path="res://scripts/items/item_def.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"tobacco_pouch"
+display_name = "Loose Tobacco Pouch"
+icon = ExtResource("1_j3bmy")
+category = 14
+description = "Roll-your-own. Cheaper per cigarette if you've got the time."
+base_value = 5
+sellable = true

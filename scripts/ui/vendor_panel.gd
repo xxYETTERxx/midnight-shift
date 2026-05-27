@@ -24,6 +24,10 @@ enum Mode { NORMAL, FRONT_AVAILABLE, DEBT_OWED }
 @onready var debt_amount_label: Label = $PanelContainer/VBoxContainer/DebtView/DebtAmountLabel
 @onready var debt_pay_button: Button = $PanelContainer/VBoxContainer/DebtView/DebtPayButton
 
+# Optional: assign in the editor when you add the vendor-cash label.
+# Auto-hidden when the vendor has unlimited budget.
+@export var vendor_cash_label: Label
+
 var _is_open: bool = false
 var _mode: int = Mode.NORMAL
 var _vendor: VendorInteractable = null
@@ -100,6 +104,8 @@ func _show_debt_view() -> void:
 	button_row.visible = false
 	front_offer_row.visible = false
 	debt_view.visible = true
+	if vendor_cash_label != null:
+		vendor_cash_label.visible = false
 	_refresh_debt_view()
 
 
@@ -120,6 +126,7 @@ func _show_trade_view(with_front_offer: bool) -> void:
 	_render_all()
 	_update_net()
 	_update_balance()
+	_update_vendor_cash()
 
 
 # --- Front offer ---
@@ -264,24 +271,64 @@ func _on_vendor_shadow_changed(i: int) -> void:
 	_update_net()
 
 
-func _on_player_slot_clicked(slot_index: int, _with_shift: bool) -> void:
+func _on_player_slot_clicked(slot_index: int, action: int) -> void:
 	var stack := _player_shadow.get_slot(slot_index)
 	if stack == null or stack.item == null:
 		return
-	if not stack.item.sellable:
+	if not _vendor.will_buy(stack.item):
 		return
-	var leftover := _vendor_shadow.add(stack.item, stack.count)
-	var moved: int = stack.count - leftover
+
+	# How many to attempt to move:
+	# - TRANSFER (shift+click): whole stack
+	# - SPLIT (right-click): ceil(half)
+	# - everything else (plain click, ctrl+click): one
+	var requested: int
+	match action:
+		HotbarSlot.Action.TRANSFER:
+			requested = stack.count
+		HotbarSlot.Action.SPLIT:
+			requested = (stack.count + 1) / 2
+		_:
+			requested = 1
+
+	# Clamp by vendor's daily cash budget BEFORE staging the move,
+	# so we never put ghost items into the vendor's shadow.
+	if _vendor.has_buy_budget():
+		var unit_price := _vendor.quote_sell_to_vendor(stack.item, 1)
+		if unit_price > 0:
+			# Use revenue-only (not net) so staged purchases don't inflate
+			# the available budget.
+			var staged_revenue := _pending_sell_revenue()
+			var available := _vendor.remaining_buy_budget() - staged_revenue
+			var max_affordable: int = max(0, available / unit_price)
+			requested = min(requested, max_affordable)
+	if requested <= 0:
+		return
+
+	var leftover := _vendor_shadow.add(stack.item, requested)
+	var moved: int = requested - leftover
 	if moved > 0:
 		_player_shadow.consume_from_slot(slot_index, moved)
 
 
-func _on_vendor_slot_clicked(slot_index: int, _with_shift: bool) -> void:
+func _on_vendor_slot_clicked(slot_index: int, action: int) -> void:
 	var stack := _vendor_shadow.get_slot(slot_index)
 	if stack == null or stack.item == null:
 		return
-	var leftover := _player_shadow.add(stack.item, stack.count)
-	var moved: int = stack.count - leftover
+
+	# Same click model as the player side:
+	# TRANSFER = whole stack, SPLIT = ceil(half), otherwise = one.
+	var requested: int
+	match action:
+		HotbarSlot.Action.TRANSFER:
+			requested = stack.count
+		HotbarSlot.Action.SPLIT:
+			requested = (stack.count + 1) / 2
+		_:
+			requested = 1
+
+	var leftover := _player_shadow.add(stack.item, requested)
+	var moved: int = requested - leftover
 	if moved > 0:
 		_vendor_shadow.consume_from_slot(slot_index, moved)
 
@@ -291,10 +338,15 @@ func _on_player_slot_hovered(slot_index: int) -> void:
 	if stack == null or stack.item == null:
 		price_label.text = ""
 		return
-	if not stack.item.sellable or _vendor.sell_multiplier <= 0:
+	if not _vendor.will_buy(stack.item):
 		price_label.text = "%s — won't buy" % stack.item.display_name
 		return
 	var unit_price := _vendor.quote_sell_to_vendor(stack.item, 1)
+	if _vendor.has_buy_budget():
+		var available := _vendor.remaining_buy_budget() - _pending_sell_revenue()
+		if available < unit_price:
+			price_label.text = "%s — vendor's out of cash" % stack.item.display_name
+			return
 	price_label.text = "%s — sells for $%d" % [stack.item.display_name, unit_price]
 
 
@@ -333,6 +385,20 @@ func _compute_net() -> int:
 		cost += _vendor.quote_buy_from_vendor(item, player_gained[item_id])
 
 	return revenue - cost
+
+
+# Just the revenue side — what the vendor would owe the player right now.
+# Used for budget clamping (which only cares about cash OUT, not net).
+func _pending_sell_revenue() -> int:
+	var player_now := _player_shadow.save_state()
+	var player_lost := _diff_counts(_player_original, player_now)
+	var revenue := 0
+	for item_id in player_lost:
+		var item := ItemRegistry.get_item(StringName(item_id))
+		if item == null:
+			continue
+		revenue += _vendor.quote_sell_to_vendor(item, player_lost[item_id])
+	return revenue
 
 
 func _diff_counts(a_state: Dictionary, b_state: Dictionary) -> Dictionary:
@@ -374,10 +440,29 @@ func _update_net() -> void:
 		net_label.text = "Net: $0"
 		net_label.modulate = Color.WHITE
 	confirm_button.disabled = (net < 0 and not Wallet.can_afford(-net))
+	_update_vendor_cash()
 
 
 func _update_balance() -> void:
 	balance_label.text = "Cash: %s" % Wallet.format_balance()
+
+
+func _update_vendor_cash() -> void:
+	if vendor_cash_label == null:
+		return
+	if _vendor == null or not _vendor.has_buy_budget() or _mode == Mode.DEBT_OWED:
+		vendor_cash_label.visible = false
+		return
+	var pending := _pending_sell_revenue()
+	var effective := _vendor.remaining_buy_budget() - pending
+	vendor_cash_label.visible = true
+	vendor_cash_label.text = "Vendor cash: $%d" % effective
+	if effective <= 0:
+		vendor_cash_label.modulate = Color(1.0, 0.6, 0.6)
+	elif effective < 20:
+		vendor_cash_label.modulate = Color(1.0, 0.9, 0.4)
+	else:
+		vendor_cash_label.modulate = Color.WHITE
 
 
 func _on_wallet_changed(_pool: String, _new_balance: int) -> void:
@@ -397,6 +482,14 @@ func _on_confirm() -> void:
 	var net := _compute_net()
 	if net < 0 and not Wallet.can_afford(-net):
 		return
+
+	# Tell the vendor how much they spent this trip (revenue, not net).
+	# Their daily budget tracks cash OUT regardless of what the player
+	# bought back with the proceeds.
+	var sell_revenue := _pending_sell_revenue()
+	if sell_revenue > 0:
+		_vendor.record_purchase(sell_revenue)
+
 	if net > 0:
 		Wallet.add(net)
 	elif net < 0:

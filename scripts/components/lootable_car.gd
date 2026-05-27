@@ -103,7 +103,6 @@ func _cancel_action() -> void:
 
 func _complete_action() -> void:
 	var crime_id := _active_crime_id
-	_active_crime_id = 0
 	var player := _action_player
 	_cancel_action()
 	
@@ -135,7 +134,7 @@ func _complete_action() -> void:
 		CriminalExperience.adjust(CRIM_XP_PER_TIER[tier])
 	if is_locked:
 		PlayerSkills.adjust(&"lockpicking", LOCKPICK_XP_PER_SUCCESS)
-	
+	print(_active_crime_id)
 	if _active_crime_id != 0:
 		CrimeSystem.end_crime(crime_id, CrimeSystem.Outcome.COMPLETED)
 	looted.emit(drops)

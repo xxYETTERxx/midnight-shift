@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemDef" format=3 uid="uid://mcr4jox4duar"]
+
+[ext_resource type="Script" uid="uid://2ndmr7htrd8w" path="res://scripts/items/item_def.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://bbsufymmchx3b" path="res://art/icons/art_items/nail_polish.png" id="1_u65c8"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"nail_polish"
+display_name = "Nail Polish"
+icon = ExtResource("1_u65c8")
+category = 6
+description = "Specific shade, specific brand"
+base_value = 4
+sellable = true

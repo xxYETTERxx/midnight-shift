@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemDef" format=3 uid="uid://c3uhcd5jecu54"]
+
+[ext_resource type="Texture2D" uid="uid://depq2hq777k24" path="res://art/icons/art_items/trading_cards_basketball.png" id="1_s4cqs"]
+[ext_resource type="Script" uid="uid://2ndmr7htrd8w" path="res://scripts/items/item_def.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"trading_cards_basketball"
+display_name = "Basketball Cards"
+icon = ExtResource("1_s4cqs")
+category = 11
+description = "Holofoil rookie cards in one out of every twenty."
+base_value = 5
+sellable = true

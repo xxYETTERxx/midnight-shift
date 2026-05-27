@@ -5,7 +5,7 @@ extends Node
 # bookkeeping. All read/write APIs take a pool name defaulting to "cash" so
 # the dirty/clean expansion is additive, not a refactor.
 
-const STARTING_CASH: int = 0
+const STARTING_CASH: int = 100.0
 
 var _pools: Dictionary = {"cash": STARTING_CASH}
 

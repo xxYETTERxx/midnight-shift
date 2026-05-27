@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemDef" format=3 uid="uid://dtm0e56hcffa7"]
+
+[ext_resource type="Texture2D" uid="uid://bfk6vjdbs5sxj" path="res://art/icons/art_items/paperback_scifi.png" id="1_chn8c"]
+[ext_resource type="Script" uid="uid://2ndmr7htrd8w" path="res://scripts/items/item_def.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"paperback_scifi"
+display_name = "Sci-Fi Paperback"
+icon = ExtResource("1_chn8c")
+category = 11
+description = "Spaceships on the cover, yellowed pages inside."
+base_value = 3
+sellable = true

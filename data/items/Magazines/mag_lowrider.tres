@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="ItemDef" load_steps=2 format=3]
+ 
+[ext_resource type="Script" path="res://scripts/items/item_def.gd" id="1_script"]
+ 
+[resource]
+script = ExtResource("1_script")
+id = &"mag_lowrider"
+display_name = "Lowrider Magazine"
+max_stack = 99
+category = 11
+description = "Hydraulics, candy paint, and big chrome rims."
+base_value = 3
+sellable = true

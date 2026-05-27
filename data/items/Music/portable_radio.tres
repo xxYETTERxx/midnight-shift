@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="ItemDef" load_steps=2 format=3]
+ 
+[ext_resource type="Script" path="res://scripts/items/item_def.gd" id="1_script"]
+ 
+[resource]
+script = ExtResource("1_script")
+id = &"portable_radio"
+display_name = "Portable Radio"
+max_stack = 1
+category = 11
+description = "AM/FM with a pull-out antenna. Tinny speaker."
+base_value = 10
+sellable = true

@@ -4,8 +4,8 @@ extends Node
 # See HungerSystem for design rationale.
 
 const MAX_VALUE: float = 100.0
-const DECAY_PER_HOUR: float = 6.25
-const SLEEP_DECAY_MULT: float = 0.5   # was 1.0
+const DECAY_PER_HOUR: float = 3.00
+const SLEEP_DECAY_MULT: float = 0.3   # was 1.0
 const SLEEP_DECAY_CAP: float = 40.0   # NEW
 
 const THRESH_PARCHED: float = 50.0
@@ -44,10 +44,11 @@ func speed_multiplier() -> float:
 
 
 func restore(amount: float) -> void:
-	if amount <= 0.0:
+	if amount == 0.0:
 		return
 	current = clampf(current + amount, 0.0, MAX_VALUE)
-	_zero_minutes = 0
+	if amount > 0.0:
+		_zero_minutes = 0
 	thirst_changed.emit(current, MAX_VALUE)
 	_check_band()
 

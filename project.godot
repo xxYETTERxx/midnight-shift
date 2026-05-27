@@ -57,7 +57,9 @@ StreetDealSession="*uid://d02xiioffqljb"
 SpotHeatTracker="*uid://f7enji3e2q2r"
 HungerSystem="*uid://32gy5gbu88vn"
 ThirstSystem="*uid://b38qyr2ng1r4f"
+StaminaSystem="*uid://dtrkpkjf6uhm5"
 CollapseSystem="*uid://oynxsie731h5"
+LotterySystem="*uid://beywniuoc4n20"
 
 [display]
 
