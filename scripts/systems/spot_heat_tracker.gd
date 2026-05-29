@@ -3,7 +3,7 @@ extends Node
 # Tracks completed deals per spot per day, with a rolling 3-day window.
 # Used by the street deal minigame to scale cop spawn chance.
 
-const HISTORY_DAYS: int = 3
+const HISTORY_DAYS: int = 1
 
 # spot_id (String) -> { day_index (int) -> count (int) }
 var _deals: Dictionary = {}

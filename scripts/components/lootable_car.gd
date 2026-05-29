@@ -120,8 +120,9 @@ func _complete_action() -> void:
 		var count: int = drop["count"]
 		if inv != null and item != null:
 			if item.id == "loose_change":
-				Wallet.add(item.base_value)
-				NotificationSystem.loot(item,count)
+				for change in range(count):
+					Wallet.add(item.base_value)
+					NotificationSystem.loot(item,count)
 			else:
 				var leftover: int = inv.add(item, count)
 				var added: int = count - leftover

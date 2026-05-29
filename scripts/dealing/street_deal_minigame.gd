@@ -14,13 +14,13 @@ const CASH_PER_BAG: int = 10    # dime bag price (same number, different unit)
 # leftover bud on exit.
 const EYEBALL_TAX_MAX_PCT: float = 0.40
 
-# Cop spawn check interval (seconds). Each check rolls against a chance
-# scaled by recent deal count at this spot.
-const COP_SPAWN_INTERVAL: float = 25.0
 
-# Per-deal contribution to cop spawn chance. 5 recent deals = 40%.
-const COP_CHANCE_PER_DEAL: float = 0.04
-const COP_CHANCE_MAX: float = 0.3
+# Cop spawn chance follows a saturating curve:
+#   chance = COP_CHANCE_MAX * (1 - exp(-COP_CHANCE_GROWTH * recent_deals))
+# Each deal adds less than the last, easing toward the cap instead of
+# slamming into it. Lower growth = gentler ramp.
+const COP_CHANCE_GROWTH: float = 0.06
+const COP_CHANCE_MAX: float = 0.6
 
 # Chance per accepted sale that a new pager customer is gained. Only fires
 # if the player has the pager.
@@ -56,8 +56,6 @@ var _windows: Array = [
 	{ "start": 16, "end": 22, "spawn_minutes": 8.0,  "customer_pct": 0.45 },  # evening
 ]
 
-# Cop spawn check interval (game minutes).
-const COP_SPAWN_INTERVAL_MIN: float = 20.0
 
 # Concurrent customer cap to avoid screen crowding.
 const MAX_LIVE_CUSTOMERS: int = 2
@@ -323,15 +321,19 @@ func _try_spawn_cop() -> void:
 		print("[Cop] skipped — no spot_id")
 		return
 	var recent: int = SpotHeatTracker.recent_deal_count(StreetDealSession.spot_id)
-	print("[Cop] spot=%s  recent=%d  chance=%.2f" % [
-	StreetDealSession.spot_id, recent, clamp(float(recent) * COP_CHANCE_PER_DEAL, 0.0, COP_CHANCE_MAX)
-])
+	var chance: float = _cop_spawn_chance(recent)
+	print("[Cop] spot=%s  recent=%d  chance=%.2f" % [StreetDealSession.spot_id, recent, chance])
 	if recent <= 0:
 		return  # first-deal protection: nothing recorded yet = no cops
-	var chance: float = clamp(float(recent) * COP_CHANCE_PER_DEAL, 0.0, COP_CHANCE_MAX)
 	if _rng.randf() >= chance:
 		return
 	_spawn_cop()
+
+
+func _cop_spawn_chance(recent: int) -> float:
+	if recent <= 0:
+		return 0.0
+	return COP_CHANCE_MAX * (1.0 - exp(-COP_CHANCE_GROWTH * float(recent)))
 
 
 func _spawn_cop() -> void:

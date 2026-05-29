@@ -49,7 +49,6 @@ func _ready() -> void:
 	SaveSystem.register_savable("player", self)
 	inventory.active_slot_changed.connect(_on_active_slot_changed)
 	inventory.slot_changed.connect(_on_inventory_slot_changed)
-	inventory.add(ItemRegistry.get_item("empty_dime_bag"),28)
 	_settle_idle()
 
 
@@ -488,6 +487,10 @@ func _try_use_tool(item: ItemDef) -> bool:
 			return true
 		&"lottery_scratchers":
 			LotterySystem.scratch()
+			inventory.consume_active(1)
+			return true
+		&"box_dime_bags":
+			inventory.add(ItemRegistry.get_item("empty_dime_bag"),99)
 			inventory.consume_active(1)
 			return true
 		_:

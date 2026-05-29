@@ -4,6 +4,8 @@ extends Node
 @export var max_slots: int = 6
 @export var initial_slots: int = 6  # currently unused, kept for compatibility
 
+
+
 const HOTBAR_SLOT_COUNT: int = 12
 var hotbar_offset: int = 0  # 0 = first row is hotbar, 12 = second row is hotbar
 

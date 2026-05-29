@@ -31,6 +31,10 @@
 [ext_resource type="Resource" uid="uid://rb581mbk0yar" path="res://data/items/Drugs/pills.tres" id="20_4ooxh"]
 [ext_resource type="Resource" uid="uid://h57ac8m0oerd" path="res://data/items/Drugs/premium_cigar.tres" id="21_t652q"]
 [ext_resource type="Resource" uid="uid://bntspldlmygcc" path="res://data/items/Drugs/tobacco_pouch.tres" id="22_lsh3y"]
+[ext_resource type="Resource" uid="uid://b2unrqteemjba" path="res://data/items/Consumable/malt_liquor_40.tres" id="23_sg27l"]
+[ext_resource type="Resource" uid="uid://fklqjo4eh1d1" path="res://data/items/Consumable/tallboy_beer.tres" id="24_kkplr"]
+[ext_resource type="Resource" uid="uid://dq12dwa2w0g65" path="res://data/items/Consumable/whiskey_pint.tres" id="25_q6yq0"]
+[ext_resource type="Resource" uid="uid://bat45tt03ri5g" path="res://data/items/Consumable/wine_cooler.tres" id="26_q6y08"]
 [ext_resource type="PackedScene" uid="uid://hw82pd7bflqo" path="res://scenes/components/payphone.tscn" id="29_dcube"]
 [ext_resource type="PackedScene" uid="uid://ctijaiye5o1y2" path="res://scenes/components/meet_spot.tscn" id="33_qstjl"]
 
@@ -1871,7 +1875,7 @@ initial_stock_counts = Array[int]([1, 1, 1])
 gated_stock = Array[ExtResource("12_b0prm")]([ExtResource("16_ihfau")])
 gated_stock_counts = Array[int]([5])
 gated_stock_min_tier = Array[int]([4])
-will_buy_items = Array[ExtResource("12_b0prm")]([ExtResource("17_k2x45"), ExtResource("18_dcube"), ExtResource("19_qstjl"), ExtResource("20_4ooxh"), ExtResource("21_t652q"), ExtResource("22_lsh3y")])
+will_buy_items = Array[ExtResource("12_b0prm")]([ExtResource("17_k2x45"), ExtResource("18_dcube"), ExtResource("19_qstjl"), ExtResource("20_4ooxh"), ExtResource("21_t652q"), ExtResource("22_lsh3y"), ExtResource("23_sg27l"), ExtResource("24_kkplr"), ExtResource("25_q6yq0"), ExtResource("26_q6y08")])
 daily_buy_budget = 160
 offers_front = true
 front_offer_item = ExtResource("12_6dlou")
@@ -1909,6 +1913,11 @@ position = Vector2(-55, -72)
 target_room = "uid://bpvx1vn4dxqk7"
 target_spawn = "from_outside"
 
+[node name="Jeremy_Tent" parent="Doorways" unique_id=399270668 instance=ExtResource("10_qm4ro")]
+position = Vector2(-674, -237)
+target_room = "uid://dc1jpnw162kwj"
+target_spawn = "from_outside"
+
 [node name="Hardware" parent="Doorways" unique_id=1902287690 instance=ExtResource("10_qm4ro")]
 position = Vector2(-656, 450)
 target_room = "uid://eae0r2imhq60"
@@ -1929,6 +1938,9 @@ position = Vector2(0, -1)
 
 [node name="from_apartment" type="Marker2D" parent="SpawnPoints" unique_id=225936794]
 position = Vector2(-54, -27)
+
+[node name="from_tent" type="Marker2D" parent="SpawnPoints" unique_id=1209580768]
+position = Vector2(-673, -207)
 
 [node name="from_pawn" type="Marker2D" parent="SpawnPoints" unique_id=258994200]
 position = Vector2(-199, 239)

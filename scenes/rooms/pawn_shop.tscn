@@ -38,6 +38,8 @@
 [ext_resource type="Resource" uid="uid://du64dy0sg1pl6" path="res://data/items/Toys/game_boy_game.tres" id="35_0vjns"]
 [ext_resource type="Resource" uid="uid://cis1d1tbrlrxt" path="res://data/items/Toys/game_cartridge.tres" id="36_5nksb"]
 [ext_resource type="Resource" uid="uid://cudbusup5d7g6" path="res://data/items/Toys/pog_set.tres" id="37_7b0uo"]
+[ext_resource type="Resource" uid="uid://dtk8j8stw4dwb" path="res://data/items/Gifts/hair_scrunchie.tres" id="38_00pxe"]
+[ext_resource type="Resource" uid="uid://djrs82sep8kcw" path="res://data/items/Misc/air_freshener.tres" id="39_mcgfg"]
 
 [node name="PawnStore" type="Node2D" unique_id=1419844553]
 
@@ -80,12 +82,14 @@ target_spawn = "from_pawn"
 
 [node name="Vendor" parent="Interactables" unique_id=1592916993 instance=ExtResource("3_dqwc3")]
 position = Vector2(146, -59)
+vendor_id = &"felix"
 vendor_name = "Felix"
 sell_multiplier = 0.8
 initial_stock = Array[ExtResource("4_om1fm")]([ExtResource("5_tv1wn"), ExtResource("7_kuhmp"), ExtResource("7_kxswg")])
 initial_stock_counts = Array[int]([1, 1])
 will_buy_items = Array[ExtResource("4_om1fm")]([ExtResource("8_00pxe"), ExtResource("9_mcgfg"), ExtResource("10_to411"), ExtResource("11_bst2y"), ExtResource("12_7msdk"), ExtResource("13_rehof"), ExtResource("14_liljx"), ExtResource("15_knu5o"), ExtResource("16_jsil0"), ExtResource("15_knu5o"), ExtResource("17_lrsfk"), ExtResource("18_2c7vg"), ExtResource("19_x31fw"), ExtResource("20_iqmp1"), ExtResource("21_fk8ly"), ExtResource("22_6hlet"), ExtResource("23_gd84s"), ExtResource("24_3y1f4"), ExtResource("25_l5h3t"), ExtResource("26_wq4tw"), ExtResource("27_tk05c"), ExtResource("28_nf0er"), ExtResource("29_aibqh"), ExtResource("30_oflef"), ExtResource("31_chcvo"), ExtResource("32_xjda1"), ExtResource("33_51ymb"), ExtResource("34_8o0aa"), ExtResource("35_0vjns"), ExtResource("36_5nksb"), ExtResource("37_7b0uo")])
 daily_buy_budget = 225
+rotating_pool = Array[ExtResource("4_om1fm")]([ExtResource("8_00pxe"), ExtResource("9_mcgfg"), ExtResource("10_to411"), ExtResource("11_bst2y"), ExtResource("12_7msdk"), ExtResource("14_liljx"), ExtResource("16_jsil0"), ExtResource("15_knu5o"), ExtResource("17_lrsfk"), ExtResource("38_00pxe"), ExtResource("18_2c7vg"), ExtResource("19_x31fw"), ExtResource("20_iqmp1"), ExtResource("21_fk8ly"), ExtResource("22_6hlet"), ExtResource("23_gd84s"), ExtResource("24_3y1f4"), ExtResource("25_l5h3t"), ExtResource("26_wq4tw"), ExtResource("27_tk05c"), ExtResource("39_mcgfg"), ExtResource("28_nf0er"), ExtResource("29_aibqh"), ExtResource("30_oflef"), ExtResource("32_xjda1"), ExtResource("31_chcvo"), ExtResource("33_51ymb")])
 
 [node name="SpawnPoints" type="Node2D" parent="." unique_id=814176097]
 position = Vector2(5, 16)

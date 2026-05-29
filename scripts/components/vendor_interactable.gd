@@ -65,6 +65,14 @@ extends Node2D
 @export var front_offer_count: int = 1
 @export var front_offer_debt: int = 0
 
+# === Rotating stock ===
+
+# A weekly-rotating pool. Each week, rotating_pick_count items are chosen
+# at random from rotating_pool and stocked (1 each) alongside the always-on
+# initial/gated stock. The picks persist in save state until the next week.
+@export var rotating_pool: Array[ItemDef] = []
+@export var rotating_pick_count: int = 6
+
 
 # === Runtime ===
 
@@ -72,6 +80,9 @@ var _remaining_buy_budget: int = 0
 
 @onready var interactable: Interactable = $Interactable
 @onready var stock: Inventory = $Stock
+
+var _rotating_picks: Array[ItemDef] = []
+var _rotating_week: int = -1
 
 
 func _ready() -> void:
@@ -81,6 +92,8 @@ func _ready() -> void:
 	interactable.interacted.connect(_on_interacted)
 	_remaining_buy_budget = daily_buy_budget
 	TimeSystem.day_rolled.connect(_on_day_rolled)
+	TimeSystem.day_rolled.connect(_on_day_rolled)
+	TimeSystem.week_rolled.connect(_on_week_rolled)
 
 	if vendor_id == &"":
 		push_warning("VendorInteractable '%s' has empty vendor_id -- persistence disabled" % vendor_name)
@@ -91,6 +104,16 @@ func _ready() -> void:
 	if VendorStateStore.has_state(vendor_id):
 		load_state(VendorStateStore.fetch(vendor_id))
 	else:
+		_populate_initial_stock()
+		
+	if VendorStateStore.has_state(vendor_id):
+		var rehydrated_week := _load_state_get_week(VendorStateStore.fetch(vendor_id))
+		# If a week rolled while offscreen, picks were just rerolled — rebuild
+		# the shelf so the new picks actually appear.
+		if rehydrated_week != TimeSystem.week_index():
+			_restock()
+	else:
+		_ensure_rotating_picks()
 		_populate_initial_stock()
 
 func _exit_tree() -> void:
@@ -105,7 +128,36 @@ func _on_interacted(player: Node) -> void:
 		push_warning("VendorInteractable: no vendor_panel found in scene")
 		return
 	panel.open_with_vendor(self, player)
+	
+# Rolls a fresh set of rotating picks if we don't already have picks for
+# the current week. Safe to call repeatedly — no-ops within the same week.
+func _ensure_rotating_picks() -> bool:
+	var wk: int = TimeSystem.week_index()
+	if _rotating_week == wk and not _rotating_picks.is_empty():
+		return false
+	_rotating_week = wk
+	_rotating_picks = _roll_rotating_picks()
+	return true
 
+
+func _roll_rotating_picks() -> Array[ItemDef]:
+	var pool: Array[ItemDef] = []
+	for item in rotating_pool:
+		if item != null:
+			pool.append(item)
+	pool.shuffle()
+	var n: int = min(rotating_pick_count, pool.size())
+	return pool.slice(0, n)
+
+func _on_week_rolled(_week: int) -> void:
+	_rotating_week = -1  # force a reroll regardless of stored week
+	_ensure_rotating_picks()
+	# If this vendor doesn't restock daily, the day_rolled handler won't
+	# refresh the shelf, so do it here to surface the new picks.
+	if not restock_on_day_rolled:
+		_restock()
+	if vendor_id != &"":
+		VendorStateStore.store(vendor_id, save_state())
 
 # === Public API: player buys from vendor ===
 
@@ -199,10 +251,10 @@ func _restock() -> void:
 # === Internals ===
 
 func _populate_initial_stock(force: bool = false) -> void:
-	# By default only fills when empty (preserves in-session changes).
-	# Pass force=true to refill regardless (used by daily restock).
 	if not force and not _stock_is_empty():
 		return
+
+	_ensure_rotating_picks()
 
 	for i in range(initial_stock.size()):
 		var item: ItemDef = initial_stock[i]
@@ -211,6 +263,8 @@ func _populate_initial_stock(force: bool = false) -> void:
 			stock.add(item, count)
 
 	_populate_gated_stock()
+	_populate_rotating_stock()
+	
 
 
 # Adds tier-gated items the player has unlocked. Called as part of stock
@@ -243,17 +297,45 @@ func _stock_is_empty() -> bool:
 			return false
 	return true
 
+# Stocks the current week's rotating picks, 1 each. Picks are chosen in
+# _ensure_rotating_picks / _on_week_rolled, not here, so this stays in sync
+# with the same restock cadence as initial and gated stock.
+func _populate_rotating_stock() -> void:
+	for item in _rotating_picks:
+		if item != null:
+			stock.add(item, 1)
+
 
 # === Save / Load ===
 
 func save_state() -> Dictionary:
+	var pick_ids: Array[String] = []
+	for item in _rotating_picks:
+		if item != null:
+			pick_ids.append(String(item.id))
 	return {
 		"stock": stock.save_state(),
 		"remaining_buy_budget": _remaining_buy_budget,
+		"rotating_week": _rotating_week,
+		"rotating_picks": pick_ids,
 	}
 
 
 func load_state(data: Dictionary) -> void:
+	_load_state_get_week(data)
+	_ensure_rotating_picks()  # heal for non-_ready callers (e.g. SaveSystem)
+
+# Applies saved state and returns the week it was saved under, WITHOUT
+# rerolling. Lets _ready compare against the live week to decide whether
+# the shelf needs rebuilding for an offscreen week roll.
+func _load_state_get_week(data: Dictionary) -> int:
 	if data.has("stock"):
 		stock.load_state(data["stock"])
 	_remaining_buy_budget = data.get("remaining_buy_budget", daily_buy_budget)
+	_rotating_week = data.get("rotating_week", -1)
+	_rotating_picks.clear()
+	for id in data.get("rotating_picks", []):
+		var item: ItemDef = ItemRegistry.get_item(StringName(id))
+		if item != null:
+			_rotating_picks.append(item)
+	return _rotating_week

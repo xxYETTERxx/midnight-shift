@@ -42,6 +42,7 @@ var _base_seconds_per_minute: float = 0.0
 signal minute_tick(total_minutes: int)
 signal hour_tick(hour: int, day_of_week: int, day_of_month: int)
 signal day_rolled(day_of_week: int, day_of_month: int)
+signal week_rolled(week_index: int)
 
 # --- Lifecycle --------------------------------------------------------
 
@@ -109,6 +110,7 @@ func advance_to(target_total_minutes: int) -> void:
 	# that any listeners care about (hour, day rolls).
 	var old_hour := current_hour()
 	var old_day := day_of_month()
+	var old_week := week_index()
 
 	total_minutes = target_total_minutes
 	_real_time_accumulator = 0.0
@@ -121,6 +123,9 @@ func advance_to(target_total_minutes: int) -> void:
 
 	if day_of_month() != old_day:
 		day_rolled.emit(day_of_week(), day_of_month())
+		
+	if week_index() != old_week:
+		week_rolled.emit(week_index())
 
 # --- Derived getters --------------------------------------------------
 
@@ -140,6 +145,10 @@ func day_of_week() -> int:
 func day_of_month() -> int:
 	# 1-indexed (Day 1 .. Day 28)
 	return (day_index() % DAYS_PER_MONTH) + 1
+	
+func week_index() -> int:
+	# Total weeks since start, 0-indexed.
+	return day_index() / DAYS_PER_WEEK
 
 func day_index() -> int:
 	# Total days since start, 0-indexed.
@@ -171,6 +180,8 @@ func _advance_one_minute() -> void:
 
 	if day_of_month() != old_day:
 		day_rolled.emit(day_of_week(), day_of_month())
+		if day_of_week() == 0:
+			week_rolled.emit(week_index())
 		
 func current_fractional_minute() -> float:
 	if real_seconds_per_minute <= 0.0:

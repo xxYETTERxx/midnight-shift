@@ -23,7 +23,7 @@
 [ext_resource type="Resource" uid="uid://br31sohn3y53t" path="res://data/items/Consumable/pretzel.tres" id="20_y1mf4"]
 [ext_resource type="Resource" uid="uid://n181guukk27f" path="res://data/items/Consumable/ramen_cup.tres" id="21_8j0sa"]
 [ext_resource type="Resource" uid="uid://j71mbprut5yu" path="res://data/items/Consumable/soda.tres" id="22_jhtpl"]
-[ext_resource type="Resource" uid="uid://fklqjo4eh1d1" path="res://data/items/Consumable/tallboy_beer.tres" id="23_k42c2"]
+[ext_resource type="Resource" uid="uid://c2rhmoi46stk2" path="res://data/items/Weed_stuff/box_dime_bags.tres" id="23_hqo43"]
 [ext_resource type="Resource" uid="uid://ccwtxehleg44h" path="res://data/items/Consumable/tv_dinner.tres" id="24_5a108"]
 [ext_resource type="Resource" uid="uid://cphfcpf5cipar" path="res://data/items/Consumable/twinkies.tres" id="25_qxnm5"]
 [ext_resource type="Resource" uid="uid://dq12dwa2w0g65" path="res://data/items/Consumable/whiskey_pint.tres" id="26_devii"]
@@ -73,7 +73,7 @@ target_spawn = "from_gas_station"
 position = Vector2(-57, 56)
 vendor_id = &"jason"
 vendor_name = "Jason"
-initial_stock = Array[ExtResource("4_sqsuf")]([ExtResource("5_li083"), ExtResource("6_3en5p"), ExtResource("7_hqo43"), ExtResource("8_aad68"), ExtResource("9_dxcqb"), ExtResource("10_5wdyk"), ExtResource("11_fiomy"), ExtResource("12_3ohj1"), ExtResource("13_8jabh"), ExtResource("14_mraxa"), ExtResource("15_x3q8f"), ExtResource("16_glqta"), ExtResource("17_hqo43"), ExtResource("18_b283a"), ExtResource("19_jp7rp"), ExtResource("20_y1mf4"), ExtResource("21_8j0sa"), ExtResource("22_jhtpl"), ExtResource("23_k42c2"), ExtResource("24_5a108"), ExtResource("25_qxnm5"), ExtResource("26_devii"), ExtResource("27_o8ui8"), ExtResource("28_planv")])
+initial_stock = Array[ExtResource("4_sqsuf")]([ExtResource("5_li083"), ExtResource("6_3en5p"), ExtResource("7_hqo43"), ExtResource("8_aad68"), ExtResource("9_dxcqb"), ExtResource("10_5wdyk"), ExtResource("11_fiomy"), ExtResource("12_3ohj1"), ExtResource("13_8jabh"), ExtResource("14_mraxa"), ExtResource("15_x3q8f"), ExtResource("16_glqta"), ExtResource("17_hqo43"), ExtResource("18_b283a"), ExtResource("19_jp7rp"), ExtResource("20_y1mf4"), ExtResource("21_8j0sa"), ExtResource("22_jhtpl"), ExtResource("23_hqo43"), ExtResource("24_5a108"), ExtResource("25_qxnm5"), ExtResource("26_devii"), ExtResource("27_o8ui8"), ExtResource("28_planv")])
 initial_stock_counts = Array[int]([1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4])
 
 [node name="SpawnPoints" type="Node2D" parent="." unique_id=814176097]

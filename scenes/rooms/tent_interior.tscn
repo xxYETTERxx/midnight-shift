@@ -1,0 +1,41 @@
+[gd_scene format=4 uid="uid://dc1jpnw162kwj"]
+
+[ext_resource type="TileSet" uid="uid://ctiqnhm16fty4" path="res://data/tilesets/Interiors.tres" id="1_3fvwx"]
+[ext_resource type="PackedScene" uid="uid://yyg1vmqtao4e" path="res://scenes/components/bed.tscn" id="2_7l35j"]
+[ext_resource type="PackedScene" uid="uid://cu0qiy18mj116" path="res://scenes/components/doorway.tscn" id="3_sdwy1"]
+[ext_resource type="PackedScene" uid="uid://cr7eet210fpob" path="res://scenes/components/crafting_station.tscn" id="4_7tqlq"]
+
+[node name="Tent" type="Node2D" unique_id=818993673 groups=["placement_allowed"]]
+y_sort_enabled = true
+
+[node name="Floor" type="TileMapLayer" parent="." unique_id=458429205]
+z_index = -1
+tile_map_data = PackedByteArray("AAD9//3/AAAvABIAAAD9//7/AAAvABIAAAD9////AAAvABIAAAD9/wAAAAAvABIAAAD9/wEAAAAvABIAAAD9/wIAAAAvABIAAAD+//3/AAAvABIAAAD+//7/AAAvABIAAAD+////AAAvABIAAAD+/wAAAAAvABIAAAD+/wEAAAAvABIAAAD+/wIAAAAvABIAAAD///3/AAAvABIAAAD///7/AAAvABIAAAD/////AAAvABIAAAD//wAAAAAvABIAAAD//wEAAAAvABIAAAD//wIAAAAvABIAAAAAAP3/AAAvABIAAAAAAP7/AAAvABIAAAAAAP//AAAvABIAAAAAAAAAAAAvABIAAAAAAAEAAAAvABIAAAAAAAIAAAAvABIAAAABAP3/AAAvABIAAAABAP7/AAAvABIAAAABAP//AAAvABIAAAABAAAAAAAvABIAAAABAAEAAAAvABIAAAABAAIAAAAvABIAAAACAP3/AAAvABIAAAACAP7/AAAvABIAAAACAP//AAAvABIAAAACAAAAAAAvABIAAAACAAEAAAAvABIAAAACAAIAAAAvABIAAAA=")
+tile_set = ExtResource("1_3fvwx")
+
+[node name="Walls" type="TileMapLayer" parent="." unique_id=942859512]
+y_sort_enabled = true
+tile_set = ExtResource("1_3fvwx")
+
+[node name="CeilingBorder" type="TileMapLayer" parent="." unique_id=1509919357]
+tile_map_data = PackedByteArray("AAD9//3/AAAiAAEAAAD+//3/AAAiAAEAAAD///3/AAAiAAEAAAAAAP3/AAAiAAEAAAABAP3/AAAiAAEAAAACAP3/AAAiAAEAAAADAP3/AAAjAAEAAAD8//3/AAAhAAEAAAD8//7/AAAhAAIAAAD8////AAAhAAIAAAD8/wAAAAAhAAIAAAD8/wEAAAAhAAIAAAD8/wIAAAAhAAIAAAD8/wMAAAAhAAMAAAD9/wMAAAAiAAMAAAD+/wMAAAAiAAMAAAADAAMAAAAjAAMAAAADAP7/AAAjAAIAAAADAP//AAAjAAIAAAADAAAAAAAjAAIAAAADAAEAAAAjAAIAAAADAAIAAAAjAAIAAAABAAMAAAAiAAMAAAACAAMAAAAiAAMAAAA=")
+tile_set = ExtResource("1_3fvwx")
+
+[node name="Interactables" type="Node2D" parent="." unique_id=1630356666]
+y_sort_enabled = true
+
+[node name="Bed" parent="Interactables" unique_id=1771853149 instance=ExtResource("2_7l35j")]
+position = Vector2(-33, 1)
+
+[node name="Doorway" parent="Interactables" unique_id=2084805160 instance=ExtResource("3_sdwy1")]
+position = Vector2(0, 60)
+target_room = "uid://ksdfvpuee8e8"
+target_spawn = "from_tent"
+
+[node name="CraftingStation" parent="Interactables" unique_id=1774684420 instance=ExtResource("4_7tqlq")]
+position = Vector2(36, -28)
+
+[node name="SpawnPoints" type="Node2D" parent="." unique_id=605545023]
+
+[node name="from_outside" type="Marker2D" parent="SpawnPoints" unique_id=1194040583]
+position = Vector2(0, 32)
