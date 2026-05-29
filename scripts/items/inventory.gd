@@ -4,6 +4,7 @@ extends Node
 @export var max_slots: int = 6
 @export var initial_slots: int = 6  # currently unused, kept for compatibility
 
+@export var grows_with_strength: bool = false
 
 
 const HOTBAR_SLOT_COUNT: int = 12
@@ -25,17 +26,17 @@ signal capacity_changed(new_max: int)
 
 
 func _ready() -> void:
-	# Reconcile starting size against earned strength progression. Handles
-	# the case where the player loads into the scene after their strength
-	# level should have already granted more slots (signal won't re-fire
-	# retroactively).
-	var expected: int = PlayerSkills.inventory_slot_count()
-	if expected > max_slots:
-		max_slots = expected
+	if grows_with_strength:
+		# Reconcile starting size against earned strength progression. Handles
+		# loading into the scene after a strength level should already have
+		# granted more slots (the level_up signal won't re-fire retroactively).
+		var expected: int = PlayerSkills.inventory_slot_count()
+		if expected > max_slots:
+			max_slots = expected
+		PlayerSkills.level_up.connect(_on_skill_level_up)
 	slots.resize(max_slots)
 	for i in range(max_slots):
 		slots[i] = null
-	PlayerSkills.level_up.connect(_on_skill_level_up)
 
 
 # --- Querying ---
@@ -213,13 +214,14 @@ func save_state() -> Dictionary:
 
 
 func load_state(data: Dictionary) -> void:
-	# max_slots reconciles between saved size and PlayerSkills-derived size.
-	# Larger wins so earned strength slots are never lost AND vendor/storage
-	# inventories (which can be far larger than the player's) aren't clamped
-	# to the player's carrying capacity.
-	var saved_max: int = data.get("max_slots", 6)
-	var expected: int = PlayerSkills.inventory_slot_count()
-	max_slots = max(saved_max, expected)
+	# Fixed inventories restore exactly their saved size. The player pack
+	# additionally reconciles upward against earned strength slots so they're
+	# never lost on load.
+	var saved_max: int = data.get("max_slots", max_slots)
+	if grows_with_strength:
+		max_slots = max(saved_max, PlayerSkills.inventory_slot_count())
+	else:
+		max_slots = saved_max
 	slots.resize(max_slots)
 	var saved_slots: Array = data.get("slots", [])
 	for i in range(max_slots):

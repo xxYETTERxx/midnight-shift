@@ -72,7 +72,7 @@ func _on_interacted(_player: Node) -> void:
 		if RelationshipSystem.get_global_flag(requires_global_flag):
 			_open()
 			return
-	NotificationSystem.warn("Locked")
+		NotificationSystem.warn("Locked")
 	return
 
 

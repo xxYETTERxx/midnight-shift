@@ -1,8 +1,6 @@
 class_name StorageContainer
 extends Placeable
 
-const STORAGE_SIZE: int = 24
-
 @export var closed_texture: Texture2D
 @export var open_texture: Texture2D
 
@@ -16,7 +14,6 @@ var is_open: bool = false
 
 
 func _ready() -> void:
-	storage.max_slots = STORAGE_SIZE
 	interactable.interacted.connect(_on_interacted)
 	_refresh_visual()
 

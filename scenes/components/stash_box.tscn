@@ -36,3 +36,5 @@ shape = SubResource("RectangleShape2D_jhbcq")
 
 [node name="Inventory" type="Node2D" parent="." unique_id=1110328950]
 script = ExtResource("5_w8hqc")
+max_slots = 24
+initial_slots = 24

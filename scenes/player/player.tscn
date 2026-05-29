@@ -570,5 +570,6 @@ position_smoothing_enabled = true
 
 [node name="Inventory" type="Node2D" parent="." unique_id=1854469265]
 script = ExtResource("6_kn266")
+grows_with_strength = true
 
 [node name="FeetAnchor" type="Marker2D" parent="." unique_id=516540171]
