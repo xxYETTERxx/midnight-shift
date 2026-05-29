@@ -7,10 +7,20 @@ extends Node
 
 # How many new customers spawn when each tier first unlocks. Tier 0 is the
 # starter — seeded explicitly by seed_starter_customer(), not via this array.
-const WAVE_SIZE_PER_TIER: Array[int] = [0, 3, 4, 4, 5]
+const WAVE_SIZE_PER_TIER: Array[int] = [0, 1, 1, 1, 1]
 
 # Hard cap on requested quantity per page, regardless of tier or trust.
 const ABSOLUTE_MAX_QUANTITY: int = 100
+
+# Trust thresholds at which a customer may refer a new buyer to the player.
+# Each customer pays out at most once per band (tracked via referrals_given),
+# so a single relationship can yield at most this many referrals.
+const REFERRAL_THRESHOLDS: Array[int] = [25, 50, 75]
+
+# Chance a crossed threshold actually produces a referral. <1.0 keeps growth
+# from being perfectly deterministic — sometimes a buyer just doesn't know
+# anyone right now.
+const REFERRAL_CHANCE: float = 0.6
 
 # id → Customer
 var _customers: Dictionary = {}
@@ -111,6 +121,33 @@ func _add_customer(c: Customer) -> void:
 	print("[Roster] Added: %s | tier %d | qty %d-%d | head=%d body=%d" %
 		[c.display_name, c.tier, c.quantity_min, c.quantity_max,
 		c.head_index, c.body_index])
+
+# Checks whether `c` has crossed any new referral threshold and, if so,
+# may generate a referred customer. Call after any trust increase. Safe to
+# call repeatedly; pays out at most one band per call, and never the same
+# band twice (referrals_given guards it).
+func check_referral(c: Customer) -> void:
+	if not PagerSystem.has_pager:
+		return
+	if c.blacklisted:
+		return
+	# Find the highest threshold the customer now meets but hasn't paid yet.
+	var newly_crossed: int = 0
+	for t in REFERRAL_THRESHOLDS:
+		if c.trust >= t and t > c.referrals_given:
+			newly_crossed = t
+	if newly_crossed == 0:
+		return
+	# Mark it consumed regardless of the chance roll, so a failed roll doesn't
+	# keep re-rolling the same band on every subsequent deal.
+	c.referrals_given = newly_crossed
+	if _rng.randf() >= REFERRAL_CHANCE:
+		return
+	# Referred customer enters at the referrer's tier — a trusted buyer knows
+	# people in their own circle, not strangers above your station.
+	var referred := _generate_customer(c.tier)
+	_add_customer(referred)
+	NotificationSystem.warn("%s put you onto %s." % [c.display_name, referred.display_name])
 
 # Public wrapper for spontaneous customer acquisition (e.g., from street
 # dealing once the pager is online). Returns the new customer, or null

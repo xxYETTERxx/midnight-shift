@@ -18,24 +18,47 @@ wed
 fri
     $s You holding man?
 	
-event:greeting
+#event:greeting
+
+no_money
 	$w Hey man, you got any change?
 	$q
 	--> "(Ignore him)" | affinity -1
 		$a whatever
-	--> "Sorry, I've got nothing, I need some myself"
-		$h ha ha ha! Yeah it's tough out here. 
-	$r
-	$n Have you met Hank?
-		$q
-		--> "Hank?"
-			$h He lives just past the camp. If you need to make some cash, he might be able to help
-		--> "no"
-			$h He lives just past the camp.
-			$b
-			$n If you need to make some cash, he might be able to help
-		$r
-	See you around man
+	--> "Here's a few bucks" | cash -3; affinity +3 ; clear no_money
+		$h Awesome thanks man! You new in town? I know where you can get some work 
+		$n Have you met Hank?
+			$q
+			--> "Hank?"
+				$h He lives just past the camp. If you need to make some cash, he might be abled to help
+			--> "Yeah"
+				$n Don't let him scare ya, he's all talk
+			$r
+		See you around man
+		
+deal_tut | has_item weed_buds
+	$h Whoa! That's some stanky ass bud. Hank hooked you up, didnt he?
+	$b
+	$n You know how to flip that?
+	$q
+	--> "not really... did you want to buy some?" | clear deal_tut
+		$laugh You think I've got money??
+		$b
+		$n You just got to find yourself a good spot in town like an alleyway or by the school or hardware store.
+		$b
+		$n Post up and try to spot your customers, and offer 'em a gram or two.
+		$b
+		$w but if you see a cop, drop what you're doing (esc key) or you'll lose all your product and it'll go on your record
+		$b
+		$h once you've got a bit of spare cash you should go see Felix and get a scale and a pager. Eye-balling grams is going cost ya
+		$n One last thing
+		$b
+		$n Don't hang out in one spot too long, cops in this town have got ears everywhere and you'll start seeing a lot more of them
+		$b
+		$h Good luck man, see you on the corners
+	--> "Yeah man I know how to hustle dope" | clear deal_tut
+		$h Right on man! See you around
+	$r | clear deal_tut
 
 
 
@@ -49,7 +72,7 @@ event:greeting
 
 # Inline preconditions after `|`, a
 #mon | trust >= 30 ; has_item baggie
-#fri | event_done bodega_introa
+#fri | event_done bodega_intro
 
 # Body markup:
 #$h $s $a $w $n             # portrait codes (extend as you add art)

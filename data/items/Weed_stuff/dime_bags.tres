@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="ItemDef" format=3 uid="uid://c2rhmoi46stk2"]
+
+[ext_resource type="Script" uid="uid://2ndmr7htrd8w" path="res://scripts/items/item_def.gd" id="1_mdeb6"]
+[ext_resource type="Texture2D" uid="uid://c2243sab4kg04" path="res://art/icons/art_items/box_empty_dimebags1.png" id="1_vr2t7"]
+
+[resource]
+script = ExtResource("1_mdeb6")
+id = &"box_dime_bags"
+tool_id = &"box_of_dime_bags"
+display_name = "99 dime bags"
+icon = ExtResource("1_vr2t7")
+description = "99 bags"
+metadata/_custom_type_script = "uid://2ndmr7htrd8w"

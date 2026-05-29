@@ -19,6 +19,8 @@ const PORTRAIT_FOLDER: String = "res://art/portraits/"
 @onready var _text_label: Label = $PanelContainer/Margin/HBox/ContentVBox/TextLabel
 @onready var _portrait: TextureRect = $PanelContainer/Margin/HBox/PortraitFrame/Portrait
 @onready var _choice_list: VBoxContainer = $PanelContainer/Margin/HBox/ContentVBox/ChoiceList
+@onready var _panel: PanelContainer = $PanelContainer
+
 
 var _texture_cache: Dictionary = {}
 
@@ -36,7 +38,7 @@ func show_text(npc_id: String, display_name: String, portrait_code: String, text
 	_name_label.text = display_name
 	_text_label.text = text
 	_set_portrait(npc_id, portrait_code)
-	visible = true
+	_panel.visible = true
 
 
 func show_choices(texts: Array) -> void:
@@ -51,7 +53,6 @@ func show_choices(texts: Array) -> void:
 		btn.pressed.connect(_on_choice_pressed.bind(i))
 		_choice_list.add_child(btn)
 
-	_choice_list.visible = true
 
 	# Focus the first choice so up/down navigation and ui_accept work
 	# without the player needing to click first. Deferred because the
@@ -61,7 +62,6 @@ func show_choices(texts: Array) -> void:
 
 
 func hide_choices() -> void:
-	_choice_list.visible = false
 	_clear_choice_buttons()
 
 
@@ -85,19 +85,20 @@ func activate_focused_choice() -> bool:
 
 	return false
 
-
 func clear() -> void:
-	visible = false
+	hide_choices()
 	_name_label.text = ""
 	_text_label.text = ""
 	_portrait.texture = null
-	hide_choices()
+	visible = true         # CanvasLayer always on
+	_panel.visible = false # Only the panel hides
 
 
 # --- Internals ---
 
 func _clear_choice_buttons() -> void:
 	for child in _choice_list.get_children():
+		_choice_list.remove_child(child)
 		child.queue_free()
 
 

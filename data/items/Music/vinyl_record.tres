@@ -1,13 +1,14 @@
-[gd_resource type="Resource" script_class="ItemDef" load_steps=2 format=3]
- 
-[ext_resource type="Script" path="res://scripts/items/item_def.gd" id="1_script"]
- 
+[gd_resource type="Resource" script_class="ItemDef" format=3 uid="uid://bf7y3o17n3vsd"]
+
+[ext_resource type="Texture2D" uid="uid://dpx4u4uq5gr6w" path="res://art/icons/art_items/vinyl_record.png" id="1_nd7tp"]
+[ext_resource type="Script" uid="uid://2ndmr7htrd8w" path="res://scripts/items/item_def.gd" id="1_script"]
+
 [resource]
 script = ExtResource("1_script")
 id = &"vinyl_record"
 display_name = "Vinyl Record"
-max_stack = 99
+icon = ExtResource("1_nd7tp")
 category = 11
 description = "12-inch LP in a worn paper sleeve."
-base_value = 5
+base_value = 8
 sellable = true

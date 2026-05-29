@@ -1,11 +1,13 @@
-[gd_resource type="Resource" script_class="ItemDef" load_steps=2 format=3]
- 
-[ext_resource type="Script" path="res://scripts/items/item_def.gd" id="1_script"]
- 
+[gd_resource type="Resource" script_class="ItemDef" format=3 uid="uid://bopwga1ekr2r4"]
+
+[ext_resource type="Script" uid="uid://2ndmr7htrd8w" path="res://scripts/items/item_def.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://kyq356x0vur4" path="res://art/icons/art_items/game_boy.png" id="1_svqio"]
+
 [resource]
 script = ExtResource("1_script")
 id = &"game_boy"
 display_name = "Game Boy"
+icon = ExtResource("1_svqio")
 max_stack = 1
 category = 11
 description = "Grey brick. Eats four AAs in an afternoon."

@@ -11,15 +11,28 @@
 [ext_resource type="Script" uid="uid://co6tm1fqapbpq" path="res://scripts/components/car_spawn_point.gd" id="8_1iqrl"]
 [ext_resource type="Texture2D" uid="uid://rxgvyaygydfg" path="res://art/objects/Interactables/Doors/Hardware_Store_Door_16x16.png" id="8_sufmi"]
 [ext_resource type="Texture2D" uid="uid://1s3itpq6ihrs" path="res://art/objects/Interactables/Doors/Floor_Modular_Buildings_1_Door_Gym_16x16.png" id="9_eane1"]
-[ext_resource type="Script" uid="uid://cdlvaiw6lv6cf" path="res://scenes/rooms/area_trigger.gd" id="10_2xsfw"]
+[ext_resource type="Script" uid="uid://cdlvaiw6lv6cf" path="res://scripts/area_trigger.gd" id="10_2xsfw"]
 [ext_resource type="PackedScene" uid="uid://cu0qiy18mj116" path="res://scenes/components/doorway.tscn" id="10_qm4ro"]
 [ext_resource type="PackedScene" uid="uid://citlrvhb0bdsr" path="res://scenes/npcs/vendor.tscn" id="11_1hh2x"]
 [ext_resource type="Resource" uid="uid://d1ciphqy0cmrd" path="res://data/items/Weed_stuff/weed_buds.tres" id="12_6dlou"]
+[ext_resource type="Script" uid="uid://2ndmr7htrd8w" path="res://scripts/items/item_def.gd" id="12_b0prm"]
 [ext_resource type="PackedScene" uid="uid://djty3dpee26fn" path="res://scenes/components/deal_spot.tscn" id="13_cq4bk"]
+[ext_resource type="Resource" uid="uid://mngnqb6yj621" path="res://data/items/Tools/flashlight.tres" id="13_ihfau"]
 [ext_resource type="Script" uid="uid://cpmthf7uhrdrd" path="res://scripts/components/customer_archetype.gd" id="14_6dlou"]
+[ext_resource type="Resource" uid="uid://u7vdtpl5dql3" path="res://data/items/Tools/ski_mask.tres" id="14_8l0cu"]
+[ext_resource type="Resource" uid="uid://c4vygdwpfondj" path="res://data/items/Tools/slim_jim.tres" id="15_en441"]
 [ext_resource type="Resource" uid="uid://bbt83koqrxjid" path="res://data/street_customers/normal.tres" id="15_psha4"]
 [ext_resource type="Resource" uid="uid://ft5qs163n76u" path="res://data/street_customers/pothead.tres" id="16_3xcqp"]
+[ext_resource type="Resource" uid="uid://oarmelcb0vo5" path="res://data/items/Weed_stuff/weed_seed.tres" id="16_ihfau"]
 [ext_resource type="Resource" uid="uid://fjdsrumapawb" path="res://data/street_customers/business_man.tres" id="17_gxjpj"]
+[ext_resource type="Resource" uid="uid://oci6ap6jp2ya" path="res://data/items/Drugs/chewing_tobacco.tres" id="17_k2x45"]
+[ext_resource type="Resource" uid="uid://cuqjoky1j7hqa" path="res://data/items/Drugs/cigar.tres" id="18_dcube"]
+[ext_resource type="Resource" uid="uid://d3d1fny61k4im" path="res://data/items/Drugs/cigarette_pack.tres" id="19_qstjl"]
+[ext_resource type="Resource" uid="uid://rb581mbk0yar" path="res://data/items/Drugs/pills.tres" id="20_4ooxh"]
+[ext_resource type="Resource" uid="uid://h57ac8m0oerd" path="res://data/items/Drugs/premium_cigar.tres" id="21_t652q"]
+[ext_resource type="Resource" uid="uid://bntspldlmygcc" path="res://data/items/Drugs/tobacco_pouch.tres" id="22_lsh3y"]
+[ext_resource type="PackedScene" uid="uid://hw82pd7bflqo" path="res://scenes/components/payphone.tscn" id="29_dcube"]
+[ext_resource type="PackedScene" uid="uid://ctijaiye5o1y2" path="res://scenes/components/meet_spot.tscn" id="33_qstjl"]
 
 [sub_resource type="NavigationPolygon" id="NavigationPolygon_cq4bk"]
 vertices = PackedVector2Array(169.03125, 91.9375, 2067.8516, 102.96094, 2115.7031, 197, 154.11719, 197, 39.9375, 183.14844, -393.89844, 965.21094, -508.03125, 967.77344, -510.96094, 75.921875, -385.89844, 176.85156, 39.960938, 71.92969, 145.10938, 973.2422, 44.929688, 975.7422, 41.960938, -489, 167.03125, -489)
@@ -1852,6 +1865,13 @@ shape = SubResource("RectangleShape2D_prmeh")
 position = Vector2(-923, -445)
 vendor_id = &"hank"
 vendor_name = "Hank"
+sell_multiplier = 0.8
+initial_stock = Array[ExtResource("12_b0prm")]([ExtResource("13_ihfau"), ExtResource("14_8l0cu"), ExtResource("15_en441")])
+initial_stock_counts = Array[int]([1, 1, 1])
+gated_stock = Array[ExtResource("12_b0prm")]([ExtResource("16_ihfau")])
+gated_stock_counts = Array[int]([5])
+gated_stock_min_tier = Array[int]([4])
+will_buy_items = Array[ExtResource("12_b0prm")]([ExtResource("17_k2x45"), ExtResource("18_dcube"), ExtResource("19_qstjl"), ExtResource("20_4ooxh"), ExtResource("21_t652q"), ExtResource("22_lsh3y")])
 daily_buy_budget = 160
 offers_front = true
 front_offer_item = ExtResource("12_6dlou")
@@ -1862,18 +1882,31 @@ front_offer_debt = 180
 
 [node name="Alleyway" parent="Interatctables/Deal_Spots" unique_id=1266881367 instance=ExtResource("13_cq4bk")]
 position = Vector2(-115, 376)
-spot_id = &"alleyway"
+area_id = &"alleyway_dealspot"
+spot_id = &"alleyway_dealspot"
 prompt_text = "Deal Weed"
 archetypes = Array[ExtResource("14_6dlou")]([ExtResource("15_psha4"), ExtResource("16_3xcqp"), ExtResource("17_gxjpj")])
 archetype_weights = Array[int]([25, 70, 5])
-cop_check_interval_minutes = 10.0
+cop_check_interval_minutes = 2.0
+
+[node name="SchoolCorner" parent="Interatctables/Deal_Spots" unique_id=285765894 instance=ExtResource("13_cq4bk")]
+position = Vector2(376, -30)
+area_id = &"school_corner_dealspot"
+spot_id = &"school_corner_dealspot"
+prompt_text = "Deal Weed"
+archetypes = Array[ExtResource("14_6dlou")]([ExtResource("15_psha4"), ExtResource("16_3xcqp"), ExtResource("17_gxjpj")])
+archetype_weights = Array[int]([40, 30, 30])
+cop_check_interval_minutes = 5.0
+
+[node name="Payphone" parent="Interatctables" unique_id=1556260754 instance=ExtResource("29_dcube")]
+position = Vector2(-20, 135)
 
 [node name="Doorways" type="Node2D" parent="." unique_id=2114661946]
 position = Vector2(0, 1)
 
 [node name="Apartment" parent="Doorways" unique_id=2084805160 instance=ExtResource("10_qm4ro")]
 position = Vector2(-55, -72)
-target_room = "uid://huc6tubl0gxv"
+target_room = "uid://bpvx1vn4dxqk7"
 target_spawn = "from_outside"
 
 [node name="Hardware" parent="Doorways" unique_id=1902287690 instance=ExtResource("10_qm4ro")]
@@ -1894,7 +1927,7 @@ target_spawn = "from_outside"
 [node name="SpawnPoints" type="Node2D" parent="." unique_id=1816009804]
 position = Vector2(0, -1)
 
-[node name="from_hall" type="Marker2D" parent="SpawnPoints" unique_id=225936794]
+[node name="from_apartment" type="Marker2D" parent="SpawnPoints" unique_id=225936794]
 position = Vector2(-54, -27)
 
 [node name="from_pawn" type="Marker2D" parent="SpawnPoints" unique_id=258994200]
@@ -1908,6 +1941,9 @@ position = Vector2(279, 223)
 
 [node name="homeless_camp" type="Marker2D" parent="SpawnPoints" unique_id=1357644578]
 position = Vector2(-522, -111)
+
+[node name="default" type="Marker2D" parent="SpawnPoints" unique_id=470860811]
+position = Vector2(-643, -194)
 
 [node name="Waypoints" type="Node2D" parent="." unique_id=1914483484]
 position = Vector2(-17, 2)
@@ -2140,3 +2176,23 @@ position = Vector2(-56, 775)
 script = ExtResource("8_1iqrl")
 spawn_id = &"fitness_n"
 orientation = 1
+
+[node name="MeetSpots" type="Node2D" parent="." unique_id=952898329]
+
+[node name="meet_spot_1" parent="MeetSpots" unique_id=2059674490 instance=ExtResource("33_qstjl")]
+position = Vector2(446, 217)
+display_name = "Beside gas station"
+waypoint_id = &"meet_spot_1"
+facing = "south"
+
+[node name="meet_spot_2" parent="MeetSpots" unique_id=57656011 instance=ExtResource("33_qstjl")]
+position = Vector2(-623, 333)
+display_name = "Behind Hardwood Store"
+waypoint_id = &"meet_spot_2"
+facing = "south"
+
+[node name="meet_spot_3" parent="MeetSpots" unique_id=1298311040 instance=ExtResource("33_qstjl")]
+position = Vector2(-104, -168)
+display_name = "Beside your place"
+waypoint_id = &"meet_spot_3"
+facing = "south"

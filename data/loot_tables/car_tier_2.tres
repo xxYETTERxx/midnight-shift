@@ -3,18 +3,81 @@
 [ext_resource type="Script" uid="uid://bhvj6yn2k0c8b" path="res://scripts/items/loot_table.gd" id="1_4efj5"]
 [ext_resource type="Resource" uid="uid://m1dymf8u7d1" path="res://data/items/Misc/loose_change.tres" id="1_yl25p"]
 [ext_resource type="Script" uid="uid://dndj8rbs0qhgm" path="res://scripts/items/loot_table_entry.gd" id="2_qrkiu"]
-[ext_resource type="Resource" uid="uid://b8aeskkp8dgtx" path="res://data/items/Misc/stash_box.tres" id="3_yjtih"]
+[ext_resource type="Resource" uid="uid://de2jgx6ret6oe" path="res://data/items/Gifts/polaroid_camera.tres" id="3_vond5"]
+[ext_resource type="Resource" uid="uid://h57ac8m0oerd" path="res://data/items/Drugs/premium_cigar.tres" id="4_ip7xs"]
+[ext_resource type="Resource" uid="uid://rb581mbk0yar" path="res://data/items/Drugs/pills.tres" id="5_5bu5r"]
+[ext_resource type="Resource" uid="uid://dgtkeguqct8yk" path="res://data/items/Music/cassette_tape.tres" id="6_edk6a"]
+[ext_resource type="Resource" uid="uid://c6s8da5immipg" path="res://data/items/Music/boombox.tres" id="7_t8xna"]
+[ext_resource type="Resource" uid="uid://bf7y3o17n3vsd" path="res://data/items/Music/vinyl_record.tres" id="8_ciqgx"]
+[ext_resource type="Resource" uid="uid://bntspldlmygcc" path="res://data/items/Drugs/tobacco_pouch.tres" id="9_ffi62"]
+[ext_resource type="Resource" uid="uid://cfvi2ud7d4ssk" path="res://data/items/Books/paperback_true_crime.tres" id="10_v1qf2"]
+[ext_resource type="Resource" uid="uid://xlgh2akouke6" path="res://data/items/Misc/calling_card_120.tres" id="11_lwxr8"]
+[ext_resource type="Resource" uid="uid://ch6nqm0w13j0t" path="res://data/items/Misc/lottery_scratchers.tres" id="12_ip7xs"]
 
 [sub_resource type="Resource" id="Resource_dhwgv"]
 script = ExtResource("2_qrkiu")
 item = ExtResource("1_yl25p")
 count_max = 2
-weight = 1.5
+weight = 25.0
 
-[sub_resource type="Resource" id="Resource_menfs"]
+[sub_resource type="Resource" id="Resource_m7osi"]
 script = ExtResource("2_qrkiu")
-item = ExtResource("3_yjtih")
+item = ExtResource("3_vond5")
+weight = 3.0
+metadata/_custom_type_script = "uid://dndj8rbs0qhgm"
+
+[sub_resource type="Resource" id="Resource_g4ydn"]
+script = ExtResource("2_qrkiu")
+item = ExtResource("4_ip7xs")
+metadata/_custom_type_script = "uid://dndj8rbs0qhgm"
+
+[sub_resource type="Resource" id="Resource_erttt"]
+script = ExtResource("2_qrkiu")
+item = ExtResource("5_5bu5r")
+weight = 5.0
+metadata/_custom_type_script = "uid://dndj8rbs0qhgm"
+
+[sub_resource type="Resource" id="Resource_3lqkh"]
+script = ExtResource("2_qrkiu")
+item = ExtResource("6_edk6a")
+weight = 7.0
+metadata/_custom_type_script = "uid://dndj8rbs0qhgm"
+
+[sub_resource type="Resource" id="Resource_3wqst"]
+script = ExtResource("2_qrkiu")
+item = ExtResource("7_t8xna")
+weight = 0.5
+metadata/_custom_type_script = "uid://dndj8rbs0qhgm"
+
+[sub_resource type="Resource" id="Resource_riw3f"]
+script = ExtResource("2_qrkiu")
+item = ExtResource("8_ciqgx")
+weight = 1.2
+metadata/_custom_type_script = "uid://dndj8rbs0qhgm"
+
+[sub_resource type="Resource" id="Resource_a7bs6"]
+script = ExtResource("2_qrkiu")
+item = ExtResource("9_ffi62")
+weight = 3.0
+metadata/_custom_type_script = "uid://dndj8rbs0qhgm"
+
+[sub_resource type="Resource" id="Resource_l6xk1"]
+script = ExtResource("2_qrkiu")
+item = ExtResource("10_v1qf2")
+weight = 5.0
+metadata/_custom_type_script = "uid://dndj8rbs0qhgm"
+
+[sub_resource type="Resource" id="Resource_qmylf"]
+script = ExtResource("2_qrkiu")
+item = ExtResource("11_lwxr8")
+weight = 2.0
+metadata/_custom_type_script = "uid://dndj8rbs0qhgm"
+
+[sub_resource type="Resource" id="Resource_5bu5r"]
+script = ExtResource("2_qrkiu")
+item = ExtResource("12_ip7xs")
+metadata/_custom_type_script = "uid://dndj8rbs0qhgm"
 
 [resource]
 script = ExtResource("1_4efj5")
-entries = Array[ExtResource("2_qrkiu")]([SubResource("Resource_dhwgv"), SubResource("Resource_menfs")])
+entries = Array[ExtResource("2_qrkiu")]([SubResource("Resource_dhwgv"), SubResource("Resource_m7osi"), SubResource("Resource_g4ydn"), SubResource("Resource_erttt"), SubResource("Resource_3lqkh"), SubResource("Resource_3wqst"), SubResource("Resource_riw3f"), SubResource("Resource_a7bs6"), SubResource("Resource_l6xk1"), SubResource("Resource_qmylf"), SubResource("Resource_5bu5r")])

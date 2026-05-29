@@ -1,0 +1,30 @@
+[gd_scene format=3 uid="uid://c15igw1jj0pjf"]
+
+[ext_resource type="Script" uid="uid://b070wycbqv8a1" path="res://scripts/ui/crafting_panel.gd" id="1_lc7ri"]
+
+[node name="CraftingPanel" type="CanvasLayer" unique_id=1694211411]
+script = ExtResource("1_lc7ri")
+
+[node name="Panel" type="PanelContainer" parent="." unique_id=1515578280]
+offset_left = 2.0
+offset_right = 137.0
+offset_bottom = 93.0
+
+[node name="VBox" type="VBoxContainer" parent="Panel" unique_id=585847200]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="Panel/VBox" unique_id=1994943509]
+layout_mode = 2
+text = "Package"
+horizontal_alignment = 1
+
+[node name="Scroll" type="ScrollContainer" parent="Panel/VBox" unique_id=1551351103]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="RecipeList" type="VBoxContainer" parent="Panel/VBox/Scroll" unique_id=59011503]
+layout_mode = 2
+
+[node name="CloseButton" type="Button" parent="Panel/VBox" unique_id=823210814]
+layout_mode = 2
+text = "Close"

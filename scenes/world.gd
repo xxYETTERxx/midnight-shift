@@ -15,7 +15,10 @@ func _ready() -> void:
 func _new_game() -> void:
 	RoomManager.register_world(self, player)
 	CarSpawner._materialize_cars_for_current_scene()
-	RelationshipSystem.push_dialogue("erik", "greeting")
+	RelationshipSystem.set_npc_flag("erik","no_money",true)
+	RelationshipSystem.set_npc_flag("erik","deal_tut",true)
+	
+	
 	
 func _load_game() -> void:
 	# Initialize RoomManager with our world reference but DON'T load the

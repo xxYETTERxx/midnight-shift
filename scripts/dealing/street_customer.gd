@@ -219,3 +219,15 @@ func get_archetype_display_name() -> String:
 	if archetype == null:
 		return ""
 	return archetype.display_name
+
+func is_dealing() -> bool:
+	return _action_player != null
+
+
+# Player aborted the deal deliberately (e.g. spotted a cop). Same clean
+# effect as walking out of range — ends the crime CANCELLED, no heat, the
+# customer wanders off. Distinct from bust_cancel(), which is the cop path.
+func player_cancel() -> void:
+	if _action_player == null:
+		return
+	_cancel_action()

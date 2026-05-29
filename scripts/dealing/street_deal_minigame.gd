@@ -6,20 +6,21 @@ extends Node2D
 
 const STREET_CUSTOMER_SCENE: PackedScene = preload("res://scenes/npcs/street_customer.tscn")
 const COP_PATROL_SCENE: PackedScene = preload("res://scenes/npcs/cop_patrol.tscn")
-const CASH_PER_GRAM: int = 10
+const CASH_PER_GRAM: int = 10   # raw bud price
+const CASH_PER_BAG: int = 10    # dime bag price (same number, different unit)
 
 # Eyeball tax: per accepted sale, 0-15% of the grams sold is "wasted" by
 # imprecise measurement. Accumulates across the session; deducted from
 # leftover bud on exit.
-const EYEBALL_TAX_MAX_PCT: float = 0.70
+const EYEBALL_TAX_MAX_PCT: float = 0.40
 
 # Cop spawn check interval (seconds). Each check rolls against a chance
 # scaled by recent deal count at this spot.
 const COP_SPAWN_INTERVAL: float = 25.0
 
 # Per-deal contribution to cop spawn chance. 5 recent deals = 40%.
-const COP_CHANCE_PER_DEAL: float = 0.08
-const COP_CHANCE_MAX: float = 0.6
+const COP_CHANCE_PER_DEAL: float = 0.04
+const COP_CHANCE_MAX: float = 0.3
 
 # Chance per accepted sale that a new pager customer is gained. Only fires
 # if the player has the pager.
@@ -33,6 +34,17 @@ const ARCHETYPE_REVEAL_TIER: int = 1
 
 var _cop_spawn_timer: float = 0.0
 var _live_cops: Array = []
+
+# Notice window: seconds a cop must hold LOS on an in-progress deal before
+# it busts. Mirrors CopProfile.notice_delay — a per-encounter threshold is
+# rolled in [0, delay], so the exact window varies. Read from the cop's
+# profile when present; this is the fallback.
+const COP_NOTICE_DELAY_FALLBACK: float = 2.5
+const NOTICE_MIN: float = 1.0
+
+# cop instance_id -> { "elapsed": float, "threshold": float }
+var _cop_notice: Dictionary = {}
+var _busted: bool = false
 
 # Spawn / customer-odds table by time-of-day window.
 # spawn_minutes is in GAME minutes — actual real-time elapsed depends on
@@ -114,10 +126,25 @@ func _process(delta: float) -> void:
 		_reset_spawn_timer()
 
 	# Cop spawn tick — independent cadence, chance scales with spot history.
+	_tick_notice(delta)
 	_cop_spawn_timer -= game_minutes
 	if _cop_spawn_timer <= 0.0:
 		_cop_spawn_timer = StreetDealSession.cop_check_interval_minutes
 		_try_spawn_cop()
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("ui_cancel"):
+		if _cancel_active_deal():
+			get_viewport().set_input_as_handled()
+
+
+func _cancel_active_deal() -> bool:
+	for c in _live_customers:
+		if is_instance_valid(c) and c.has_method("is_dealing") and c.is_dealing():
+			c.player_cancel()
+			NotificationSystem.warn("Backed off.")
+			return true
+	return false
 
 
 # --- Spawning ---
@@ -191,27 +218,39 @@ func _on_customer_offer_resolved(willing: bool, completed: bool, _customer: Node
 		# Action was cancelled mid-progress (e.g. player walked away).
 		return
 
-	# Successful sale — settle quantity, cash, XP, tax, contact roll.
-	var qty: int = _rng.randi_range(1, 2)
-	qty = min(qty, _bud_left)
-	if qty <= 0:
-		NotificationSystem.warn("Out of product.")
-		return
+	# Successful sale — settle cash, XP, contact roll. Product type
+	# determines pricing and whether eyeball tax applies.
+	var is_raw: bool = StreetDealSession.product_id == &"weed_buds"
+
+	var qty: int
+	var cash: int
+	if is_raw:
+		# Raw bud: customer buys 1-2 grams, eyeball tax accrues.
+		qty = _rng.randi_range(1, 2)
+		qty = min(qty, _bud_left)
+		if qty <= 0:
+			NotificationSystem.warn("Out of product.")
+			return
+		cash = qty * CASH_PER_GRAM
+		_eyeball_loss += float(qty) * _rng.randf_range(0.0, EYEBALL_TAX_MAX_PCT)
+	else:
+		# Pre-packaged: one bag per customer, fixed price, no tax.
+		if _bud_left <= 0:
+			NotificationSystem.warn("Out of product.")
+			return
+		qty = 1
+		cash = CASH_PER_BAG
+
 	_bud_left -= qty
-	var cash: int = qty * CASH_PER_GRAM
 	_cash_earned += cash
 	Wallet.add(cash)
 	DealerExperience.adjust(qty)
 
-	# Eyeball tax — uniform 0-15% of grams sold, accumulated for end-of-session settlement.
-	_eyeball_loss += float(qty) * _rng.randf_range(0.0, EYEBALL_TAX_MAX_PCT)
-
-	# Record the sale for spot heat tracking (drives future cop spawns).
 	SpotHeatTracker.record_deal(StreetDealSession.spot_id)
 
-	NotificationSystem.warn("+$%d  (%dg)" % [cash, qty])
+	var unit_label: String = "g" if is_raw else (" bag" if qty == 1 else " bags")
+	NotificationSystem.warn("+$%d  (%d%s)" % [cash, qty, unit_label])
 
-	# Small chance of picking up a new pager customer (only if pager is online).
 	if PagerSystem.has_pager and _rng.randf() < NEW_CUSTOMER_CHANCE_ON_ACCEPT:
 		var new_cust = CustomerRoster.add_random_customer(0)
 		if new_cust != null:
@@ -308,9 +347,12 @@ func _spawn_cop() -> void:
 
 	# Suppress witness behavior for the minigame — the bust check is manual,
 	# we don't want CrimeSystem firing pursuit on top.
+	# Take the puppet cop OUT of the global witness registry so CrimeSystem
+	# won't auto-bust through it. The minigame runs its own notice window
+	# below, reusing the WC only for line-of-sight checks.
 	var wc := cop.get_node_or_null("WitnessComponent")
 	if wc != null:
-		wc.process_mode = Node.PROCESS_MODE_DISABLED
+		WitnessRegistry.unregister(wc)
 
 	cop.set_patrol([start_pos, end_pos])
 	cop.patrol_finished.connect(cop.queue_free)
@@ -322,25 +364,14 @@ func _on_cop_freed(cop: Node) -> void:
 	_live_cops.erase(cop)
 	
 func _on_crime_witnessed(_crime_id: int, crime_type: StringName, _pos: Vector2, _area: StringName, witness: WitnessComponent) -> void:
-	# Only react to deals witnessed by cops during this session's minigame.
 	if crime_type != &"weed_deal":
 		return
 	var observer: Node = witness.get_witness_owner()
 	if not (observer is CopNPC):
 		return
-	# Make sure the witnessing cop is one of OUR puppet cops, not something
-	# from a different scene (defensive — shouldn't happen with the puppet
-	# cops unregistered from PoliceSystem, but cheap to verify).
 	if not _live_cops.has(observer):
 		return
-
-	NotificationSystem.warn("Busted! Lost all product.")
-	# Tell any in-progress customers to bail out of their crime cleanly.
-	for c in _live_customers:
-		if is_instance_valid(c) and c.has_method("bust_cancel"):
-			c.bust_cancel()
-	_bud_left = 0
-	_request_exit()
+	_bust()
 	
 func _pick_archetype() -> CustomerArchetype:
 	var archetypes: Array = StreetDealSession.archetypes
@@ -362,3 +393,65 @@ func _pick_archetype() -> CustomerArchetype:
 		if roll <= cumulative:
 			return archetypes[i]
 	return archetypes[0]  # safety
+	
+	# --- Cop notice window ---
+
+func _tick_notice(delta: float) -> void:
+	if _busted:
+		return
+	var dealing: bool = _deal_in_progress()
+	var player := get_tree().get_first_node_in_group("player")
+	for cop in _live_cops:
+		if not is_instance_valid(cop):
+			continue
+		var id: int = cop.get_instance_id()
+		var has_los: bool = dealing and player != null and _cop_sees_player(cop, player)
+		if not has_los:
+			# Deal ended or LOS broke — reset, so backing off fully clears it.
+			_cop_notice.erase(id)
+			continue
+		if not _cop_notice.has(id):
+			var delay: float = _notice_delay_for(cop)
+			var threshold: float = max(NOTICE_MIN, _rng.randf_range(0.0, delay))
+			_cop_notice[id] = {"elapsed": 0.0, "threshold": threshold}
+		var entry: Dictionary = _cop_notice[id]
+		entry["elapsed"] += delta
+		if entry["elapsed"] >= entry["threshold"]:
+			_bust()
+			return
+
+
+func _deal_in_progress() -> bool:
+	for c in _live_customers:
+		if is_instance_valid(c) and c.has_method("is_dealing") and c.is_dealing():
+			return true
+	return false
+
+
+func _cop_sees_player(cop: Node, player: Node2D) -> bool:
+	var wc := cop.get_node_or_null("WitnessComponent")
+	if wc != null and wc.has_method("can_witness"):
+		return wc.can_witness(player)
+	# No WC — fall back to a simple radius so cops still function.
+	return cop.global_position.distance_to(player.global_position) < 200.0
+
+
+func _notice_delay_for(cop: Node) -> float:
+	if "profile" in cop and cop.profile != null \
+			and "notice_delay" in cop.profile and cop.profile.notice_delay > 0.0:
+		return cop.profile.notice_delay
+	return COP_NOTICE_DELAY_FALLBACK
+
+
+func _bust() -> void:
+	if _busted:
+		return
+	_busted = true
+	NotificationSystem.warn("Busted! Lost all product.")
+	for c in _live_customers:
+		if is_instance_valid(c) and c.has_method("bust_cancel"):
+			c.bust_cancel()
+	_bud_left = 0
+	_request_exit()
+	
+	

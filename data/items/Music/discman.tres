@@ -1,11 +1,13 @@
-[gd_resource type="Resource" script_class="ItemDef" load_steps=2 format=3]
- 
-[ext_resource type="Script" path="res://scripts/items/item_def.gd" id="1_script"]
- 
+[gd_resource type="Resource" script_class="ItemDef" format=3 uid="uid://ct1wtny3tapuw"]
+
+[ext_resource type="Texture2D" uid="uid://4ltfyf8kitxi" path="res://art/icons/art_items/discman.png" id="1_s2ret"]
+[ext_resource type="Script" uid="uid://2ndmr7htrd8w" path="res://scripts/items/item_def.gd" id="1_script"]
+
 [resource]
 script = ExtResource("1_script")
 id = &"discman"
 display_name = "Discman"
+icon = ExtResource("1_s2ret")
 max_stack = 1
 category = 11
 description = "Portable CD player. Skips if you walk wrong."

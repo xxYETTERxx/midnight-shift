@@ -5,6 +5,7 @@ extends Node2D
 # starts the session through StreetDealSession.
 
 const WEED_BUDS_ID: StringName = &"weed_buds"
+const DIME_BAG_ID: StringName = &"dime_bag_full"
 
 # Identifies which area this spot belongs to. Used for heat application
 # during the session. Set in the inspector.
@@ -40,22 +41,30 @@ func _ready() -> void:
 
 func _on_interacted(player: Node) -> void:
 	if StreetDealSession.active:
-		return  # defensive — shouldn't happen, but no double-entry
+		return
 
-	var bud_count: int = _count_item(player.inventory, WEED_BUDS_ID)
-	if bud_count <= 0:
+	# Prefer packaged product when available — no eyeball tax, cleaner sale.
+	# Falls back to raw buds with tax penalty.
+	var product_id: StringName = &""
+	var count: int = _count_item(player.inventory, DIME_BAG_ID)
+	if count > 0:
+		product_id = DIME_BAG_ID
+	else:
+		count = _count_item(player.inventory, WEED_BUDS_ID)
+		if count > 0:
+			product_id = WEED_BUDS_ID
+
+	if product_id == &"" or count <= 0:
 		NotificationSystem.warn("No product on you.")
 		return
 
-	# Deduct ALL bud into the session bank. Leftover deposits back on exit.
-	_consume_all(player.inventory, WEED_BUDS_ID)
+	_consume_all(player.inventory, product_id)
 
 	var return_room: String = RoomManager.current_room.scene_file_path
-	print("[DealSpot] passing archetypes=%s weights=%s" % [archetypes, archetype_weights])
 	StreetDealSession.begin_session(
-	bud_count, spot_id, area_id, return_room, global_position,
-	spawn_interval_minutes, archetypes, archetype_weights, cop_check_interval_minutes
-)
+		count, product_id, spot_id, area_id, return_room, global_position,
+		spawn_interval_minutes, archetypes, archetype_weights, cop_check_interval_minutes
+	)
 
 
 # --- Inventory helpers (Inventory doesn't expose count/consume_all) ---

@@ -52,10 +52,14 @@ func _register_all_npcs() -> void:
 	var erik_scene: PackedScene = load("res://scenes/npcs/erik.tscn")
 	var felix_scene: PackedScene = load("res://scenes/npcs/felix.tscn")
 	var hank_scene: PackedScene = load("res://scenes/npcs/hank.tscn")
+	var jason_scene: PackedScene = load("res://scenes/npcs/jason.tscn")
+	var gary_scene: PackedScene = load("res://scenes/npcs/gary.tscn")
 	register_npc(&"oliver", oliver_scene, "Oliver")
 	register_npc(&"erik", erik_scene, "Erik")
 	register_npc(&"felix", felix_scene, "Felix")
 	register_npc(&"hank", hank_scene, "Hank")
+	register_npc(&"jason", jason_scene, "Jason")
+	register_npc(&"gary", gary_scene, "Gary")
 
 
 # --- Schedule queries ---------------------------------------------------
@@ -107,6 +111,7 @@ func _on_room_changed(_room_path: String) -> void:
 # A schedule file edit (hot reload) or a flag/event change can swap which
 # block is active without a minute boundary. Re-evaluate everyone.
 func _on_schedules_reloaded() -> void:
+	
 	for key in _registry.keys():
 		var npc_id := StringName(key)
 		var new_window := _compute_window(npc_id)

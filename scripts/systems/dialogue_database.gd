@@ -146,12 +146,13 @@ func _unhandled_input(event: InputEvent) -> void:
 # --- Lookup ---
 
 func get_line(npc_id: String, context: Dictionary) -> Dictionary:
-	# 1) Queued event takes priority — fire it and pop.
+	# 1) Queued event takes priority. Peek here but don't pop — DialogueRuntime
+	# pops on natural completion so an aborted run (failed effect check, forced
+	# close) doesn't silently consume the pushed event.
 	var queued: String = RelationshipSystem.peek_dialogue(npc_id)
 	if queued != "":
 		var npc_events: Dictionary = _events.get(npc_id, {})
 		if npc_events.has(queued):
-			RelationshipSystem.pop_dialogue(npc_id)
 			return npc_events[queued]
 		else:
 			push_warning("DialogueDatabase: queued event '%s' for NPC '%s' has no matching entry; dropping" % [queued, npc_id])
@@ -163,7 +164,7 @@ func get_line(npc_id: String, context: Dictionary) -> Dictionary:
 
 	var entries: Array = _entries[npc_id]
 	var current_tags: Dictionary = _build_current_tags(npc_id, context)
-
+	print("[dlg] npc=", npc_id, " tags=", current_tags.keys())
 	var best: Dictionary = {}
 	var best_specificity: int = -2
 	var best_index: int = -1
@@ -292,13 +293,19 @@ func _check_flag(name: String, npc_id: String, context: Dictionary) -> bool:
 func _player_has_item(item_id: String) -> bool:
 	var player: Node = get_tree().get_first_node_in_group("player")
 	if player == null:
+		print("[has_item] no player")
 		return false
-	var inv = player.get("inventory")
+	var inv: Inventory = player.get("inventory")
 	if inv == null:
+		print("[has_item] no inventory")
 		return false
-	if inv.has_method("has_item_id"):
-		return inv.has_item_id(StringName(item_id))
-	return false
+	var found: bool = inv.has_item(StringName(item_id))
+	var ids: Array = []
+	for stack in inv.slots:
+		if stack != null and stack.item != null:
+			ids.append(String(stack.item.id))
+	print("[has_item] looking for '", item_id, "' (StringName=", StringName(item_id), ") | inventory ids=", ids, " | found=", found)
+	return found
 
 
 # --- Debug / self-test ---

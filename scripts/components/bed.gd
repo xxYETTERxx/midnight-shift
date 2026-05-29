@@ -12,6 +12,7 @@ func _ready() -> void:
 
 func _on_interacted(player: Node) -> void:
 	# Connect one-shot so we only handle this specific skip
+	print("[bed] interact, connecting one-shot. in_tree=", is_inside_tree())
 	TimeSkipSystem.time_skipped.connect(_on_time_skipped, CONNECT_ONE_SHOT)
 	var wake_minute: int = player.call("_next_wake_minute")
 	TimeSkipSystem.skip_to(wake_minute, {
@@ -22,6 +23,9 @@ func _on_interacted(player: Node) -> void:
 
 
 func _on_time_skipped(_from: int, _to: int, _context: Dictionary) -> void:
+	if not is_inside_tree():
+		return
+	print("[bed] time_skipped handler, in_tree=", is_inside_tree())
 	var player := get_tree().get_first_node_in_group("player")
 	if player:
 		player.global_position = wake_spot.global_position

@@ -1,13 +1,13 @@
-[gd_resource type="Resource" script_class="ItemDef" load_steps=2 format=3]
- 
-[ext_resource type="Script" path="res://scripts/items/item_def.gd" id="1_script"]
- 
+[gd_resource type="Resource" script_class="ItemDef" format=3 uid="uid://c6dadp7q4161s"]
+
+[ext_resource type="Texture2D" uid="uid://hwknrisl4ggi" path="res://art/icons/art_items/mag_lowrider.png" id="1_3260x"]
+[ext_resource type="Script" uid="uid://2ndmr7htrd8w" path="res://scripts/items/item_def.gd" id="1_script"]
+
 [resource]
 script = ExtResource("1_script")
 id = &"mag_lowrider"
 display_name = "Lowrider Magazine"
-max_stack = 99
+icon = ExtResource("1_3260x")
 category = 11
 description = "Hydraulics, candy paint, and big chrome rims."
-base_value = 3
-sellable = true
+base_value = 4

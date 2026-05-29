@@ -32,7 +32,7 @@ const STRENGTH_XP_PER_PIXEL_PER_SLOT: float = 0.001
 
 # Inventory progression — strength level thresholds and starting size.
 const STARTING_INVENTORY_SLOTS: int = 6
-const STRENGTH_SLOT_THRESHOLDS: Array[int] = [10, 20, 30, 40, 50]
+const STRENGTH_SLOT_THRESHOLDS: Array[int] = [3, 10, 20, 30, 40, 50]
 const SLOTS_PER_THRESHOLD: int = 6
 
 const LOCKPICK_DURATION_REDUCTION_PER_LEVEL: float = 0.012
@@ -61,6 +61,7 @@ const SKILL_CONFIG := {
 	&"strength": {
 		"max_level": 50,
 		"capabilities": {
+			3: &"carry_9",
 			10: &"carry_12",
 			20: &"carry_18",
 			30: &"carry_24",
@@ -68,6 +69,7 @@ const SKILL_CONFIG := {
 			50: &"carry_36",
 		},
 		"threshold_messages": {
+			3: "Hauling around this junk has made you a bit stronger",
 			10: "Your arms feel stronger. You can carry more.",
 			20: "A heavy load barely slows you down anymore.",
 			30: "Your back has set. You can haul real weight.",

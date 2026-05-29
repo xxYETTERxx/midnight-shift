@@ -27,6 +27,10 @@ extends Node2D
 @export var initial_stock: Array[ItemDef] = []
 @export var initial_stock_counts: Array[int] = []
 
+@export var gated_stock: Array[ItemDef] = []
+@export var gated_stock_counts: Array[int] = []
+@export var gated_stock_min_tier: Array[int] = []
+
 
 # === Buy filter ===
 
@@ -75,17 +79,25 @@ func _ready() -> void:
 	stock.slots.clear()
 	stock.slots.resize(stock_size)
 	interactable.interacted.connect(_on_interacted)
-
 	_remaining_buy_budget = daily_buy_budget
-	_populate_initial_stock()
-
 	TimeSystem.day_rolled.connect(_on_day_rolled)
 
-	if vendor_id != &"":
-		SaveSystem.register_savable("vendor_%s" % vendor_id, self)
-	else:
-		push_warning("VendorInteractable '%s' has empty vendor_id -- save/load disabled" % vendor_name)
+	if vendor_id == &"":
+		push_warning("VendorInteractable '%s' has empty vendor_id -- persistence disabled" % vendor_name)
+		_populate_initial_stock()
+		return
 
+	# Rehydrate same-day state if the store has it; otherwise fresh stock.
+	if VendorStateStore.has_state(vendor_id):
+		load_state(VendorStateStore.fetch(vendor_id))
+	else:
+		_populate_initial_stock()
+
+func _exit_tree() -> void:
+	# Stash current state centrally so leaving the scene doesn't lose
+	# today's stock/budget, and so we're not a dangling SaveSystem entry.
+	if vendor_id != &"":
+		VendorStateStore.store(vendor_id, save_state())
 
 func _on_interacted(player: Node) -> void:
 	var panel := get_tree().get_first_node_in_group("vendor_panel")
@@ -175,6 +187,8 @@ func _on_day_rolled(_dow: int, _dom: int) -> void:
 	_remaining_buy_budget = daily_buy_budget
 	if restock_on_day_rolled:
 		_restock()
+	if vendor_id != &"":
+		VendorStateStore.store(vendor_id, save_state())  # persist the restocked state
 
 
 func _restock() -> void:
@@ -185,16 +199,34 @@ func _restock() -> void:
 # === Internals ===
 
 func _populate_initial_stock(force: bool = false) -> void:
-	if initial_stock.is_empty():
-		return
 	# By default only fills when empty (preserves in-session changes).
 	# Pass force=true to refill regardless (used by daily restock).
 	if not force and not _stock_is_empty():
 		return
+
 	for i in range(initial_stock.size()):
 		var item: ItemDef = initial_stock[i]
 		var count: int = initial_stock_counts[i] if i < initial_stock_counts.size() else 1
 		if item != null and count > 0:
+			stock.add(item, count)
+
+	_populate_gated_stock()
+
+
+# Adds tier-gated items the player has unlocked. Called as part of stock
+# population, so gated items appear/refresh on the same restock cadence as
+# everything else.
+func _populate_gated_stock() -> void:
+	var tier: int = DealerExperience.current_tier()
+	for i in range(gated_stock.size()):
+		var item: ItemDef = gated_stock[i]
+		if item == null:
+			continue
+		var min_tier: int = gated_stock_min_tier[i] if i < gated_stock_min_tier.size() else 0
+		if tier < min_tier:
+			continue
+		var count: int = gated_stock_counts[i] if i < gated_stock_counts.size() else 1
+		if count > 0:
 			stock.add(item, count)
 
 

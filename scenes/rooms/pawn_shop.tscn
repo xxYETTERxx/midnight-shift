@@ -6,8 +6,8 @@
 [ext_resource type="Script" uid="uid://2ndmr7htrd8w" path="res://scripts/items/item_def.gd" id="4_om1fm"]
 [ext_resource type="Resource" uid="uid://ce6csoade2m8b" path="res://data/items/Tools/pager.tres" id="5_tv1wn"]
 [ext_resource type="PackedScene" uid="uid://c5k1isfwli6lh" path="res://scenes/components/waypoint.tscn" id="6_gthbd"]
-[ext_resource type="Resource" path="res://data/items/Tools/flashlight.tres" id="6_kxswg"]
-[ext_resource type="Resource" path="res://data/items/Tools/notebook.tres" id="7_kuhmp"]
+[ext_resource type="Resource" uid="uid://cwr704bsgjs0o" path="res://data/items/Tools/notebook.tres" id="7_kuhmp"]
+[ext_resource type="Resource" uid="uid://cbrguahiutxcb" path="res://data/items/Tools/scale.tres" id="7_kxswg"]
 [ext_resource type="Resource" uid="uid://bhlt5cg8a6sf" path="res://data/items/Books/paperback_mystery.tres" id="8_00pxe"]
 [ext_resource type="Resource" uid="uid://tdatwa04y72s" path="res://data/items/Books/paperback_romance.tres" id="9_mcgfg"]
 [ext_resource type="Resource" uid="uid://dtm0e56hcffa7" path="res://data/items/Books/paperback_scifi.tres" id="10_to411"]
@@ -17,27 +17,27 @@
 [ext_resource type="Resource" uid="uid://cdkabgqqeqwky" path="res://data/items/Gifts/disposable_camera.tres" id="14_liljx"]
 [ext_resource type="Resource" uid="uid://jboasjnifb5b" path="res://data/items/Gifts/flask.tres" id="15_knu5o"]
 [ext_resource type="Resource" uid="uid://cwsysvnq8qqo3" path="res://data/items/Gifts/encyclopedia_volume.tres" id="16_jsil0"]
-[ext_resource type="Resource" path="res://data/items/Gifts/friendship_bracelet.tres" id="17_lrsfk"]
-[ext_resource type="Resource" path="res://data/items/Gifts/polaroid_camera.tres" id="18_2c7vg"]
-[ext_resource type="Resource" path="res://data/items/Gifts/polaroid_film.tres" id="19_x31fw"]
-[ext_resource type="Resource" path="res://data/items/Gifts/trading_cards_baseball.tres" id="20_iqmp1"]
-[ext_resource type="Resource" path="res://data/items/Gifts/trading_cards_basketball.tres" id="21_fk8ly"]
-[ext_resource type="Resource" path="res://data/items/Magazines/comic_book.tres" id="22_6hlet"]
-[ext_resource type="Resource" path="res://data/items/Magazines/mag_cosmo.tres" id="23_gd84s"]
-[ext_resource type="Resource" path="res://data/items/Magazines/mag_lowrider.tres" id="24_3y1f4"]
-[ext_resource type="Resource" path="res://data/items/Magazines/mag_readers_digest.tres" id="25_l5h3t"]
-[ext_resource type="Resource" path="res://data/items/Magazines/mag_tattoo.tres" id="26_wq4tw"]
-[ext_resource type="Resource" path="res://data/items/Magazines/mag_wrestling.tres" id="27_tk05c"]
-[ext_resource type="Resource" path="res://data/items/Music/boombox.tres" id="28_nf0er"]
-[ext_resource type="Resource" path="res://data/items/Music/cassette_tape.tres" id="29_aibqh"]
-[ext_resource type="Resource" path="res://data/items/Music/discman.tres" id="30_oflef"]
-[ext_resource type="Resource" path="res://data/items/Music/portable_radio.tres" id="31_chcvo"]
-[ext_resource type="Resource" path="res://data/items/Music/vinyl_record.tres" id="32_xjda1"]
-[ext_resource type="Resource" path="res://data/items/Music/walkman.tres" id="33_51ymb"]
-[ext_resource type="Resource" path="res://data/items/Toys/game_boy.tres" id="34_8o0aa"]
-[ext_resource type="Resource" path="res://data/items/Toys/game_boy_game.tres" id="35_0vjns"]
-[ext_resource type="Resource" path="res://data/items/Toys/game_cartridge.tres" id="36_5nksb"]
-[ext_resource type="Resource" path="res://data/items/Toys/pog_set.tres" id="37_7b0uo"]
+[ext_resource type="Resource" uid="uid://6bqwbpsbqsj1" path="res://data/items/Gifts/friendship_bracelet.tres" id="17_lrsfk"]
+[ext_resource type="Resource" uid="uid://de2jgx6ret6oe" path="res://data/items/Gifts/polaroid_camera.tres" id="18_2c7vg"]
+[ext_resource type="Resource" uid="uid://5dqnjup8glhm" path="res://data/items/Gifts/polaroid_film.tres" id="19_x31fw"]
+[ext_resource type="Resource" uid="uid://kycq5xj36w74" path="res://data/items/Gifts/trading_cards_baseball.tres" id="20_iqmp1"]
+[ext_resource type="Resource" uid="uid://c3uhcd5jecu54" path="res://data/items/Gifts/trading_cards_basketball.tres" id="21_fk8ly"]
+[ext_resource type="Resource" uid="uid://cct54xhnv4s" path="res://data/items/Magazines/comic_book.tres" id="22_6hlet"]
+[ext_resource type="Resource" uid="uid://db1vm8b4rfed1" path="res://data/items/Magazines/mag_cosmo.tres" id="23_gd84s"]
+[ext_resource type="Resource" uid="uid://c6dadp7q4161s" path="res://data/items/Magazines/mag_lowrider.tres" id="24_3y1f4"]
+[ext_resource type="Resource" uid="uid://cq44vjlljpr8d" path="res://data/items/Magazines/mag_readers_digest.tres" id="25_l5h3t"]
+[ext_resource type="Resource" uid="uid://yuokyuj8yojk" path="res://data/items/Magazines/mag_tattoo.tres" id="26_wq4tw"]
+[ext_resource type="Resource" uid="uid://c1nuuljj6s4k5" path="res://data/items/Magazines/mag_wrestling.tres" id="27_tk05c"]
+[ext_resource type="Resource" uid="uid://c6s8da5immipg" path="res://data/items/Music/boombox.tres" id="28_nf0er"]
+[ext_resource type="Resource" uid="uid://dgtkeguqct8yk" path="res://data/items/Music/cassette_tape.tres" id="29_aibqh"]
+[ext_resource type="Resource" uid="uid://ct1wtny3tapuw" path="res://data/items/Music/discman.tres" id="30_oflef"]
+[ext_resource type="Resource" uid="uid://be5q3uv3g85n7" path="res://data/items/Music/portable_radio.tres" id="31_chcvo"]
+[ext_resource type="Resource" uid="uid://bf7y3o17n3vsd" path="res://data/items/Music/vinyl_record.tres" id="32_xjda1"]
+[ext_resource type="Resource" uid="uid://ceb4n0f5w6ump" path="res://data/items/Music/walkman.tres" id="33_51ymb"]
+[ext_resource type="Resource" uid="uid://bopwga1ekr2r4" path="res://data/items/Toys/game_boy.tres" id="34_8o0aa"]
+[ext_resource type="Resource" uid="uid://du64dy0sg1pl6" path="res://data/items/Toys/game_boy_game.tres" id="35_0vjns"]
+[ext_resource type="Resource" uid="uid://cis1d1tbrlrxt" path="res://data/items/Toys/game_cartridge.tres" id="36_5nksb"]
+[ext_resource type="Resource" uid="uid://cudbusup5d7g6" path="res://data/items/Toys/pog_set.tres" id="37_7b0uo"]
 
 [node name="PawnStore" type="Node2D" unique_id=1419844553]
 
@@ -82,8 +82,8 @@ target_spawn = "from_pawn"
 position = Vector2(146, -59)
 vendor_name = "Felix"
 sell_multiplier = 0.8
-initial_stock = Array[ExtResource("4_om1fm")]([ExtResource("5_tv1wn"), ExtResource("6_kxswg"), ExtResource("7_kuhmp")])
-initial_stock_counts = Array[int]([1, 5])
+initial_stock = Array[ExtResource("4_om1fm")]([ExtResource("5_tv1wn"), ExtResource("7_kuhmp"), ExtResource("7_kxswg")])
+initial_stock_counts = Array[int]([1, 1])
 will_buy_items = Array[ExtResource("4_om1fm")]([ExtResource("8_00pxe"), ExtResource("9_mcgfg"), ExtResource("10_to411"), ExtResource("11_bst2y"), ExtResource("12_7msdk"), ExtResource("13_rehof"), ExtResource("14_liljx"), ExtResource("15_knu5o"), ExtResource("16_jsil0"), ExtResource("15_knu5o"), ExtResource("17_lrsfk"), ExtResource("18_2c7vg"), ExtResource("19_x31fw"), ExtResource("20_iqmp1"), ExtResource("21_fk8ly"), ExtResource("22_6hlet"), ExtResource("23_gd84s"), ExtResource("24_3y1f4"), ExtResource("25_l5h3t"), ExtResource("26_wq4tw"), ExtResource("27_tk05c"), ExtResource("28_nf0er"), ExtResource("29_aibqh"), ExtResource("30_oflef"), ExtResource("31_chcvo"), ExtResource("32_xjda1"), ExtResource("33_51ymb"), ExtResource("34_8o0aa"), ExtResource("35_0vjns"), ExtResource("36_5nksb"), ExtResource("37_7b0uo")])
 daily_buy_budget = 225
 

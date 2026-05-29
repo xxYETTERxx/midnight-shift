@@ -1,11 +1,13 @@
-[gd_resource type="Resource" script_class="ItemDef" load_steps=2 format=3]
- 
-[ext_resource type="Script" path="res://scripts/items/item_def.gd" id="1_script"]
- 
+[gd_resource type="Resource" script_class="ItemDef" format=3 uid="uid://ceb4n0f5w6ump"]
+
+[ext_resource type="Texture2D" uid="uid://ctvkivd4mftdy" path="res://art/icons/art_items/walkman.png" id="1_hi5is"]
+[ext_resource type="Script" uid="uid://2ndmr7htrd8w" path="res://scripts/items/item_def.gd" id="1_script"]
+
 [resource]
 script = ExtResource("1_script")
 id = &"walkman"
 display_name = "Walkman"
+icon = ExtResource("1_hi5is")
 max_stack = 1
 category = 11
 description = "Portable cassette player. Foam-padded headphones. Eats double-As."

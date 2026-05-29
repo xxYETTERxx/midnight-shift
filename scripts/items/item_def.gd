@@ -30,6 +30,12 @@ extends Resource
 # Defaults true — most items should be giftable.
 @export var giftable: bool = true
 
+# When this item is used as a crafting tool, each unit of recipe output
+# consumes this much time and stamina. Zero = no contribution from this
+# tool. Better-tier scales/tools have lower values.
+@export var craft_time_per_unit_seconds: float = 0.0
+@export var craft_stamina_per_unit: float = 0.0
+
 
 enum Category {
 	# --- Legacy / inventory-side ---

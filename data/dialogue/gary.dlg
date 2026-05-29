@@ -1,0 +1,17 @@
+# Gary.dlg
+
+# --- Default fallback (lowest priority — fires only when nothing else matches)
+
+default
+    $n Rent's due on Sundays. Don't forget or you'll hear from me
+	
+* | !global:apartment_rented
+	$n You need a room?
+	$b
+	$h It's $500 for the damage deposit and $100 a week.
+	$q
+	--> "Deal" | cash -500; set global:apartment_rented
+		$n Welcome home. Rent's every Sunday — don't be late.
+	--> "Nah, I'm good"
+		$n Come back when you've got the money.
+	$r

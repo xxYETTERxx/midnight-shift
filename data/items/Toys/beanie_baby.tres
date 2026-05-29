@@ -1,12 +1,13 @@
-[gd_resource type="Resource" script_class="ItemDef" load_steps=2 format=3]
- 
-[ext_resource type="Script" path="res://scripts/items/item_def.gd" id="1_script"]
- 
+[gd_resource type="Resource" script_class="ItemDef" format=3 uid="uid://dy6n60a7f0j27"]
+
+[ext_resource type="Texture2D" uid="uid://cccf5t76uwd64" path="res://art/icons/art_items/beanie_baby.png" id="1_7r22e"]
+[ext_resource type="Script" uid="uid://2ndmr7htrd8w" path="res://scripts/items/item_def.gd" id="1_script"]
+
 [resource]
 script = ExtResource("1_script")
 id = &"beanie_baby"
 display_name = "Beanie Baby"
-max_stack = 99
+icon = ExtResource("1_7r22e")
 category = 13
 description = "Bean-filled plush, with a tag still attached. Someone, somewhere, thinks these will pay for a college education."
 base_value = 8

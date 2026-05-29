@@ -1,13 +1,13 @@
-[gd_resource type="Resource" script_class="ItemDef" load_steps=2 format=3]
- 
-[ext_resource type="Script" path="res://scripts/items/item_def.gd" id="1_script"]
- 
+[gd_resource type="Resource" script_class="ItemDef" format=3 uid="uid://yuokyuj8yojk"]
+
+[ext_resource type="Texture2D" uid="uid://2jq01c5c2gx3" path="res://art/icons/art_items/mag_tattoo.png" id="1_6lcng"]
+[ext_resource type="Script" uid="uid://2ndmr7htrd8w" path="res://scripts/items/item_def.gd" id="1_script"]
+
 [resource]
 script = ExtResource("1_script")
 id = &"mag_tattoo"
 display_name = "Tattoo Magazine"
-max_stack = 99
+icon = ExtResource("1_6lcng")
 category = 11
 description = "Flash sheets, artist profiles, photos of fresh ink."
 base_value = 3
-sellable = true

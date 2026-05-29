@@ -1,14 +1,15 @@
-[gd_resource type="Resource" script_class="ItemDef" load_steps=2 format=3]
- 
-[ext_resource type="Script" path="res://scripts/items/item_def.gd" id="1_script"]
- 
+[gd_resource type="Resource" script_class="ItemDef" format=3 uid="uid://cwr704bsgjs0o"]
+
+[ext_resource type="Script" uid="uid://2ndmr7htrd8w" path="res://scripts/items/item_def.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://cs2534033ox78" path="res://art/icons/art_items/notebook.png" id="1_ua2t7"]
+
 [resource]
 script = ExtResource("1_script")
 id = &"notebook"
 display_name = "Pocket Notebook"
+icon = ExtResource("1_ua2t7")
 max_stack = 1
 category = 6
-description = "Spiral-bound, fits in a back pocket. You jot down what people tell you."
-base_value = 3
-sellable = false
+description = "Keep track of stuff"
+base_value = 10
 giftable = false

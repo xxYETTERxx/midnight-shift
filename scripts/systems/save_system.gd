@@ -37,12 +37,25 @@ func save_to_disk() -> bool:
 		"timestamp_unix": int(Time.get_unix_time_from_system()),
 		"savables": {},
 	}
+	var dead_keys: Array = []
 	for key in _savables:
-		var node: Node = _savables[key]
+		var node = _savables[key]
+		if not is_instance_valid(node):
+			dead_keys.append(key)
+			continue
 		if not node.has_method("save_state"):
 			push_warning("Savable '%s' has no save_state() method, skipping" % key)
 			continue
 		data["savables"][key] = node.save_state()
+	if not dead_keys.is_empty():
+		print("[Save] DEAD SAVABLES: ", dead_keys)
+	
+	#for key in _savables:
+	#	var node: Node = _savables[key]
+	#	if not node.has_method("save_state"):
+	#		push_warning("Savable '%s' has no save_state() method, skipping" % key)
+	#		continue
+	#	data["savables"][key] = node.save_state()
 
 	var json := JSON.stringify(data, "\t")  # pretty-printed for debug
 	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)

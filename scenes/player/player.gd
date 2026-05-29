@@ -49,8 +49,7 @@ func _ready() -> void:
 	SaveSystem.register_savable("player", self)
 	inventory.active_slot_changed.connect(_on_active_slot_changed)
 	inventory.slot_changed.connect(_on_inventory_slot_changed)
-	inventory.add(ItemRegistry.get_item(&"burrito"), 1)
-	inventory.add(ItemRegistry.get_item(&"lottery_scratchers"), 10)
+	inventory.add(ItemRegistry.get_item("empty_dime_bag"),28)
 	_settle_idle()
 
 

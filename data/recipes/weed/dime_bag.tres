@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="Recipe" format=3 uid="uid://di8htder3rux5"]
+
+[ext_resource type="Script" uid="uid://bhnqgduqxf6v0" path="res://scripts/crafting/recipe_input.gd" id="1_h68it"]
+[ext_resource type="Script" uid="uid://2ndmr7htrd8w" path="res://scripts/items/item_def.gd" id="2_5poqa"]
+[ext_resource type="Resource" uid="uid://d1ciphqy0cmrd" path="res://data/items/Weed_stuff/weed_buds.tres" id="2_8i1wk"]
+[ext_resource type="Script" uid="uid://crtim25fsjngu" path="res://scripts/crafting/recipe.gd" id="3_8i1wk"]
+[ext_resource type="Resource" uid="uid://dqhffwy6f6xs" path="res://data/items/Weed_stuff/empty_dime_bag.tres" id="3_dlkjm"]
+[ext_resource type="Resource" uid="uid://c6rpbibalj1pb" path="res://data/items/Weed_stuff/dime_bag_full.tres" id="4_6kgno"]
+[ext_resource type="Resource" uid="uid://cbrguahiutxcb" path="res://data/items/Tools/scale.tres" id="6_wk2sf"]
+
+[sub_resource type="Resource" id="Resource_dlkjm"]
+script = ExtResource("1_h68it")
+item = ExtResource("2_8i1wk")
+metadata/_custom_type_script = "uid://bhnqgduqxf6v0"
+
+[sub_resource type="Resource" id="Resource_6kgno"]
+script = ExtResource("1_h68it")
+item = ExtResource("3_dlkjm")
+metadata/_custom_type_script = "uid://bhnqgduqxf6v0"
+
+[resource]
+script = ExtResource("3_8i1wk")
+id = &"dime_bag"
+display_name = "Dime Bag"
+inputs = Array[ExtResource("1_h68it")]([SubResource("Resource_dlkjm"), SubResource("Resource_6kgno")])
+output_item = ExtResource("4_6kgno")
+station_tags = Array[StringName]([&"packing_counter"])
+required_tools = Array[ExtResource("2_5poqa")]([ExtResource("6_wk2sf")])
+metadata/_custom_type_script = "uid://crtim25fsjngu"

@@ -255,6 +255,7 @@ func mark_completed(meeting_id: StringName) -> void:
 		c.times_dealt += 1
 		c.trust = min(c.trust + 5, 100)
 		c.affinity = min(c.affinity + 2, 100)
+		CustomerRoster.check_referral(c)
 	DealerExperience.award_for_sale(m.quantity_requested)
 	meeting_completed.emit(m)
 	var spot_info: Dictionary = get_spot_info(m.spot_id)

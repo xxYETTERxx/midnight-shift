@@ -3,8 +3,14 @@
 [ext_resource type="Resource" uid="uid://m1dymf8u7d1" path="res://data/items/Misc/loose_change.tres" id="1_swhvm"]
 [ext_resource type="Script" uid="uid://bhvj6yn2k0c8b" path="res://scripts/items/loot_table.gd" id="1_yksnb"]
 [ext_resource type="Script" uid="uid://dndj8rbs0qhgm" path="res://scripts/items/loot_table_entry.gd" id="2_pd8x8"]
-[ext_resource type="Resource" uid="uid://cs4u45qelwlui" path="res://data/items/Misc/lighter.tres" id="3_iblvt"]
-[ext_resource type="Resource" uid="uid://d3d1fny61k4im" path="res://data/items/Misc/cigarette_pack.tres" id="4_j6j0k"]
+[ext_resource type="Resource" uid="uid://bhlt5cg8a6sf" path="res://data/items/Books/paperback_mystery.tres" id="4_f70gj"]
+[ext_resource type="Resource" uid="uid://d3d1fny61k4im" path="res://data/items/Drugs/cigarette_pack.tres" id="4_j6j0k"]
+[ext_resource type="Resource" uid="uid://rb581mbk0yar" path="res://data/items/Drugs/pills.tres" id="5_6tlcn"]
+[ext_resource type="Resource" uid="uid://cdkabgqqeqwky" path="res://data/items/Gifts/disposable_camera.tres" id="6_20iqg"]
+[ext_resource type="Resource" uid="uid://jboasjnifb5b" path="res://data/items/Gifts/flask.tres" id="7_lkqdf"]
+[ext_resource type="Resource" uid="uid://ceb4n0f5w6ump" path="res://data/items/Music/walkman.tres" id="8_2ehme"]
+[ext_resource type="Resource" uid="uid://du64dy0sg1pl6" path="res://data/items/Toys/game_boy_game.tres" id="9_yyxvd"]
+[ext_resource type="Resource" uid="uid://ch6nqm0w13j0t" path="res://data/items/Misc/lottery_scratchers.tres" id="10_6tlcn"]
 
 [sub_resource type="Resource" id="Resource_1p6rp"]
 script = ExtResource("2_pd8x8")
@@ -12,16 +18,51 @@ item = ExtResource("1_swhvm")
 count_max = 5
 weight = 4.0
 
-[sub_resource type="Resource" id="Resource_cg405"]
-script = ExtResource("2_pd8x8")
-item = ExtResource("3_iblvt")
-weight = 1.5
-
 [sub_resource type="Resource" id="Resource_q6bd8"]
 script = ExtResource("2_pd8x8")
 item = ExtResource("4_j6j0k")
 
+[sub_resource type="Resource" id="Resource_m8peu"]
+script = ExtResource("2_pd8x8")
+item = ExtResource("4_f70gj")
+metadata/_custom_type_script = "uid://dndj8rbs0qhgm"
+
+[sub_resource type="Resource" id="Resource_02c5s"]
+script = ExtResource("2_pd8x8")
+item = ExtResource("5_6tlcn")
+weight = 0.5
+metadata/_custom_type_script = "uid://dndj8rbs0qhgm"
+
+[sub_resource type="Resource" id="Resource_igd6s"]
+script = ExtResource("2_pd8x8")
+item = ExtResource("6_20iqg")
+weight = 0.2
+metadata/_custom_type_script = "uid://dndj8rbs0qhgm"
+
+[sub_resource type="Resource" id="Resource_xoeqo"]
+script = ExtResource("2_pd8x8")
+item = ExtResource("7_lkqdf")
+weight = 0.3
+metadata/_custom_type_script = "uid://dndj8rbs0qhgm"
+
+[sub_resource type="Resource" id="Resource_qqmjn"]
+script = ExtResource("2_pd8x8")
+item = ExtResource("8_2ehme")
+weight = 0.1
+metadata/_custom_type_script = "uid://dndj8rbs0qhgm"
+
+[sub_resource type="Resource" id="Resource_w631s"]
+script = ExtResource("2_pd8x8")
+item = ExtResource("9_yyxvd")
+weight = 0.3
+metadata/_custom_type_script = "uid://dndj8rbs0qhgm"
+
+[sub_resource type="Resource" id="Resource_20iqg"]
+script = ExtResource("2_pd8x8")
+item = ExtResource("10_6tlcn")
+metadata/_custom_type_script = "uid://dndj8rbs0qhgm"
+
 [resource]
 script = ExtResource("1_yksnb")
-entries = Array[ExtResource("2_pd8x8")]([SubResource("Resource_1p6rp"), SubResource("Resource_cg405"), SubResource("Resource_q6bd8")])
+entries = Array[ExtResource("2_pd8x8")]([SubResource("Resource_1p6rp"), SubResource("Resource_q6bd8"), SubResource("Resource_m8peu"), SubResource("Resource_02c5s"), SubResource("Resource_igd6s"), SubResource("Resource_xoeqo"), SubResource("Resource_qqmjn"), SubResource("Resource_w631s"), SubResource("Resource_20iqg")])
 empty_chance = 0.3

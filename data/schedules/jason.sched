@@ -1,0 +1,7 @@
+# jason.sched — Jason
+
+# Default weekday plan: 
+default | 
+	09:00 stand gas_station counter
+	22:00 stand jason_house bed
+

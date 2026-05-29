@@ -549,7 +549,7 @@ animations = [{
 }]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_422xk"]
-size = Vector2(15, 25)
+size = Vector2(8, 25)
 
 [node name="Player" type="CharacterBody2D" unique_id=2028631120 groups=["player"]]
 collision_layer = 2
@@ -561,7 +561,7 @@ sprite_frames = SubResource("SpriteFrames_65utx")
 animation = &"idle_w"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1490109494]
-position = Vector2(0, 1)
+position = Vector2(1, 1)
 shape = SubResource("RectangleShape2D_422xk")
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=1406530807]

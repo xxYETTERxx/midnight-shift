@@ -4,7 +4,6 @@
 
 [node name="DialogueBox" type="CanvasLayer" unique_id=1797430466]
 layer = 50
-visible = false
 script = ExtResource("1")
 
 [node name="PanelContainer" type="PanelContainer" parent="." unique_id=183957506]
@@ -56,6 +55,5 @@ text = "Dialogue text goes here."
 autowrap_mode = 2
 
 [node name="ChoiceList" type="VBoxContainer" parent="PanelContainer/Margin/HBox/ContentVBox" unique_id=639824609]
-visible = false
 layout_mode = 2
 theme_override_constants/separation = 2

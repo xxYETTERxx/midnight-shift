@@ -1,6 +1,8 @@
 class_name DialogueParser
 extends RefCounted
 
+
+const WALLET_POOLS: Array = ["cash", "clean"]
 # Parses a .dlg text file into an array of entry dictionaries.
 #
 # An "entry" is the AST output for one block of dialogue. Returned dicts are
@@ -39,8 +41,10 @@ extends RefCounted
 #   { "kind": "has_item", "item": String }
 #
 # Effect shapes:
-#   { "kind": "stat_delta", "stat": String, "delta": int }
-#   { "kind": "set_flag", "name": String, "value": bool }
+#   { "kind": "stat_delta",   "stat": String,  "delta": int }   # affinity +5d
+#   { "kind": "set_flag",     "name": String,  "value": bool }  # set X / clear X
+#   { "kind": "wallet_delta", "pool": String,  "delta": int }   # cash +50 / cash -20
+#   { "kind": "item_delta",   "item": String,  "delta": int }   # give X / take X N
 
 
 # Parses an entire .dlg file. Returns:
@@ -178,25 +182,43 @@ static func _parse_precondition(s: String) -> Dictionary:
 	return {"kind": "flag", "name": s, "negated": false}
 
 
-# In a clause list (after `|`), a clause is either a precondition or an effect.
-# Effects are recognized by syntax: "stat +N" / "stat -N" / "set NAME" / "clear NAME".
-# Returns null Dict if not an effect.
 static func _try_parse_effect(s: String) -> Dictionary:
 	var parts: PackedStringArray = s.split(" ", false)
-	if parts.size() == 2:
+	var n: int = parts.size()
+
+	if n == 2:
 		if parts[0] == "set":
 			return {"kind": "set_flag", "name": parts[1], "value": true}
 		if parts[0] == "clear":
 			return {"kind": "set_flag", "name": parts[1], "value": false}
-		# stat +/-N
+		if parts[0] == "give":
+			return {"kind": "item_delta", "item": parts[1], "delta": 1}
+		if parts[0] == "take":
+			return {"kind": "item_delta", "item": parts[1], "delta": -1}
+		# stat/pool +N or -N
 		var amount_str: String = parts[1]
 		if amount_str.length() >= 2 and (amount_str[0] == "+" or amount_str[0] == "-"):
 			var num_str: String = amount_str.substr(1)
 			if num_str.is_valid_int():
-				var n: int = num_str.to_int()
+				var amt: int = num_str.to_int()
 				if amount_str[0] == "-":
-					n = -n
-				return {"kind": "stat_delta", "stat": parts[0], "delta": n}
+					amt = -amt
+				if parts[0] in WALLET_POOLS:
+					return {"kind": "wallet_delta", "pool": parts[0], "delta": amt}
+				return {"kind": "stat_delta", "stat": parts[0], "delta": amt}
+
+	elif n == 3:
+		# give ITEM N / take ITEM N
+		if parts[0] == "give" or parts[0] == "take":
+			var count_str: String = parts[2]
+			if count_str.is_valid_int():
+				var count: int = count_str.to_int()
+				if count < 0:
+					return {}  # malformed; let it fall through as a precondition
+				if parts[0] == "take":
+					count = -count
+				return {"kind": "item_delta", "item": parts[1], "delta": count}
+
 	return {}
 
 

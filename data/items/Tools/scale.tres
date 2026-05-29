@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ItemDef" format=3 uid="uid://cbrguahiutxcb"]
+
+[ext_resource type="Texture2D" uid="uid://cdq26sseyku44" path="res://art/objects/Items/Tools/scales6.png" id="1_10le4"]
+[ext_resource type="Script" uid="uid://2ndmr7htrd8w" path="res://scripts/items/item_def.gd" id="1_xgy7a"]
+
+[resource]
+script = ExtResource("1_xgy7a")
+id = &"scale"
+tool_id = &"scale"
+display_name = "Scale"
+icon = ExtResource("1_10le4")
+description = "Quit ripping yourself off"
+base_value = 80
+craft_time_per_unit_seconds = 30.0
+craft_stamina_per_unit = 0.2
+metadata/_custom_type_script = "uid://2ndmr7htrd8w"

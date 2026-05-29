@@ -1,14 +1,15 @@
-[gd_resource type="Resource" script_class="ItemDef" load_steps=2 format=3]
- 
-[ext_resource type="Script" path="res://scripts/items/item_def.gd" id="1_script"]
- 
+[gd_resource type="Resource" script_class="ItemDef" format=3 uid="uid://mngnqb6yj621"]
+
+[ext_resource type="Texture2D" uid="uid://g85810pjjm4y" path="res://art/icons/art_items/flashlight.png" id="1_i1x2y"]
+[ext_resource type="Script" uid="uid://2ndmr7htrd8w" path="res://scripts/items/item_def.gd" id="1_script"]
+
 [resource]
 script = ExtResource("1_script")
 id = &"flashlight"
 display_name = "Flashlight"
+icon = ExtResource("1_i1x2y")
 max_stack = 1
 category = 0
 description = "Hand-sized, takes two D-cells. Cuts the dark in a tight beam."
-base_value = 8
-sellable = true
+base_value = 15
 giftable = false

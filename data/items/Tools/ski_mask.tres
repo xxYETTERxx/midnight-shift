@@ -1,14 +1,16 @@
-[gd_resource type="Resource" script_class="ItemDef" load_steps=2 format=3]
- 
-[ext_resource type="Script" path="res://scripts/items/item_def.gd" id="1_script"]
- 
+[gd_resource type="Resource" script_class="ItemDef" format=3 uid="uid://u7vdtpl5dql3"]
+
+[ext_resource type="Texture2D" uid="uid://nc6d8rwmmlu8" path="res://art/icons/art_items/ski_mask.png" id="1_s85mx"]
+[ext_resource type="Script" uid="uid://2ndmr7htrd8w" path="res://scripts/items/item_def.gd" id="1_script"]
+
 [resource]
 script = ExtResource("1_script")
 id = &"ski_mask"
 display_name = "Ski Mask"
+icon = ExtResource("1_s85mx")
 max_stack = 1
 category = 0
 description = "Black wool, three holes. Not for skiing."
-base_value = 5
+base_value = 20
 sellable = true
 giftable = false

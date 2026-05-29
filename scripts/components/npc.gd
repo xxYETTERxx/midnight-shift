@@ -27,6 +27,8 @@ extends Node2D
 			$AnimatedSprite2D.sprite_frames = value
 
 
+
+
 func _ready() -> void:
 	if npc_id == "":
 		npc_id = name.to_lower()

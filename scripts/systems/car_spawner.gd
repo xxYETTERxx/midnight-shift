@@ -187,7 +187,6 @@ func _instantiate_car(parent: Node, state: Dictionary) -> void:
 	if tier >= 0 and tier < _loot_tables.size():
 		car.loot_table = _loot_tables[tier]
 	_apply_sprite(car, state)
-	car.is_locked = LootableCar.roll_locked_for_tier(car.tier, _rng)
 	car.looted.connect(func(_drops): _on_car_looted(car.car_id))
 
 

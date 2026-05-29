@@ -3,6 +3,7 @@
 [ext_resource type="TileSet" uid="uid://ctiqnhm16fty4" path="res://data/tilesets/Interiors.tres" id="1_u08ki"]
 [ext_resource type="PackedScene" uid="uid://yyg1vmqtao4e" path="res://scenes/components/bed.tscn" id="2_xqw01"]
 [ext_resource type="PackedScene" uid="uid://cu0qiy18mj116" path="res://scenes/components/doorway.tscn" id="3_es2m1"]
+[ext_resource type="PackedScene" uid="uid://cr7eet210fpob" path="res://scenes/components/crafting_station.tscn" id="4_xqw01"]
 
 [node name="Apartment" type="Node2D" unique_id=818993673 groups=["placement_allowed"]]
 y_sort_enabled = true
@@ -32,10 +33,10 @@ position = Vector2(-23, 45)
 target_room = "uid://huc6tubl0gxv"
 target_spawn = "from_apartment_small"
 
+[node name="CraftingStation" parent="Interactables" unique_id=1774684420 instance=ExtResource("4_xqw01")]
+position = Vector2(-75, -5)
+
 [node name="SpawnPoints" type="Node2D" parent="." unique_id=605545023]
 
 [node name="from_hall" type="Marker2D" parent="SpawnPoints" unique_id=1194040583]
 position = Vector2(-22, 12)
-
-[node name="default" type="Marker2D" parent="SpawnPoints" unique_id=1732033360]
-position = Vector2(-152, 51)

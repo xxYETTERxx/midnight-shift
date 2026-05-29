@@ -1,14 +1,13 @@
-[gd_resource type="Resource" script_class="ItemDef" load_steps=2 format=3]
- 
-[ext_resource type="Script" path="res://scripts/items/item_def.gd" id="1_script"]
- 
+[gd_resource type="Resource" script_class="ItemDef" format=3 uid="uid://djrs82sep8kcw"]
+
+[ext_resource type="Texture2D" uid="uid://4bruamhqippr" path="res://art/icons/art_items/air_freshener.png" id="1_bryps"]
+[ext_resource type="Script" uid="uid://2ndmr7htrd8w" path="res://scripts/items/item_def.gd" id="1_script"]
+
 [resource]
 script = ExtResource("1_script")
 id = &"air_freshener"
 display_name = "Pine Air Freshener"
-max_stack = 99
-category = 2
+icon = ExtResource("1_bryps")
 description = "Cardboard tree, cardinal red. Hang it anywhere that smells like something else."
 base_value = 2
-sellable = true
 giftable = false

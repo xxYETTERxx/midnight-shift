@@ -5,7 +5,13 @@ extends Node
 # Holds NO live customer state — that lives on the minigame scene itself.
 
 const WEED_BUDS_ID: StringName = &"weed_buds"
-const MINIGAME_SCENE_PATH: String = "res://scenes/minigames/street_deal_minigame.tscn"
+const DIME_BAG_ID: StringName = &"dime_bag_full"
+
+# What the player is selling this session. Set by deal_spot at intake.
+# Determines pricing and whether eyeball tax applies.
+var product_id: StringName = &""
+
+const MINIGAME_SCENE_PATH: String = "res://scenes/minigames/"
 
 var spot_id: StringName = &""
 
@@ -27,6 +33,7 @@ var cop_check_interval_minutes: float = 30.0
 # Caller already deducted bud_count from the player's real inventory.
 func begin_session(
 	bud_count: int,
+	p_product_id: StringName,
 	p_spot_id: StringName,
 	p_area_id: StringName,
 	p_return_room: String,
@@ -41,6 +48,7 @@ func begin_session(
 		return
 	active = true
 	bud_in_session = bud_count
+	product_id = p_product_id
 	spot_id = p_spot_id
 	area_id = p_area_id
 	return_room_path = p_return_room
@@ -51,7 +59,7 @@ func begin_session(
 	cop_check_interval_minutes = p_cop_check_interval_minutes  
 
 	await ScreenFade.fade_out(0.4)
-	RoomManager.change_room(MINIGAME_SCENE_PATH, "default")
+	RoomManager.change_room(MINIGAME_SCENE_PATH+spot_id+".tscn", "default")
 	await ScreenFade.fade_in(0.4)
 
 
@@ -73,11 +81,11 @@ func end_session(bud_left: int) -> void:
 	if player != null:
 		player.global_position = return_position
 		if bud_left > 0:
-			var item := ItemRegistry.get_item(WEED_BUDS_ID)
+			var item := ItemRegistry.get_item(product_id)
 			if item != null:
 				var leftover: int = player.inventory.add(item, bud_left)
 				if leftover > 0:
-					push_warning("StreetDealSession: %d bud didn't fit on return" % leftover)
+					push_warning("StreetDealSession: %d %s didn't fit on return" % [leftover, item.display_name])
 
 	bud_in_session = 0
 	area_id = &""

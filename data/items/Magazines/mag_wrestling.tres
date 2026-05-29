@@ -1,12 +1,13 @@
-[gd_resource type="Resource" script_class="ItemDef" load_steps=2 format=3]
- 
-[ext_resource type="Script" path="res://scripts/items/item_def.gd" id="1_script"]
- 
+[gd_resource type="Resource" script_class="ItemDef" format=3 uid="uid://c1nuuljj6s4k5"]
+
+[ext_resource type="Texture2D" uid="uid://dd44rmu423nso" path="res://art/icons/art_items/mag_wrestling.png" id="1_hgkv5"]
+[ext_resource type="Script" uid="uid://2ndmr7htrd8w" path="res://scripts/items/item_def.gd" id="1_script"]
+
 [resource]
 script = ExtResource("1_script")
 id = &"mag_wrestling"
 display_name = "Wrestling Magazine"
-max_stack = 99
+icon = ExtResource("1_hgkv5")
 category = 11
 description = "Glossy photos of men in spandex. Match results and pull-out posters."
 base_value = 3

@@ -1,10 +1,105 @@
 [gd_scene format=3 uid="uid://huc6tubl0gxv"]
 
 [ext_resource type="TileSet" uid="uid://ctiqnhm16fty4" path="res://data/tilesets/Interiors.tres" id="1_yos2o"]
+[ext_resource type="Texture2D" uid="uid://b5dns2u4pqops" path="res://art/objects/Interactables/Doors/apartment_animated_door_3.png" id="2_lyco7"]
+[ext_resource type="PackedScene" uid="uid://cbl82j3yw8xvq" path="res://scenes/components/door.tscn" id="3_lyco7"]
 [ext_resource type="PackedScene" uid="uid://cu0qiy18mj116" path="res://scenes/components/doorway.tscn" id="4_drooq"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_d28a7"]
+atlas = ExtResource("2_lyco7")
+region = Rect2(64, 0, 16, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_55r07"]
+atlas = ExtResource("2_lyco7")
+region = Rect2(48, 0, 16, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_mppew"]
+atlas = ExtResource("2_lyco7")
+region = Rect2(32, 0, 16, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_tt4xi"]
+atlas = ExtResource("2_lyco7")
+region = Rect2(16, 0, 16, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_46s46"]
+atlas = ExtResource("2_lyco7")
+region = Rect2(0, 0, 16, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ejagx"]
+atlas = ExtResource("2_lyco7")
+region = Rect2(0, 0, 16, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_kimts"]
+atlas = ExtResource("2_lyco7")
+region = Rect2(16, 0, 16, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_0jcbr"]
+atlas = ExtResource("2_lyco7")
+region = Rect2(32, 0, 16, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_nt60a"]
+atlas = ExtResource("2_lyco7")
+region = Rect2(48, 0, 16, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_i37jv"]
+atlas = ExtResource("2_lyco7")
+region = Rect2(64, 0, 16, 32)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_loiyp"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_d28a7")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_55r07")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_mppew")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_tt4xi")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_46s46")
+}],
+"loop": false,
+"name": &"close",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ejagx")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_kimts")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_0jcbr")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_nt60a")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_i37jv")
+}],
+"loop": false,
+"name": &"open",
+"speed": 5.0
+}]
 
 [node name="ApartementHall" type="Node2D" unique_id=229554476]
 y_sort_enabled = true
+
+[node name="Door" parent="." unique_id=475491211 instance=ExtResource("3_lyco7")]
+position = Vector2(-24, -37)
+scale = Vector2(1.3, 1.3)
+sprite_frames = SubResource("SpriteFrames_loiyp")
+requires_global_flag = "apartment_rented"
+owner_home_scene = "player"
+owner_npc = &"player"
+time_open = "00:00"
+time_close = "00:00"
 
 [node name="Floor" type="TileMap" parent="." unique_id=778497895]
 z_index = -1
@@ -47,13 +142,13 @@ layer_0/y_sort_enabled = true
 position = Vector2(5, 16)
 
 [node name="Apartment_transit" parent="Markers" unique_id=1088734415 instance=ExtResource("4_drooq")]
-position = Vector2(-29, -47)
+position = Vector2(-29, -65)
 target_room = "uid://cuuervv0xtn12"
 target_spawn = "from_hall"
 
 [node name="world_transit" parent="Markers" unique_id=1793356305 instance=ExtResource("4_drooq")]
 position = Vector2(195, 3)
-target_room = "uid://ksdfvpuee8e8"
+target_room = "uid://bpvx1vn4dxqk7"
 target_spawn = "from_hall"
 
 [node name="SpawnPoints" type="Node2D" parent="." unique_id=164243807]
@@ -61,5 +156,5 @@ target_spawn = "from_hall"
 [node name="from_apartment_small" type="Marker2D" parent="SpawnPoints" unique_id=2048658407]
 position = Vector2(-25, -2)
 
-[node name="from_outside" type="Marker2D" parent="SpawnPoints" unique_id=816118304]
+[node name="from_lobby" type="Marker2D" parent="SpawnPoints" unique_id=816118304]
 position = Vector2(159, 19)

@@ -1,0 +1,18 @@
+[gd_scene format=3 uid="uid://cr7eet210fpob"]
+
+[ext_resource type="Script" uid="uid://dhqkwto3wpg45" path="res://scripts/components/crafting_station.gd" id="1_ckewc"]
+[ext_resource type="PackedScene" uid="uid://l6jfg123c1fw" path="res://scenes/components/interactable.tscn" id="2_jymxl"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ckewc"]
+
+[node name="CraftingStation" type="Area2D" unique_id=2084805160]
+collision_layer = 16
+collision_mask = 2
+script = ExtResource("1_ckewc")
+station_tag = &"packing_counter"
+
+[node name="Interactable" parent="." unique_id=702434313 instance=ExtResource("2_jymxl")]
+prompt_text = "Package"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Interactable" unique_id=1900757427]
+shape = SubResource("RectangleShape2D_ckewc")

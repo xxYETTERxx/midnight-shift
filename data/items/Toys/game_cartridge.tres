@@ -1,13 +1,14 @@
-[gd_resource type="Resource" script_class="ItemDef" load_steps=2 format=3]
- 
-[ext_resource type="Script" path="res://scripts/items/item_def.gd" id="1_script"]
- 
+[gd_resource type="Resource" script_class="ItemDef" format=3 uid="uid://cis1d1tbrlrxt"]
+
+[ext_resource type="Texture2D" uid="uid://b5h5dy8a2xudn" path="res://art/icons/art_items/game_cartridge.png" id="1_l7prf"]
+[ext_resource type="Script" uid="uid://2ndmr7htrd8w" path="res://scripts/items/item_def.gd" id="1_script"]
+
 [resource]
 script = ExtResource("1_script")
 id = &"game_cartridge"
 display_name = "Game Cartridge"
-max_stack = 99
+icon = ExtResource("1_l7prf")
 category = 11
 description = "16-bit, label half-peeled. Blow on it before you load it."
-base_value = 8
+base_value = 18
 sellable = true

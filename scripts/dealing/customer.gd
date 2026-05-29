@@ -1,6 +1,7 @@
 class_name Customer
 extends RefCounted
 
+
 # Stable id — assigned at generation, used as the dict key in CustomerRoster
 # and as the foreign key from pages, meetings, dialogue history, etc.
 var id: StringName = ""
@@ -48,6 +49,8 @@ var times_dealt: int = 0
 var times_flaked: int = 0
 var blacklisted: bool = false
 
+var referrals_given: int = 0
+
 
 func to_dict() -> Dictionary:
 	return {
@@ -67,6 +70,7 @@ func to_dict() -> Dictionary:
 		"times_dealt": times_dealt,
 		"times_flaked": times_flaked,
 		"blacklisted": blacklisted,
+		"referrals_given": referrals_given,
 	}
 
 
@@ -88,4 +92,7 @@ static func from_dict(data: Dictionary) -> Customer:
 	c.times_dealt = data.get("times_dealt", 0)
 	c.times_flaked = data.get("times_flaked", 0)
 	c.blacklisted = data.get("blacklisted", false)
+	c.referrals_given = data.get("referrals_given", 0)
 	return c
+	
+	

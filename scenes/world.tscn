@@ -7,10 +7,14 @@
 [ext_resource type="PackedScene" uid="uid://b317xfonelqtb" path="res://scenes/ui/inv_panel.tscn" id="5_ddauf"]
 [ext_resource type="PackedScene" uid="uid://5eqojybanbut" path="res://scenes/ui/vendor_panel.tscn" id="6_d8mhh"]
 [ext_resource type="PackedScene" uid="uid://by31gg3pe7bax" path="res://scenes/ui/pager_indicator.tscn" id="7_8job4"]
+[ext_resource type="PackedScene" uid="uid://c15igw1jj0pjf" path="res://scenes/ui/crafting_panel.tscn" id="7_q5onr"]
 [ext_resource type="PackedScene" uid="uid://bb6pf2kq7fvhq" path="res://scenes/ui/callback_panel.tscn" id="8_dfh1m"]
 [ext_resource type="PackedScene" uid="uid://sdrb2mo8mqmm" path="res://scenes/ui/appointment_panel.tscn" id="9_j81pg"]
 [ext_resource type="Script" uid="uid://ce3kux6bky6vb" path="res://scripts/ui/notification_label.gd" id="10_61ul8"]
 [ext_resource type="PackedScene" uid="uid://bphslxlns571t" path="res://scenes/ui/gift_panel.tscn" id="11_e3hyu"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_e3hyu"]
+font_size = 13
 
 [node name="World" type="Node2D" unique_id=887836903]
 y_sort_enabled = true
@@ -53,28 +57,58 @@ theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 horizontal_alignment = 2
 
 [node name="CashLabel" type="Label" parent="HUD" unique_id=1997635035]
-offset_left = 601.0
-offset_top = 76.0
-offset_right = 641.0
-offset_bottom = 99.0
+offset_left = 2.0
+offset_top = 85.0
+offset_right = 42.0
+offset_bottom = 108.0
 
 [node name="StaminaBar" type="ProgressBar" parent="HUD" unique_id=1488062173]
-offset_top = 10.0
-offset_right = 110.0
-offset_bottom = 22.0
+offset_left = 2.0
+offset_top = 15.0
+offset_right = 112.0
+offset_bottom = 27.0
 show_percentage = false
+
+[node name="StaminaLabel" type="Label" parent="HUD/StaminaBar" unique_id=506337829]
+layout_mode = 0
+offset_left = 2.0
+offset_top = -17.0
+offset_right = 107.0
+offset_bottom = 6.0
+text = "Stamina"
+label_settings = SubResource("LabelSettings_e3hyu")
 
 [node name="HungerBar" type="ProgressBar" parent="HUD" unique_id=1578881560]
-offset_top = 24.0
-offset_right = 110.0
-offset_bottom = 36.0
+offset_left = 1.0
+offset_top = 42.0
+offset_right = 111.0
+offset_bottom = 54.0
 show_percentage = false
 
+[node name="HungerLabel" type="Label" parent="HUD/HungerBar" unique_id=1311290408]
+layout_mode = 0
+offset_left = 3.0
+offset_top = -17.0
+offset_right = 108.0
+offset_bottom = 6.0
+text = "Hunger"
+label_settings = SubResource("LabelSettings_e3hyu")
+
 [node name="ThirstBar" type="ProgressBar" parent="HUD" unique_id=1075794771]
-offset_top = 36.0
-offset_right = 110.0
-offset_bottom = 48.0
+offset_left = 3.0
+offset_top = 67.0
+offset_right = 113.0
+offset_bottom = 79.0
 show_percentage = false
+
+[node name="ThirstLabel" type="Label" parent="HUD/ThirstBar" unique_id=1909034913]
+layout_mode = 0
+offset_left = 3.0
+offset_top = -15.0
+offset_right = 108.0
+offset_bottom = 8.0
+text = "Thirst"
+label_settings = SubResource("LabelSettings_e3hyu")
 
 [node name="InteractPrompt" type="Label" parent="HUD" unique_id=795496228]
 anchors_preset = 7
@@ -109,6 +143,8 @@ script = ExtResource("5_17trp")
 [node name="InvPanel" parent="HUD" unique_id=1276004659 instance=ExtResource("5_ddauf")]
 
 [node name="VendorPanel" parent="HUD" unique_id=312657836 instance=ExtResource("6_d8mhh")]
+
+[node name="CraftingPanel" parent="HUD" unique_id=1947525258 instance=ExtResource("7_q5onr")]
 
 [node name="PagerIndicator" parent="HUD" unique_id=2099724978 instance=ExtResource("7_8job4")]
 offset_left = 576.0

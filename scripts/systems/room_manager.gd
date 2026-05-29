@@ -3,7 +3,7 @@ extends Node
 # Emitted just after a room is loaded and the player is positioned.
 signal room_changed(room_name: String)
 
-@export var initial_room: String = "res://scenes/rooms/apartment_small.tscn"
+@export var initial_room: String = "res://scenes/rooms/city_central.tscn"
 @export var initial_spawn: String = "default"
 
 var current_room: Node = null
@@ -23,6 +23,8 @@ func register_world_only(world: Node, player: Node2D) -> void:
 
 func change_room(room_path: String, spawn_name: String) -> void:
 	
+	print("[room] change_room -> %s" % room_path)
+	print(get_stack())
 	if _world == null:
 		push_error("RoomManager: world not registered")
 		return

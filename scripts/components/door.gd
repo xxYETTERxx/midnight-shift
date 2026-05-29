@@ -10,6 +10,7 @@ const REST_FRAME: int = 0
 
 @export var sprite_frames: SpriteFrames
 
+@export var requires_global_flag: String = ""
 
 
 # Lockable doors enforce open hours. When the current calendar minute is
@@ -65,7 +66,14 @@ func _on_interacted(_player: Node) -> void:
 	if is_lockable and not _is_unlocked():
 		NotificationSystem.warn(_locked_message())
 		return
-	_open()
+	if requires_global_flag == "":
+		_open()
+	else:
+		if RelationshipSystem.get_global_flag(requires_global_flag):
+			_open()
+			return
+	NotificationSystem.warn("Locked")
+	return
 
 
 # Open hours run from time_open (inclusive) to time_close (exclusive).

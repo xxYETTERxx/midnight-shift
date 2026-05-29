@@ -1,12 +1,13 @@
-[gd_resource type="Resource" script_class="ItemDef" load_steps=2 format=3]
- 
-[ext_resource type="Script" path="res://scripts/items/item_def.gd" id="1_script"]
- 
+[gd_resource type="Resource" script_class="ItemDef" format=3 uid="uid://du64dy0sg1pl6"]
+
+[ext_resource type="Script" uid="uid://2ndmr7htrd8w" path="res://scripts/items/item_def.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://b5h5dy8a2xudn" path="res://art/icons/art_items/game_cartridge.png" id="1_uhcda"]
+
 [resource]
 script = ExtResource("1_script")
 id = &"game_boy_game"
 display_name = "Game Boy Cartridge"
-max_stack = 99
+icon = ExtResource("1_uhcda")
 category = 11
 description = "Translucent yellow plastic. Battery-backed save."
 base_value = 10

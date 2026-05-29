@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="ItemDef" format=3 uid="uid://dqhffwy6f6xs"]
+
+[ext_resource type="Texture2D" uid="uid://gynxes47wq1q" path="res://art/icons/art_items/dime_bags_empty3.png" id="1_t2qch"]
+[ext_resource type="Script" uid="uid://2ndmr7htrd8w" path="res://scripts/items/item_def.gd" id="1_ugm6c"]
+
+[resource]
+script = ExtResource("1_ugm6c")
+id = &"empty_dime_bag"
+display_name = "Empty Dime Bag"
+icon = ExtResource("1_t2qch")
+description = "Empty bag"
+giftable = false
+metadata/_custom_type_script = "uid://2ndmr7htrd8w"
