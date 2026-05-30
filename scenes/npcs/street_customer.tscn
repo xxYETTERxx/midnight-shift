@@ -75,7 +75,7 @@ animations = [{
 }]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_qf8xs"]
-size = Vector2(20, 41)
+size = Vector2(56, 41)
 
 [node name="StreetCustomer" type="Node2D" unique_id=1383734749]
 script = ExtResource("1_lcwa3")

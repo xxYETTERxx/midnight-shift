@@ -14,7 +14,11 @@ extends RefCounted
 const ROUTES: Array = [
 	# placeholder — replace with real entry-to-entry chains
 	[&"E_S_Entry", &"N_SE_Corner", &"N_SW_Corner", &"NW_SE_Corner", &"SW_E_Entry"],
-	# [&"SW_W_Entry", &"meet_spot_2_corner", &"meet_spot_1_corner", &"E_S_Entry"],
+	[&"E_N_Entry", &"N_NE_Corner", &"N_NW_Corner", &"NW_NW_Corner", &"SW_W_Entry"],
+	[&"E_S_Entry", &"N_SE_Corner", &"N_E_Entry"],
+	[&"S_E_Entry",&"N_E_Entry"],
+	[&"S_W_Entry",&"N_W_Entry"],
+	[&"N_W_Entry",&"N_NW_Corner", &"NW_NW_Corner",&"SW_W_Entry"]
 ]
 
 

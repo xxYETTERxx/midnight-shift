@@ -70,7 +70,7 @@ const REFUSAL_HEAT_MAX: float = 5.0
 @onready var customer_layer: Node2D = $CustomerLayer
 @onready var bud_label: Label = $UI/MarginContainer/VBoxContainer/BudLabel
 @onready var cash_label: Label = $UI/MarginContainer/VBoxContainer/CashLabel
-@onready var exit_button: Button = $UI/MarginContainer/VBoxContainer/ExitButton
+@onready var exit_button: Button = $UI/ExitButton
 
 # --- Session state ---
 var _bud_left: int = 0

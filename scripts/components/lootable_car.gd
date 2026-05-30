@@ -122,7 +122,8 @@ func _complete_action() -> void:
 			if item.id == "loose_change":
 				for change in range(count):
 					Wallet.add(item.base_value)
-					NotificationSystem.loot(item,count)
+					
+				NotificationSystem.loot(item,count)
 			else:
 				var leftover: int = inv.add(item, count)
 				var added: int = count - leftover

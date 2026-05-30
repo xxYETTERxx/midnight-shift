@@ -14,12 +14,12 @@ extends RefCounted
 
 const ROUTES: Dictionary = {
 	&"meet_spot_1": [
-		[&"N_E_Entry", &"N_SE_Corner", &"meet_spot_1_corner", &"meet_spot_1"],
-		[&"E_S_Entry", &"meet_spot_1_corner", &"meet_spot_1"],
+		[&"N_E_Entry", &"N_SE_Corner", &"gas_station_corner", &"meet_spot_1"],
+		[&"E_S_Entry", &"gas_station_corner", &"meet_spot_1"],
 	],
 	&"meet_spot_2": [
-		[&"SW_W_Entry", &"meet_spot_2_corner", &"meet_spot_2_corner2", &"meet_spot_2"],
-		[&"N_W_Entry", &"N_NW_Corner", &"NW_NW_Corner", &"meet_spot_2_corner", &"meet_spot_2_corner2", &"meet_spot_2"],
+		[&"SW_W_Entry", &"meet_spot_2_corner", &"meet_spot_2"],
+		[&"N_W_Entry", &"N_NW_Corner", &"NW_NW_Corner", &"meet_spot_2_corner", &"meet_spot_2"],
 	],
 	&"meet_spot_3": [
 		[&"N_W_Entry", &"N_NW_Corner", &"meet_spot_3_corner", &"meet_spot_3"],

@@ -11,5 +11,5 @@ display_name = "120-Min Calling Card"
 icon = ExtResource("1_qe108")
 max_stack = 1
 category = 6
-base_value = 5
+base_value = 16
 sellable = true

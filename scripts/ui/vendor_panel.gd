@@ -291,17 +291,37 @@ func _on_player_slot_clicked(slot_index: int, action: int) -> void:
 		_:
 			requested = 1
 
+	# Batch-sold items (e.g. bottles at 10-per-sale) only move in whole
+	# batches. Round the requested amount DOWN to a multiple of the batch
+	# size; the remainder stays in the player's stack. For per-unit items
+	# (sell_batch_size <= 1) this is a no-op.
+	var batch_size: int = stack.item.sell_batch_size
+	if batch_size > 1:
+		requested = (requested / batch_size) * batch_size
+		if requested <= 0:
+			return
+
 	# Clamp by vendor's daily cash budget BEFORE staging the move,
 	# so we never put ghost items into the vendor's shadow.
 	if _vendor.has_buy_budget():
-		var unit_price := _vendor.quote_sell_to_vendor(stack.item, 1)
-		if unit_price > 0:
-			# Use revenue-only (not net) so staged purchases don't inflate
-			# the available budget.
-			var staged_revenue := _pending_sell_revenue()
-			var available := _vendor.remaining_buy_budget() - staged_revenue
-			var max_affordable: int = max(0, available / unit_price)
-			requested = min(requested, max_affordable)
+		if batch_size > 1:
+			# Batch items: clamp in whole batches, since a partial batch
+			# pays nothing and shouldn't move.
+			var price_per_batch := _vendor.quote_sell_to_vendor(stack.item, batch_size)
+			if price_per_batch > 0:
+				var staged_revenue := _pending_sell_revenue()
+				var available := _vendor.remaining_buy_budget() - staged_revenue
+				var affordable_batches: int = max(0, available / price_per_batch)
+				requested = min(requested, affordable_batches * batch_size)
+		else:
+			var unit_price := _vendor.quote_sell_to_vendor(stack.item, 1)
+			if unit_price > 0:
+				# Use revenue-only (not net) so staged purchases don't inflate
+				# the available budget.
+				var staged_revenue := _pending_sell_revenue()
+				var available := _vendor.remaining_buy_budget() - staged_revenue
+				var max_affordable: int = max(0, available / unit_price)
+				requested = min(requested, max_affordable)
 	if requested <= 0:
 		return
 

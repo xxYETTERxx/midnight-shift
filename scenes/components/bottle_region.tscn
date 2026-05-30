@@ -1,0 +1,15 @@
+[gd_scene format=3 uid="uid://yollthfbii5t"]
+
+[ext_resource type="Script" uid="uid://danrqykfcm0ch" path="res://scripts/components/bottle_region.gd" id="1_n4451"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_n4451"]
+size = Vector2(250, 170)
+
+[node name="BottleRegion" type="Node2D" unique_id=1979914876]
+script = ExtResource("1_n4451")
+
+[node name="Area" type="Area2D" parent="." unique_id=1407806517]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area" unique_id=100807680]
+position = Vector2(3, 0)
+shape = SubResource("RectangleShape2D_n4451")

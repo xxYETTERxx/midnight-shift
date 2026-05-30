@@ -29,6 +29,7 @@
 [ext_resource type="Resource" uid="uid://dq12dwa2w0g65" path="res://data/items/Consumable/whiskey_pint.tres" id="26_devii"]
 [ext_resource type="Resource" uid="uid://bat45tt03ri5g" path="res://data/items/Consumable/wine_cooler.tres" id="27_o8ui8"]
 [ext_resource type="Resource" uid="uid://d3d1fny61k4im" path="res://data/items/Drugs/cigarette_pack.tres" id="28_planv"]
+[ext_resource type="Resource" uid="uid://dtmb5jecc3qjg" path="res://data/items/Misc/bottle.tres" id="29_aad68"]
 
 [node name="GasStation" type="Node2D" unique_id=1419844553]
 
@@ -73,8 +74,11 @@ target_spawn = "from_gas_station"
 position = Vector2(-57, 56)
 vendor_id = &"jason"
 vendor_name = "Jason"
+sell_multiplier = 1.0
+stock_size = 36
 initial_stock = Array[ExtResource("4_sqsuf")]([ExtResource("5_li083"), ExtResource("6_3en5p"), ExtResource("7_hqo43"), ExtResource("8_aad68"), ExtResource("9_dxcqb"), ExtResource("10_5wdyk"), ExtResource("11_fiomy"), ExtResource("12_3ohj1"), ExtResource("13_8jabh"), ExtResource("14_mraxa"), ExtResource("15_x3q8f"), ExtResource("16_glqta"), ExtResource("17_hqo43"), ExtResource("18_b283a"), ExtResource("19_jp7rp"), ExtResource("20_y1mf4"), ExtResource("21_8j0sa"), ExtResource("22_jhtpl"), ExtResource("23_hqo43"), ExtResource("24_5a108"), ExtResource("25_qxnm5"), ExtResource("26_devii"), ExtResource("27_o8ui8"), ExtResource("28_planv")])
 initial_stock_counts = Array[int]([1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4])
+will_buy_items = Array[ExtResource("4_sqsuf")]([ExtResource("29_aad68")])
 
 [node name="SpawnPoints" type="Node2D" parent="." unique_id=814176097]
 position = Vector2(5, 16)

@@ -92,7 +92,6 @@ func _ready() -> void:
 	interactable.interacted.connect(_on_interacted)
 	_remaining_buy_budget = daily_buy_budget
 	TimeSystem.day_rolled.connect(_on_day_rolled)
-	TimeSystem.day_rolled.connect(_on_day_rolled)
 	TimeSystem.week_rolled.connect(_on_week_rolled)
 
 	if vendor_id == &"":
@@ -184,12 +183,12 @@ func will_buy(item: ItemDef) -> bool:
 	return item in will_buy_items
 
 
-# Quote how much this vendor would PAY for `count` of `item`.
-# Returns 0 if the vendor doesn't accept this item type.
-# Does NOT clamp to remaining budget -- callers check that via can_pay().
 func quote_sell_to_vendor(item: ItemDef, count: int) -> int:
 	if not will_buy(item) or count <= 0:
 		return 0
+	if item.sell_batch_size > 1:
+		var batches: int = count / item.sell_batch_size  # integer floor
+		return int(round(item.sell_batch_value * sell_multiplier)) * batches
 	return int(round(item.base_value * sell_multiplier)) * count
 
 
@@ -304,6 +303,8 @@ func _populate_rotating_stock() -> void:
 	for item in _rotating_picks:
 		if item != null:
 			stock.add(item, 1)
+
+
 
 
 # === Save / Load ===

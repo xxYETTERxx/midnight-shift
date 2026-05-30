@@ -9,4 +9,5 @@ id = &"dime_bag_full"
 display_name = "1g of weed"
 icon = ExtResource("1_ww74c")
 description = "It'll get you high"
+base_value = 10
 metadata/_custom_type_script = "uid://2ndmr7htrd8w"

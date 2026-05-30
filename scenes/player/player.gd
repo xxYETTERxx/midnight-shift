@@ -493,6 +493,10 @@ func _try_use_tool(item: ItemDef) -> bool:
 			inventory.add(ItemRegistry.get_item("empty_dime_bag"),99)
 			inventory.consume_active(1)
 			return true
+		&"weed_oz":
+			inventory.add(ItemRegistry.get_item("weed_buds"),28)
+			inventory.consume_active(1)
+			return true
 		_:
 			return false
 

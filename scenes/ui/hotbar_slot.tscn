@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://ckd3x1qkiflw0" path="res://scripts/ui/hotbar_slot.gd" id="1_rgd5a"]
 
 [node name="HotbarSlot" type="PanelContainer" unique_id=85392358]
-custom_minimum_size = Vector2(32, 32)
+custom_minimum_size = Vector2(16, 16)
 offset_right = 32.0
 offset_bottom = 32.0
 script = ExtResource("1_rgd5a")

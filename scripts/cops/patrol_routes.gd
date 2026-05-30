@@ -16,20 +16,12 @@ extends RefCounted
 
 const ROUTES: Dictionary = {
 	&"city_central": [
-		# North perimeter sweep, west → east
-		[&"N_W_Entry", &"N_NW_Corner", &"N_NE_Corner", &"N_E_Entry"],
-		# North perimeter sweep, east → west (reverse)
-		[&"N_E_Entry", &"N_NE_Corner", &"N_NW_Corner", &"N_W_Entry"],
-		# North quadrant loop-cut, west entry to south exit
-		[&"N_W_Entry", &"N_NW_Corner", &"N_SW_Corner", &"N_SE_Corner", &"N_E_Entry"],
-		# East side, north to south
-		[&"E_N_Entry", &"N_NE_Corner", &"N_SE_Corner", &"E_S_Entry"],
-		# South perimeter, west to east
-		[&"S_W_Entry", &"SW_W_Entry", &"SW_E_Entry", &"S_E_Entry"],
-		# Full Walk East -> West
-		[&"E_S_Entry", &"N_SW_Corner", &"NW_SE_Corner",&"SW_E_Entry"],
-		# Full Walk WEST -> EAST
-		[&"S_E_Entry", &"NW_SE_Corner", &"N_NE_Corner",&"E_N_Entry"],
+		[&"E_S_Entry", &"N_SE_Corner", &"N_SW_Corner", &"NW_SE_Corner", &"SW_E_Entry"],
+	[&"E_N_Entry", &"N_NE_Corner", &"N_NW_Corner", &"NW_NW_Corner", &"SW_W_Entry"],
+	[&"E_S_Entry", &"N_SE_Corner", &"N_E_Entry"],
+	[&"S_E_Entry",&"N_E_Entry"],
+	[&"S_W_Entry",&"N_W_Entry"],
+	[&"N_W_Entry",&"N_NW_Corner", &"NW_NW_Corner",&"SW_W_Entry"]
 	],
 }
 

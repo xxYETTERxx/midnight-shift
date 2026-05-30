@@ -5,7 +5,7 @@ extends Node2D
 # Walks an authored route to the meet spot at WALK_SPEED, then idles.
 # Sale completes through _on_interacted once they've arrived.
 
-const RAW_BUD_ID: StringName = &"weed_buds"
+const RAW_BUD_ID: StringName = &"dime_bag_full"
 const RETAIL_MULTIPLIER: float = 1.5
 
 # Source of truth for walk speed. MeetingManager reads this when computing

@@ -12,6 +12,23 @@ extends Resource
 @export var base_value: int = 0
 @export var sellable: bool = false
 
+# --- Batch selling ---
+# Some items can only be sold to vendors in whole multiples of a batch
+# (e.g. bottles redeemed 10 at a time). Leftover units below a full batch
+# stay with the player. This also keeps the wallet integer-clean: instead
+# of a fractional per-unit price (a bottle "worth" $0.10), we price the
+# batch as a whole dollar amount and never touch fractional cents.
+#
+#   sell_batch_size = 1  -> no constraint, normal per-unit selling
+#   sell_batch_size > 1  -> sells only in multiples of this many units
+#
+# When sell_batch_size > 1, the per-batch payout is sell_batch_value
+# (in dollars, before the vendor's sell_multiplier). base_value is then
+# only used for non-vendor contexts (e.g. UI/insurance/loose_change), and
+# the vendor pricing path uses the batch value instead.
+@export var sell_batch_size: int = 1
+@export var sell_batch_value: int = 0
+
 # Consumable effects — non-zero values mean this item can be eaten/drunk.
 # An item with hunger_restore > 0 is treated as food; thirst_restore > 0 as drink.
 # Items with both bonuses (sodas with sugar, burritos with moisture) are allowed
@@ -29,6 +46,7 @@ extends Resource
 # Whether this item can be given as a gift at all. Tools and keys = false.
 # Defaults true — most items should be giftable.
 @export var giftable: bool = true
+
 
 # When this item is used as a crafting tool, each unit of recipe output
 # consumes this much time and stamina. Zero = no contribution from this

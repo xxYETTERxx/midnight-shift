@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemDef" format=3 uid="uid://bx0o1rt8wingx"]
+
+[ext_resource type="Texture2D" uid="uid://cfrwq6lsmmpnw" path="res://art/objects/WeedBags/oz_weed5.png" id="1_1mm8q"]
+[ext_resource type="Script" uid="uid://2ndmr7htrd8w" path="res://scripts/items/item_def.gd" id="1_jxlmn"]
+
+[resource]
+script = ExtResource("1_jxlmn")
+id = &"weed_oz"
+tool_id = &"weed_oz"
+display_name = "28g of Weed"
+icon = ExtResource("1_1mm8q")
+description = "Big ole bag of buds"
+base_value = 180
+sellable = true
+metadata/_custom_type_script = "uid://2ndmr7htrd8w"

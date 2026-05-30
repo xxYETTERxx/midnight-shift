@@ -3904,7 +3904,9 @@ anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = -40.0
-offset_top = -40.0
+offset_top = -139.6
+offset_right = 1.0
+offset_bottom = -89.59924
 grow_horizontal = 0
 grow_vertical = 0
 
@@ -3917,6 +3919,9 @@ layout_mode = 2
 [node name="CashLabel" type="Label" parent="UI/MarginContainer/VBoxContainer" unique_id=518719545]
 layout_mode = 2
 
-[node name="ExitButton" type="Button" parent="UI/MarginContainer/VBoxContainer" unique_id=1201566452]
-layout_mode = 2
+[node name="ExitButton" type="Button" parent="UI" unique_id=1201566452]
+offset_left = 586.0
+offset_top = 274.0
+offset_right = 639.0
+offset_bottom = 305.0
 text = "Leave"

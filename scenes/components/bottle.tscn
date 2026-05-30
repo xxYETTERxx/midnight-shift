@@ -1,0 +1,20 @@
+[gd_scene format=3 uid="uid://bscavbottle01"]
+
+[ext_resource type="Script" uid="uid://074faraeutnk" path="res://scripts/items/bottle.gd" id="1_petfk"]
+[ext_resource type="PackedScene" uid="uid://l6jfg123c1fw" path="res://scenes/components/interactable.tscn" id="2_bxldd"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_7a0uj"]
+
+[node name="Bottle" type="Node2D" unique_id=778989181]
+y_sort_enabled = true
+scale = Vector2(0.55, 0.55)
+script = ExtResource("1_petfk")
+
+[node name="Sprite" type="Sprite2D" parent="." unique_id=1375709606]
+y_sort_enabled = true
+
+[node name="Interactable" parent="." unique_id=702434313 instance=ExtResource("2_bxldd")]
+prompt_text = "Pick Up"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Interactable" unique_id=1706330354]
+shape = SubResource("RectangleShape2D_7a0uj")

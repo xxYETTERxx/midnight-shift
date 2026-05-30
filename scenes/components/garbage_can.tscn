@@ -1,0 +1,33 @@
+[gd_scene format=3 uid="uid://bscavgcan01"]
+
+[ext_resource type="Texture2D" uid="uid://ctylfadmdkc7r" path="res://art/objects/Interactables/GarbageCans/garbage_can2.png" id="1_gkj4g"]
+[ext_resource type="PackedScene" uid="uid://l6jfg123c1fw" path="res://scenes/components/interactable.tscn" id="2_xsmbb"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_pb_bg"]
+bg_color = Color(0.1, 0.1, 0.1, 0.6)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_pb_fill"]
+bg_color = Color(0.4, 0.85, 0.4, 1)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_vehnb"]
+
+[node name="GarbageCan" type="Node2D" unique_id=731529742]
+y_sort_enabled = true
+
+[node name="Sprite" type="Sprite2D" parent="." unique_id=137965445]
+texture = ExtResource("1_gkj4g")
+
+[node name="ProgressBar" type="ProgressBar" parent="." unique_id=1562740074]
+offset_left = -16.0
+offset_top = -32.0
+offset_right = 16.0
+offset_bottom = -26.0
+theme_override_styles/background = SubResource("StyleBoxFlat_pb_bg")
+theme_override_styles/fill = SubResource("StyleBoxFlat_pb_fill")
+max_value = 1.0
+show_percentage = false
+
+[node name="Interactable" parent="." unique_id=702434313 instance=ExtResource("2_xsmbb")]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Interactable" unique_id=1798365282]
+shape = SubResource("RectangleShape2D_vehnb")

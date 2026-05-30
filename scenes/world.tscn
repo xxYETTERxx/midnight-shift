@@ -62,6 +62,12 @@ offset_top = 85.0
 offset_right = 42.0
 offset_bottom = 108.0
 
+[node name="PagerIndicator" parent="HUD" unique_id=2099724978 instance=ExtResource("7_8job4")]
+offset_left = 576.0
+offset_top = 111.0
+offset_right = 576.0
+offset_bottom = 111.0
+
 [node name="StaminaBar" type="ProgressBar" parent="HUD" unique_id=1488062173]
 offset_left = 2.0
 offset_top = 15.0
@@ -137,6 +143,7 @@ offset_top = -40.0
 offset_right = 20.0
 grow_horizontal = 2
 grow_vertical = 0
+mouse_filter = 2
 theme_override_constants/separation = 4
 script = ExtResource("5_17trp")
 
@@ -145,12 +152,6 @@ script = ExtResource("5_17trp")
 [node name="VendorPanel" parent="HUD" unique_id=312657836 instance=ExtResource("6_d8mhh")]
 
 [node name="CraftingPanel" parent="HUD" unique_id=1947525258 instance=ExtResource("7_q5onr")]
-
-[node name="PagerIndicator" parent="HUD" unique_id=2099724978 instance=ExtResource("7_8job4")]
-offset_left = 576.0
-offset_top = 111.0
-offset_right = 576.0
-offset_bottom = 111.0
 
 [node name="CallbackPanel" parent="HUD" unique_id=2008453775 instance=ExtResource("8_dfh1m")]
 

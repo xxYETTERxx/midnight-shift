@@ -11,5 +11,5 @@ icon = ExtResource("1_sdfsy")
 max_stack = 1
 category = 6
 description = "Fits the curve of a back pocket"
-base_value = 8
+base_value = 12
 sellable = true

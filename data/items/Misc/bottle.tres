@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ItemDef" format=3 uid="uid://dtmb5jecc3qjg"]
+
+[ext_resource type="Texture2D" uid="uid://b4p3jpsbpxy2s" path="res://art/objects/Interactables/bottles/bottle0.png" id="1_htbky"]
+[ext_resource type="Script" uid="uid://2ndmr7htrd8w" path="res://scripts/items/item_def.gd" id="1_itemdef"]
+
+[resource]
+script = ExtResource("1_itemdef")
+id = &"bottle"
+display_name = "Empty Bottle"
+icon = ExtResource("1_htbky")
+category = 6
+description = "A discarded bottle. The gas station pays for these ten at a time."
+sellable = true
+sell_batch_size = 10
+sell_batch_value = 1
+giftable = false

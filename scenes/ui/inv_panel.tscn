@@ -19,8 +19,8 @@ script = ExtResource("1_0vv6v")
 layout_mode = 0
 offset_left = -12.0
 offset_top = -10.0
-offset_right = 467.0
-offset_bottom = 238.0
+offset_right = 620.0
+offset_bottom = 258.0
 mouse_filter = 2
 color = Color(0.32549, 0.396078, 0.490196, 0.854902)
 
