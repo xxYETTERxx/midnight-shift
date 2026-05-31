@@ -90,13 +90,18 @@ func _on_return_call_pressed(page: PendingPage) -> void:
 	var customer: Customer = page.get_customer()
 	if customer == null:
 		return
-	var meeting: Meeting = MeetingManager.schedule_meeting(customer, page.quantity_requested)
-	if meeting == null:
-		status_label.text = "No spots available right now."
+	var picker: Node = get_tree().get_first_node_in_group("time_picker_panel")
+	if picker == null or not picker.has_method("open_for"):
+		push_warning("CallbackPanel: no time_picker_panel in scene tree")
+		status_label.text = "Can't set up a meet right now."
 		return
-	PagerSystem.consume_page(page)
-	status_label.text = "Meet %s at %s, %s." % [
-		customer.display_name,
-		MeetingManager.get_spot_display_name(meeting.spot_id),
-		MeetingManager.format_minute(meeting.scheduled_minute),
-	]
+	# Close ourselves (releasing our time pause) and hand off to the picker,
+	# which owns the pause for the rest of the flow. Consume the page only
+	# once a meeting actually commits.
+	close()
+	picker.open_for(customer, page.quantity_requested, _make_commit_callback(page))
+
+
+func _make_commit_callback(page: PendingPage) -> Callable:
+	return func() -> void:
+		PagerSystem.consume_page(page)

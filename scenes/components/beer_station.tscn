@@ -1,0 +1,19 @@
+[gd_scene format=3 uid="uid://cmtr1jus6vdcc"]
+
+[ext_resource type="Script" uid="uid://bsf7qj2xqq2lm" path="res://scripts/components/drink_station.gd" id="1_e4x7e"]
+[ext_resource type="PackedScene" uid="uid://l6jfg123c1fw" path="res://scenes/components/interactable.tscn" id="2_bt7ai"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_28cxx"]
+
+[node name="BeerStation" type="Node2D" unique_id=271358619]
+script = ExtResource("1_e4x7e")
+
+[node name="Interactable" parent="." unique_id=702434313 instance=ExtResource("2_bt7ai")]
+prompt_text = "Pour Beer"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Interactable" unique_id=1592345025]
+shape = SubResource("RectangleShape2D_28cxx")
+
+[node name="ProgressBar" type="ProgressBar" parent="." unique_id=1156186401]
+offset_right = 4.0
+offset_bottom = 27.0

@@ -340,7 +340,7 @@ func _handle_split(inv: Inventory, slot_index: int) -> void:
 	else:
 		# Drop one onto the slot
 		if slot_stack == null:
-			inv.slots[slot_index] = ItemStack.new(_cursor_stack.item, 1)
+			inv.slots[slot_index] = ItemStack.new(_cursor_stack.item,_cursor_stack.count)
 			_cursor_stack.count -= 1
 			inv.slot_changed.emit(slot_index)
 		elif slot_stack.item == _cursor_stack.item and not slot_stack.is_full():

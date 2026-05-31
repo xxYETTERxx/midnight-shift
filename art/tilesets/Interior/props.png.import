@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://b04xuv4lyuvkp"
-path="res://.godot/imported/Building_Type3.png-b184aed33a5a9a414931f803ac65c50a.ctex"
+uid="uid://gqc46dcbbnes"
+path="res://.godot/imported/props.png-370f432853209e534e73497b57fe4e28.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://art/tilesets/Exterior/16x16/Building_Type2/Building_Type3.png"
-dest_files=["res://.godot/imported/Building_Type3.png-b184aed33a5a9a414931f803ac65c50a.ctex"]
+source_file="res://art/tilesets/Interior/props.png"
+dest_files=["res://.godot/imported/props.png-370f432853209e534e73497b57fe4e28.ctex"]
 
 [params]
 

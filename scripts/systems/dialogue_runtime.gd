@@ -66,6 +66,53 @@ func start(npc_id: String, display_name: String, entry: Dictionary) -> void:
 	dialogue_started.emit(npc_id)
 	_play_next()
 
+# One-call entry point: resolves this NPC's contextual line and plays it.
+# Both NPC interaction and vendor interaction route through here so context
+# logic lives in exactly one place. Returns true if a line actually started
+# (caller can then `await dialogue_ended`); false if there was no match or
+# the runtime was busy.
+func trigger(npc_id: String, display_name: String) -> bool:
+	if _is_running:
+		return false
+	if npc_id == "" or not DialogueDatabase.has_npc(npc_id):
+		return false
+	var entry := DialogueDatabase.get_line(npc_id, _build_context())
+	if entry.is_empty():
+		return false
+	start(npc_id, display_name, entry)
+	return true
+
+
+# Context dict the dialogue lookup uses to filter keys. Add to this as new
+# tag types are needed (weather, custom event flags, etc.).
+func _build_context() -> Dictionary:
+	return {
+		"weekday": _weekday_string(),
+		"timeofday": _time_of_day_string(),
+		"location": _current_location_id(),
+	}
+
+
+func _weekday_string() -> String:
+	const NAMES: Array[String] = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
+	return NAMES[TimeSystem.day_of_week()]
+
+
+func _time_of_day_string() -> String:
+	var h: int = TimeSystem.current_hour()
+	if h >= 6 and h < 12:
+		return "morning"
+	if h >= 12 and h < 18:
+		return "afternoon"
+	if h >= 18 and h < 22:
+		return "evening"
+	return "night"
+
+
+func _current_location_id() -> String:
+	if RoomManager.current_room == null:
+		return ""
+	return RoomManager.current_room.scene_file_path.get_file().get_basename()
 
 func advance() -> void:
 	if not _is_running:

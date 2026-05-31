@@ -1,7 +1,7 @@
 [gd_resource type="TileSet" format=3 uid="uid://c462vawa7m2bw"]
 
 [ext_resource type="Texture2D" uid="uid://swggdoyjg155" path="res://art/tilesets/Exterior/16x16/CityGround/NaturalTerrain2.png" id="1_3tyno"]
-[ext_resource type="Texture2D" uid="uid://b04xuv4lyuvkp" path="res://art/tilesets/Exterior/16x16/Building_Type2/Building_Type3.png" id="1_j1hyv"]
+[ext_resource type="Texture2D" uid="uid://b04xuv4lyuvkp" path="res://art/tilesets/Exterior/16x16/Building_Type3.png" id="1_j1hyv"]
 [ext_resource type="Texture2D" uid="uid://bcsjp4rt8vsfp" path="res://art/tilesets/Exterior/16x16/CityGround/Street_sidewalks_parking.png" id="2_j1hyv"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_kopms"]

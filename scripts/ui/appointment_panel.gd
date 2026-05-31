@@ -8,6 +8,9 @@ extends Control
 @onready var close_button: Button = $PanelContainer/VBoxContainer/CloseButton
 
 var _is_open: bool = false
+# When opened "alongside" the time picker, the picker owns the pause and the
+# escape-to-close. This panel just shows itself top-right and refreshes.
+var _alongside: bool = false
 
 
 func _ready() -> void:
@@ -21,7 +24,7 @@ func _ready() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if not _is_open:
+	if not _is_open or _alongside:
 		return
 	if event.is_action_pressed("ui_cancel"):
 		close()
@@ -39,9 +42,30 @@ func open() -> void:
 	if _is_open:
 		return
 	_is_open = true
+	_alongside = false
 	visible = true
 	TimeSystem.pause()
 	_rebuild_list()
+
+
+# Shown next to the time picker. No pause, no input capture — the picker
+# owns both. Safe to call when already open in normal mode (no-op).
+func open_alongside() -> void:
+	if _is_open and not _alongside:
+		# Already open standalone; leave it as-is.
+		return
+	_is_open = true
+	_alongside = true
+	visible = true
+	_rebuild_list()
+
+
+func close_alongside() -> void:
+	if not _is_open or not _alongside:
+		return
+	_is_open = false
+	_alongside = false
+	visible = false
 
 
 func close() -> void:
@@ -49,7 +73,9 @@ func close() -> void:
 		return
 	_is_open = false
 	visible = false
-	TimeSystem.resume()
+	if not _alongside:
+		TimeSystem.resume()
+	_alongside = false
 
 
 func _on_meetings_changed(_m: Meeting) -> void:

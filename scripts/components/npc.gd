@@ -53,38 +53,11 @@ func _ready() -> void:
 
 
 func _on_interacted(_player: Node) -> void:
-	var ctx := _build_context()
-	var entry := DialogueDatabase.get_line(npc_id, ctx)
-	if entry.is_empty():
-		push_warning("NPC '%s': no dialogue match for context %s" % [npc_id, ctx])
-		return
-	DialogueRuntime.start(npc_id, display_name, entry)
+	if not DialogueRuntime.trigger(npc_id, display_name):
+		push_warning("NPC '%s': no dialogue match" % npc_id)
 
 
-# Builds the context dict the dialogue lookup uses to filter keys.
-# Add to this as new tag types are needed (weather, custom event flags, etc.).
-func _build_context() -> Dictionary:
-	return {
-		"weekday": _weekday_string(),
-		"timeofday": _time_of_day_string(),
-		"location": _current_location_id(),
-	}
 
-
-func _weekday_string() -> String:
-	const NAMES: Array[String] = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
-	return NAMES[TimeSystem.day_of_week()]
-
-
-func _time_of_day_string() -> String:
-	var h: int = TimeSystem.current_hour()
-	if h >= 6 and h < 12:
-		return "morning"
-	if h >= 12 and h < 18:
-		return "afternoon"
-	if h >= 18 and h < 22:
-		return "evening"
-	return "night"
 
 
 func _current_location_id() -> String:

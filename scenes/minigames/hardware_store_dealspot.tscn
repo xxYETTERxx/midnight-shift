@@ -3870,6 +3870,7 @@ sources/0 = SubResource("TileSetAtlasSource_fqlt5")
 script = ExtResource("1_275fe")
 
 [node name="Background" type="Sprite2D" parent="." unique_id=117639970]
+z_index = -2
 texture = ExtResource("2_275fe")
 
 [node name="Boundary" type="TileMapLayer" parent="." unique_id=1171362407]
@@ -3884,12 +3885,6 @@ zoom = Vector2(1.2, 1.2)
 
 [node name="default" type="Marker2D" parent="SpawnPoints" unique_id=2007564643]
 position = Vector2(-52, 0)
-
-[node name="customer_left" type="Marker2D" parent="SpawnPoints" unique_id=496833306]
-position = Vector2(-35, -102)
-
-[node name="customer_right" type="Marker2D" parent="SpawnPoints" unique_id=1503427771]
-position = Vector2(-33, 99)
 
 [node name="CustomerLayer" type="Node2D" parent="." unique_id=572245405]
 y_sort_enabled = true
@@ -3923,3 +3918,13 @@ offset_top = 279.0
 offset_right = 638.0
 offset_bottom = 310.0
 text = "Leave"
+
+[node name="Paths" type="Node2D" parent="." unique_id=1428633026]
+
+[node name="Path1" type="Node2D" parent="Paths" unique_id=1366631728]
+
+[node name="entry" type="Marker2D" parent="Paths/Path1" unique_id=496833306]
+position = Vector2(-35, -102)
+
+[node name="exit" type="Marker2D" parent="Paths/Path1" unique_id=1503427771]
+position = Vector2(-33, 99)

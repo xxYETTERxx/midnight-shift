@@ -93,6 +93,7 @@ func _ready() -> void:
 	_remaining_buy_budget = daily_buy_budget
 	TimeSystem.day_rolled.connect(_on_day_rolled)
 	TimeSystem.week_rolled.connect(_on_week_rolled)
+	DealerExperience.tier_unlocked.connect(_on_tier_unlocked)
 
 	if vendor_id == &"":
 		push_warning("VendorInteractable '%s' has empty vendor_id -- persistence disabled" % vendor_name)
@@ -100,6 +101,11 @@ func _ready() -> void:
 		return
 
 	# Rehydrate same-day state if the store has it; otherwise fresh stock.
+	if VendorStateStore.has_state(vendor_id):
+		load_state(VendorStateStore.fetch(vendor_id))
+	else:
+		_populate_initial_stock()
+		
 	if VendorStateStore.has_state(vendor_id):
 		load_state(VendorStateStore.fetch(vendor_id))
 	else:
@@ -115,6 +121,11 @@ func _ready() -> void:
 		_ensure_rotating_picks()
 		_populate_initial_stock()
 
+func _on_tier_unlocked(_tier: int) -> void:
+	_restock()
+	if vendor_id != &"":
+		VendorStateStore.store(vendor_id, save_state())
+
 func _exit_tree() -> void:
 	# Stash current state centrally so leaving the scene doesn't lose
 	# today's stock/budget, and so we're not a dangling SaveSystem entry.
@@ -122,11 +133,29 @@ func _exit_tree() -> void:
 		VendorStateStore.store(vendor_id, save_state())
 
 func _on_interacted(player: Node) -> void:
+	if not _attendant_present():
+		NotificationSystem.warn("%s isn't here right now." % vendor_name)
+		return
+
+	# Fire the attendant's normal dialogue first (same as talking to them
+	# anywhere); open the store only once it finishes. vendor_id == npc_id.
+	if DialogueRuntime.trigger(String(vendor_id), vendor_name):
+		await DialogueRuntime.dialogue_ended
+
+	_open_panel(player)
+
+
+func _open_panel(player: Node) -> void:
 	var panel := get_tree().get_first_node_in_group("vendor_panel")
 	if panel == null:
 		push_warning("VendorInteractable: no vendor_panel found in scene")
 		return
 	panel.open_with_vendor(self, player)
+
+func _attendant_present() -> bool:
+	if vendor_id == &"":
+		return true
+	return NPCDirector.is_npc_present(vendor_id)
 	
 # Rolls a fresh set of rotating picks if we don't already have picks for
 # the current week. Safe to call repeatedly — no-ops within the same week.
@@ -221,6 +250,8 @@ func record_purchase(amount: int) -> void:
 	if not has_buy_budget() or amount <= 0:
 		return
 	_remaining_buy_budget = max(0, _remaining_buy_budget - amount)
+
+
 
 
 # === Front offers ===

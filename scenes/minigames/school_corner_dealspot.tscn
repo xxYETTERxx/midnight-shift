@@ -3871,6 +3871,7 @@ y_sort_enabled = true
 script = ExtResource("1_n7irc")
 
 [node name="Background" type="Sprite2D" parent="." unique_id=117639970]
+z_index = -2
 texture = ExtResource("2_bpdnr")
 
 [node name="Boundary" type="TileMapLayer" parent="." unique_id=1171362407]
@@ -3885,12 +3886,6 @@ zoom = Vector2(1.2, 1.2)
 
 [node name="default" type="Marker2D" parent="SpawnPoints" unique_id=2007564643]
 position = Vector2(24, 42)
-
-[node name="customer_left" type="Marker2D" parent="SpawnPoints" unique_id=496833306]
-position = Vector2(-166, 58)
-
-[node name="customer_right" type="Marker2D" parent="SpawnPoints" unique_id=1503427771]
-position = Vector2(166, 57)
 
 [node name="CustomerLayer" type="Node2D" parent="." unique_id=572245405]
 y_sort_enabled = true
@@ -3925,3 +3920,24 @@ offset_top = 274.0
 offset_right = 639.0
 offset_bottom = 305.0
 text = "Leave"
+
+[node name="Paths" type="Node2D" parent="." unique_id=1160704791]
+
+[node name="Path1" type="Node2D" parent="Paths" unique_id=1451381647]
+
+[node name="entry" type="Marker2D" parent="Paths/Path1" unique_id=496833306]
+position = Vector2(-110, -92)
+
+[node name="pivot" type="Marker2D" parent="Paths/Path1" unique_id=1503427771]
+position = Vector2(-110, 57)
+
+[node name="exit" type="Marker2D" parent="Paths/Path1" unique_id=1334141794]
+position = Vector2(179, 54)
+
+[node name="Path2" type="Node2D" parent="Paths" unique_id=1782421372]
+
+[node name="entry" type="Marker2D" parent="Paths/Path2" unique_id=16895921]
+position = Vector2(-183, 62)
+
+[node name="exit" type="Marker2D" parent="Paths/Path2" unique_id=1053301267]
+position = Vector2(179, 54)

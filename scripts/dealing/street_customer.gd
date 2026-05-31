@@ -13,7 +13,11 @@ const CRIME_TYPE: StringName = &"weed_deal"
 @export var sprite_frames: SpriteFrames
 @onready var _info_label: Label = $InfoLabel
 
-var target_position: Vector2 = Vector2.ZERO
+# Ordered world-space points the customer walks through: [entry, ...pivots, exit].
+# Set by the minigame before add_child. Walked start-to-end; freed on arrival
+# at the final point.
+var _path: PackedVector2Array = PackedVector2Array()
+var _path_index: int = 0
 var facing_right: bool = true
 var is_willing: bool = false
 
@@ -48,7 +52,7 @@ signal offer_resolved(willing: bool, completed: bool, customer: Node)
 func _ready() -> void:
 	if sprite_frames != null:
 		_sprite.sprite_frames = sprite_frames
-	_sprite.flip_h = not facing_right
+	_update_facing_from_next()
 	_play_walk()
 	_info_label.text = _build_info_text()
 	_interactable.interact_priority = 40
@@ -76,14 +80,63 @@ func _process(delta: float) -> void:
 # --- Walking ---
 
 func _tick_walk(delta: float) -> void:
-	var to_target: Vector2 = target_position - position
-	var step: float = walk_speed * delta
-	if to_target.length() <= step:
-		position = target_position
-		_arrived = true
+	if _path_index >= _path.size():
 		queue_free()
 		return
+
+	var target: Vector2 = _path[_path_index]
+	var to_target: Vector2 = target - position
+	var step: float = walk_speed * delta
+
+	if to_target.length() <= step:
+		position = target
+		_path_index += 1
+		if _path_index >= _path.size():
+			# Reached the final point — walk complete.
+			queue_free()
+			return
+		# Turn toward the next segment (handles corners).
+		_update_facing_from_next()
+		return
+
 	position += to_target.normalized() * step
+
+
+# Picks facing + the correct directional walk animation from the vector to the
+# current target point. Falls back gracefully: 4-way dir anim -> "walk" -> nothing.
+func _update_facing_from_next() -> void:
+	if _path_index >= _path.size():
+		return
+	var to_target: Vector2 = _path[_path_index] - position
+	if to_target.length() < 0.01:
+		return
+	_play_walk_for_dir(to_target)
+
+
+func _play_walk_for_dir(dir: Vector2) -> void:
+	if _sprite.sprite_frames == null:
+		return
+
+	# Dominant axis decides the animation. Horizontal ties go east/west.
+	var anim: String
+	if absf(dir.x) >= absf(dir.y):
+		facing_right = dir.x > 0.0
+		anim = "walk_e"  # flipped to face west when facing_right is false
+		_sprite.flip_h = not facing_right
+	else:
+		# Vertical-dominant — north (up) or south (down). No horizontal flip.
+		_sprite.flip_h = false
+		anim = "walk_n" if dir.y < 0.0 else "walk_s"
+
+	_play_anim_with_fallback(anim)
+
+
+func _play_anim_with_fallback(anim: String) -> void:
+	var sf := _sprite.sprite_frames
+	if sf.has_animation(anim):
+		_sprite.play(anim)
+	elif sf.has_animation("walk"):
+		_sprite.play("walk")
 
 
 # --- Interaction ---
@@ -158,14 +211,18 @@ func _complete_action() -> void:
 
 
 # --- Helpers ---
+# Called by the minigame before add_child. Spawns the customer at the path's
+# first point and queues the rest as the walk route.
+func set_path(points: PackedVector2Array) -> void:
+	_path = points
+	_path_index = 0
+	if _path.size() > 0:
+		position = _path[0]
+		_path_index = 1  # walk toward the second point first
+
 
 func _play_walk() -> void:
-	if _sprite.sprite_frames == null:
-		return
-	if _sprite.sprite_frames.has_animation("walk_e"):
-		_sprite.play("walk_e")
-	elif _sprite.sprite_frames.has_animation("walk"):
-		_sprite.play("walk")
+	_update_facing_from_next()
 
 
 func _play_idle() -> void:

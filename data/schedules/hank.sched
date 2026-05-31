@@ -5,9 +5,6 @@ default |
 	09:00 stand city_central hank_shack
 	
 
-# Sundays — store closed, stays home
-sun
-	09:00 stand oliver_house living_room east
 
 # After the bodega incident — he's worried, opens late, no break out front
 default | event_done bodega_intro

@@ -9,8 +9,27 @@ extends Node
 # starter — seeded explicitly by seed_starter_customer(), not via this array.
 const WAVE_SIZE_PER_TIER: Array[int] = [0, 1, 1, 1, 1]
 
+# Trust a customer must reach to refer a new buyer into the roster (one-shot).
+const REFERRAL_TRUST_THRESHOLD: int = 45
+
+# Referral chain caps here. Beyond this, escalation is the wholesale track
+# (oz-based, gated separately via Hank) — not this grams chain.
+const MAX_REFERRAL_TIER: int = 4
+
+# Per-tier requested-quantity bands (grams). Indexed by Customer.tier.
+# Tiers past the end clamp to the last entry.
+const QUANTITY_BANDS: Array[Vector2i] = [
+	Vector2i(1, 3),    # tier 0
+	Vector2i(2, 5),    # tier 1
+	Vector2i(3, 8),    # tier 2
+	Vector2i(5, 11),   # tier 3
+	Vector2i(7, 14),   # tier 4
+]
+
 # Hard cap on requested quantity per page, regardless of tier or trust.
 const ABSOLUTE_MAX_QUANTITY: int = 100
+
+const MAX_ROSTER_SIZE: int = 12
 
 # Trust thresholds at which a customer may refer a new buyer to the player.
 # Each customer pays out at most once per band (tracked via referrals_given),
@@ -29,12 +48,12 @@ var _rng: RandomNumberGenerator = RandomNumberGenerator.new()
 var _next_id: int = 1
 
 signal customer_added(customer: Customer)
+signal customer_removed(customer: Customer)
 
 
 func _ready() -> void:
 	SaveSystem.register_savable("customer_roster", self)
 	_rng.seed = Time.get_ticks_usec()
-	DealerExperience.tier_unlocked.connect(_on_tier_unlocked)
 	PagerSystem.pager_aquired.connect(seed_starter_customer)
 
 
@@ -85,13 +104,6 @@ func roll_page_quantity(c: Customer, rng: RandomNumberGenerator) -> int:
 
 # --- Generation ---
 
-func _on_tier_unlocked(tier: int) -> void:
-	if tier < 0 or tier >= WAVE_SIZE_PER_TIER.size():
-		return
-	var wave_size: int = WAVE_SIZE_PER_TIER[tier]
-	for i in range(wave_size):
-		var c := _generate_customer(tier)
-		_add_customer(c)
 
 
 func _generate_customer(tier: int) -> Customer:
@@ -106,14 +118,16 @@ func _generate_customer(tier: int) -> Customer:
 	c.default_dialogue = identity.get("dialogue_line", "")
 
 	c.tier = tier
-	# Quantity ranges scale modestly with tier — higher tiers want bigger orders.
-	var base_min: int = 1 + tier
-	c.quantity_min = base_min
-	c.quantity_max = base_min + 2 + tier
+	var band: Vector2i = _quantity_band_for_tier(tier)
+	c.quantity_min = band.x
+	c.quantity_max = band.y
 	c.quality_preference = min(tier, 3)
 	c.dialogue_bank = "default"
 	return c
 
+func _quantity_band_for_tier(tier: int) -> Vector2i:
+	var idx: int = clamp(tier, 0, QUANTITY_BANDS.size() - 1)
+	return QUANTITY_BANDS[idx]
 
 func _add_customer(c: Customer) -> void:
 	_customers[c.id] = c
@@ -121,6 +135,7 @@ func _add_customer(c: Customer) -> void:
 	print("[Roster] Added: %s | tier %d | qty %d-%d | head=%d body=%d" %
 		[c.display_name, c.tier, c.quantity_min, c.quantity_max,
 		c.head_index, c.body_index])
+	_enforce_cap()
 
 # Checks whether `c` has crossed any new referral threshold and, if so,
 # may generate a referred customer. Call after any trust increase. Safe to
@@ -158,6 +173,75 @@ func add_random_customer(tier: int = 0) -> Customer:
 	var c := _generate_customer(tier)
 	_add_customer(c)
 	return c
+
+# Called after a customer's trust increases (on a completed deal). If this
+# customer has crossed the referral threshold and hasn't referred anyone yet,
+# it spawns one new customer at referrer.tier + 1 (clamped to MAX_REFERRAL_TIER)
+# and flips the one-shot flag. Returns the new customer, or null if no
+# referral fired.
+func try_referral_from(referrer: Customer) -> Customer:
+	if referrer == null:
+		return null
+	if referrer.has_referred:
+		return null
+	if referrer.trust < REFERRAL_TRUST_THRESHOLD:
+		return null
+
+	referrer.has_referred = true
+	var new_tier: int = min(referrer.tier + 1, MAX_REFERRAL_TIER)
+	var c := _generate_customer(new_tier)
+	_add_customer(c)
+	print("[Roster] Referral: %s (tier %d, trust %d) -> %s (tier %d)" % [
+		referrer.display_name, referrer.tier, referrer.trust,
+		c.display_name, c.tier,
+	])
+	return c
+# If the roster is over capacity, drop the weakest contact: lowest tier
+# first, then lowest trust as the tiebreak. The just-added customer is a
+# candidate too — a fresh trust-0 pickup landing in a full roster of
+# established contacts will be the one dropped, so the add cleanly no-ops.
+func _enforce_cap() -> void:
+	while _customers.size() > MAX_ROSTER_SIZE:
+		var weakest: Customer = _find_weakest()
+		if weakest == null:
+			return  # shouldn't happen, but never loop forever
+		_remove_customer(weakest)
+
+
+func _find_weakest() -> Customer:
+	var weakest: Customer = null
+	for c in _customers.values():
+		if weakest == null or _is_weaker(c, weakest):
+			weakest = c
+	return weakest
+
+
+# Strict weakness ordering: lower tier loses; on equal tier, lower trust
+# loses; on equal trust, lower times_dealt loses; final tiebreak on id so
+# the result is deterministic (no RNG, stable across saves).
+func _is_weaker(a: Customer, b: Customer) -> bool:
+	if a.tier != b.tier:
+		return a.tier < b.tier
+	if a.trust != b.trust:
+		return a.trust < b.trust
+	if a.times_dealt != b.times_dealt:
+		return a.times_dealt < b.times_dealt
+	return String(a.id) < String(b.id)
+
+
+func _remove_customer(c: Customer) -> void:
+	if not _customers.has(c.id):
+		return
+	_customers.erase(c.id)
+	# Free the head index back to NPCGenerator so future customers can reuse
+	# the appearance (mirrors the reclaim on load).
+	if c.head_index >= 0 and NPCGenerator.has_method("release_head"):
+		NPCGenerator.release_head(&"customer", c.head_index)
+	print("[Roster] Dropped (cap): %s | tier %d | trust %d" % [
+		c.display_name, c.tier, c.trust,
+	])
+	customer_removed.emit(c)
+
 
 # --- Debug ---
 

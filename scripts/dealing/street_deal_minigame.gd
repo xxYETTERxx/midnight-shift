@@ -6,8 +6,8 @@ extends Node2D
 
 const STREET_CUSTOMER_SCENE: PackedScene = preload("res://scenes/npcs/street_customer.tscn")
 const COP_PATROL_SCENE: PackedScene = preload("res://scenes/npcs/cop_patrol.tscn")
-const CASH_PER_GRAM: int = 10   # raw bud price
-const CASH_PER_BAG: int = 10    # dime bag price (same number, different unit)
+const CASH_PER_GRAM: int = 15   # raw bud price
+const CASH_PER_BAG: int = 15    # dime bag price (same number, different unit)
 
 # Eyeball tax: per accepted sale, 0-15% of the grams sold is "wasted" by
 # imprecise measurement. Accumulates across the session; deducted from
@@ -65,8 +65,7 @@ const REFUSAL_HEAT_MIN: float = 0.0
 const REFUSAL_HEAT_MAX: float = 5.0
 
 # --- Scene refs ---
-@onready var spawn_left: Marker2D = $SpawnPoints/customer_left
-@onready var spawn_right: Marker2D = $SpawnPoints/customer_right
+@onready var paths_root: Node2D = $Paths
 @onready var customer_layer: Node2D = $CustomerLayer
 @onready var bud_label: Label = $UI/MarginContainer/VBoxContainer/BudLabel
 @onready var cash_label: Label = $UI/MarginContainer/VBoxContainer/CashLabel
@@ -85,6 +84,7 @@ var _speed_active: bool = false
 func _ready() -> void:
 	_rng.seed = Time.get_ticks_usec()
 	_bud_left = StreetDealSession.bud_in_session
+	_collect_paths()
 	_cash_earned = 0
 	_lock_player(true)
 	exit_button.pressed.connect(_on_exit_pressed)
@@ -144,6 +144,32 @@ func _cancel_active_deal() -> bool:
 			return true
 	return false
 
+# Collected once on ready: each entry is one path's ordered points in the
+# customer_layer's local space. A valid path needs at least 2 markers.
+var _paths: Array[PackedVector2Array] = []
+
+func _collect_paths() -> void:
+	_paths.clear()
+	if paths_root == null:
+		push_warning("StreetDealMinigame: no Paths node found")
+		return
+	for path_node in paths_root.get_children():
+		var pts := PackedVector2Array()
+		for child in path_node.get_children():
+			if child is Marker2D:
+				pts.append(customer_layer.to_local(child.global_position))
+		if pts.size() >= 2:
+			_paths.append(pts)
+			# Reversible: walking the same route end-to-start is a valid spawn.
+			# Authoring one path yields both directions.
+			var rev := pts.duplicate()
+			rev.reverse()
+			_paths.append(rev)
+		else:
+			push_warning("StreetDealMinigame: path '%s' has <2 markers, skipped" % path_node.name)
+	if _paths.is_empty():
+		push_warning("StreetDealMinigame: no valid paths under Paths node")
+
 
 # --- Spawning ---
 
@@ -178,16 +204,16 @@ func _spawn_customer() -> void:
 		push_warning("StreetDealMinigame: archetype '%s' has empty sprite_frames_pool" % archetype.archetype_id)
 		return
 
-	var from_left: bool = _rng.randf() < 0.5
-	var start_marker: Marker2D = spawn_left if from_left else spawn_right
-	var end_marker: Marker2D = spawn_right if from_left else spawn_left
+	if _paths.is_empty():
+		push_warning("StreetDealMinigame: no paths to spawn on")
+		return
+	var path: PackedVector2Array = _paths[_rng.randi() % _paths.size()]
 
 	var customer = STREET_CUSTOMER_SCENE.instantiate()
-	customer.position = start_marker.position
-	customer.target_position = end_marker.position
-	customer.facing_right = from_left
+	customer.set_path(path)
 	customer.archetype = archetype
 	customer.sprite_frames = archetype.sprite_frames_pool[_rng.randi() % archetype.sprite_frames_pool.size()]
+
 
 	var willingness: float = archetype.roll_purchase_chance(_rng)
 	customer.willingness_pct = willingness
@@ -339,24 +365,27 @@ func _cop_spawn_chance(recent: int) -> float:
 func _spawn_cop() -> void:
 	if StreetDealSession.spot_id == &"":
 		return
+	if _paths.is_empty():
+		push_warning("StreetDealMinigame: no paths to spawn cop on")
+		return
 
-	var from_left: bool = _rng.randf() < 0.5
-	var start_pos: Vector2 = spawn_left.global_position if from_left else spawn_right.global_position
-	var end_pos: Vector2 = spawn_right.global_position if from_left else spawn_left.global_position
+	var path: PackedVector2Array = _paths[_rng.randi() % _paths.size()]
+
+	# Patrol points are stored in customer_layer space; cops want global.
+	var patrol_points: Array[Vector2] = []
+	for p in path:
+		patrol_points.append(customer_layer.to_global(p))
 
 	var cop: CopNPC = COP_PATROL_SCENE.instantiate()
 	customer_layer.add_child(cop)
 
 	# Suppress witness behavior for the minigame — the bust check is manual,
 	# we don't want CrimeSystem firing pursuit on top.
-	# Take the puppet cop OUT of the global witness registry so CrimeSystem
-	# won't auto-bust through it. The minigame runs its own notice window
-	# below, reusing the WC only for line-of-sight checks.
 	var wc := cop.get_node_or_null("WitnessComponent")
 	if wc != null:
 		WitnessRegistry.unregister(wc)
 
-	cop.set_patrol([start_pos, end_pos])
+	cop.set_patrol(patrol_points)
 	cop.patrol_finished.connect(cop.queue_free)
 	cop.tree_exited.connect(_on_cop_freed.bind(cop))
 	_live_cops.append(cop)

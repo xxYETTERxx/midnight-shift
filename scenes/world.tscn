@@ -12,6 +12,7 @@
 [ext_resource type="PackedScene" uid="uid://sdrb2mo8mqmm" path="res://scenes/ui/appointment_panel.tscn" id="9_j81pg"]
 [ext_resource type="Script" uid="uid://ce3kux6bky6vb" path="res://scripts/ui/notification_label.gd" id="10_61ul8"]
 [ext_resource type="PackedScene" uid="uid://bphslxlns571t" path="res://scenes/ui/gift_panel.tscn" id="11_e3hyu"]
+[ext_resource type="PackedScene" uid="uid://c4ydukfwj0vw4" path="res://scenes/ui/time_picker_panel.tscn" id="11_jhx03"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_e3hyu"]
 font_size = 13
@@ -156,6 +157,16 @@ script = ExtResource("5_17trp")
 [node name="CallbackPanel" parent="HUD" unique_id=2008453775 instance=ExtResource("8_dfh1m")]
 
 [node name="AppointmentPanel" parent="HUD" unique_id=1298381124 instance=ExtResource("9_j81pg")]
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 4.0
+offset_top = -112.0
+offset_right = 4.0
+offset_bottom = -112.0
+grow_vertical = 0
+
+[node name="TimePickerPanel" parent="HUD" unique_id=573805165 instance=ExtResource("11_jhx03")]
 
 [node name="NotificationLabel" type="VBoxContainer" parent="HUD" unique_id=1468322041]
 custom_minimum_size = Vector2(200, 0)

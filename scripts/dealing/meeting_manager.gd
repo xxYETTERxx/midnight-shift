@@ -76,23 +76,70 @@ func register_route_distances(spot_id: StringName, distances: Array) -> void:
 
 # --- Scheduling ---
 
-# Returns the new Meeting on success, null on failure (no spots / no slot found).
-func schedule_meeting(customer: Customer, quantity: int) -> Meeting:
+# Picks one spot (shuffled, first with capacity) and returns up to
+# `count` free future time slots at that spot. Returns:
+#   { "spot_id": StringName, "slots": Array[int] }   on success
+#   {} (empty)                                       if no spot has any slot
+# `slots` are absolute total_minutes values, sorted ascending.
+func offer_slots(count: int = 5) -> Dictionary:
 	if _spots.is_empty():
 		push_warning("MeetingManager: no spots registered")
-		return null
+		return {}
 
-	var slot := _find_available_slot()
-	if slot.is_empty():
-		push_warning("MeetingManager: no available slot found within search window")
+	var spot_ids: Array = _spots.keys()
+	spot_ids.shuffle()
+
+	for spot_key in spot_ids:
+		var spot_id := StringName(spot_key)
+		var slots: Array = _free_slots_for_spot(spot_id, count)
+		if not slots.is_empty():
+			return {"spot_id": spot_id, "slots": slots}
+	return {}
+
+
+# Walks the search window for one spot, collecting free, non-sleep,
+# quarter-hour-aligned candidate minutes until it has `count` of them.
+func _free_slots_for_spot(spot_id: StringName, count: int) -> Array:
+	var base_minute: int = TimeSystem.total_minutes + MIN_HOURS_OUT * 60
+	# Round up to the next quarter hour so offered times read cleanly.
+	var start_minute: int = int(ceil(base_minute / 15.0)) * 15
+
+	var slots: Array = []
+	var step: int = 0
+	# Search in 15-minute increments across the window.
+	var max_steps: int = (MAX_SEARCH_HOURS * 60) / 15
+	while step < max_steps and slots.size() < count:
+		var candidate: int = start_minute + step * 15
+		step += 1
+		if _is_in_sleep_window(candidate):
+			continue
+		if _spot_free_at(spot_id, candidate):
+			slots.append(candidate)
+	return slots
+
+
+# Commits a player-chosen (spot, minute) slot. Returns the new Meeting, or
+# null if the slot was taken in the meantime (e.g. another page scheduled it
+# while the picker was open) or inputs are invalid.
+func schedule_meeting_at(customer: Customer, quantity: int, spot_id: StringName, minute: int) -> Meeting:
+	if customer == null:
+		return null
+	if not _spots.has(String(spot_id)):
+		push_warning("MeetingManager: unknown spot %s" % spot_id)
+		return null
+	if _is_in_sleep_window(minute):
+		push_warning("MeetingManager: chosen slot in sleep window")
+		return null
+	if not _spot_free_at(spot_id, minute):
+		push_warning("MeetingManager: chosen slot no longer free")
 		return null
 
 	var m := Meeting.new()
 	m.id = StringName("meet_%04d" % _next_meeting_id)
 	_next_meeting_id += 1
 	m.customer_id = customer.id
-	m.spot_id = slot["spot_id"]
-	m.scheduled_minute = slot["minute"]
+	m.spot_id = spot_id
+	m.scheduled_minute = minute
 	m.window_minutes = MEETING_WINDOW_MINUTES
 	m.quantity_requested = quantity
 	_compute_arrival(m)
@@ -105,6 +152,22 @@ func schedule_meeting(customer: Customer, quantity: int) -> Meeting:
 	])
 	meeting_scheduled.emit(m)
 	return m
+
+
+# Legacy random-pick path. Kept for any non-player-driven callers (scripted
+# events, debug). Player-facing callback flow now uses offer_slots +
+# schedule_meeting_at.
+func schedule_meeting(customer: Customer, quantity: int) -> Meeting:
+	if _spots.is_empty():
+		push_warning("MeetingManager: no spots registered")
+		return null
+
+	var slot := _find_available_slot()
+	if slot.is_empty():
+		push_warning("MeetingManager: no available slot found within search window")
+		return null
+
+	return schedule_meeting_at(customer, quantity, slot["spot_id"], slot["minute"])
 
 
 func _find_available_slot() -> Dictionary:
@@ -255,7 +318,11 @@ func mark_completed(meeting_id: StringName) -> void:
 		c.times_dealt += 1
 		c.trust = min(c.trust + 5, 100)
 		c.affinity = min(c.affinity + 2, 100)
-		CustomerRoster.check_referral(c)
+		var referred: Customer = CustomerRoster.try_referral_from(c)
+		if referred != null:
+			NotificationSystem.warn("%s referred a new contact: %s" % [
+				c.display_name, referred.display_name,
+			])
 	DealerExperience.award_for_sale(m.quantity_requested)
 	meeting_completed.emit(m)
 	var spot_info: Dictionary = get_spot_info(m.spot_id)

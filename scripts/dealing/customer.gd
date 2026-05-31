@@ -49,7 +49,9 @@ var times_dealt: int = 0
 var times_flaked: int = 0
 var blacklisted: bool = false
 
-var referrals_given: int = 0
+
+
+var has_referred: bool = false
 
 
 func to_dict() -> Dictionary:
@@ -70,7 +72,8 @@ func to_dict() -> Dictionary:
 		"times_dealt": times_dealt,
 		"times_flaked": times_flaked,
 		"blacklisted": blacklisted,
-		"referrals_given": referrals_given,
+		"has_referred": has_referred,
+
 	}
 
 
@@ -92,7 +95,7 @@ static func from_dict(data: Dictionary) -> Customer:
 	c.times_dealt = data.get("times_dealt", 0)
 	c.times_flaked = data.get("times_flaked", 0)
 	c.blacklisted = data.get("blacklisted", false)
-	c.referrals_given = data.get("referrals_given", 0)
+	c.has_referred = data.get("has_referred", false)
 	return c
 	
 	
