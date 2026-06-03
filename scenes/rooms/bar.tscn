@@ -4,6 +4,9 @@
 [ext_resource type="PackedScene" uid="uid://cu0qiy18mj116" path="res://scenes/components/doorway.tscn" id="2_7hej6"]
 [ext_resource type="Script" uid="uid://ccbhfv5cpj5ab" path="res://scripts/components/bar_clock_in.gd" id="3_2wile"]
 [ext_resource type="PackedScene" uid="uid://l6jfg123c1fw" path="res://scenes/components/interactable.tscn" id="4_m2bdj"]
+[ext_resource type="PackedScene" uid="uid://ifyenelcpmvp" path="res://scenes/components/cocktail_station.tscn" id="5_7ji1w"]
+[ext_resource type="PackedScene" uid="uid://cmtr1jus6vdcc" path="res://scenes/components/beer_station.tscn" id="6_gahto"]
+[ext_resource type="PackedScene" uid="uid://gray23h782pl" path="res://scenes/components/whisky_station.tscn" id="7_ns5go"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_i7mn7"]
 
@@ -62,8 +65,23 @@ position = Vector2(5, 16)
 [node name="from_outside" type="Marker2D" parent="SpawnPoints" unique_id=1113485614]
 position = Vector2(-84, 45)
 
+[node name="counter" type="Marker2D" parent="SpawnPoints" unique_id=1127435610]
+position = Vector2(2, 6)
+
 [node name="Waypoints" type="Node2D" parent="." unique_id=1215555829]
 
 [node name="Furniture" type="TileMapLayer" parent="." unique_id=1629723803]
-tile_map_data = PackedByteArray("AAAHAAYAAQAAAAIAAAAHAAcAAQAAAAMAAAAIAAYAAQABAAIAAAAIAAcAAQABAAMAAAAJAAYAAQABAAIAAAAJAAcAAQABAAMAAAAHAAEAAQAAAAIAAAAHAAIAAQAAAAIAAAAHAAMAAQAAAAIAAAAHAAQAAQAAAAIAAAAHAAUAAQAAAAIAAAAHAAAAAQAAAAEAAAAHAP//AQAAAAAAAAA=")
+tile_map_data = PackedByteArray("AAD//wIAAQAAAAMAAAAAAAIAAQABAAMAAAABAAIAAQABAAMAAAD//wAAAQAAAAIAAAD//wEAAQAAAAIAAAD/////AQAAAAEAAAAAAAEAAQABAAIAAAABAAEAAQABAAIAAAACAAEAAQABAAIAAAACAAIAAQABAAMAAAADAAEAAQABAAIAAAADAAIAAQABAAMAAAAEAAEAAQABAAIAAAAEAAIAAQABAAMAAAAFAAEAAQABAAIAAAAFAAIAAQABAAMAAAAGAAEAAQABAAIAAAAGAAIAAQABAAMAAAAGAAMAAQAAAAIAAAAGAAQAAQAAAAEAAAAGAAUAAQAAAAIAAAAGAAYAAQAAAAEAAAAGAAcAAQAAAAIAAAAGAAgAAQAAAAMAAAAHAAcAAQABAAIAAAAHAAgAAQABAAMAAAACAP//AQABAAIAAAACAAAAAQABAAMAAAAEAP//AQABAAIAAAAEAAAAAQABAAMAAAAGAP//AQABAAIAAAAGAAAAAQABAAMAAAA=")
 tile_set = ExtResource("1_b8ysb")
+
+[node name="CocktailStation" parent="." unique_id=271358619 instance=ExtResource("5_7ji1w")]
+z_index = 1
+position = Vector2(72, -3)
+
+[node name="BeerStation" parent="." unique_id=1159053544 instance=ExtResource("6_gahto")]
+z_index = 1
+position = Vector2(103, -8)
+
+[node name="WhiskyStation" parent="." unique_id=1093211628 instance=ExtResource("7_ns5go")]
+z_index = 1
+position = Vector2(40, -4)

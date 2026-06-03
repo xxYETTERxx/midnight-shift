@@ -1,0 +1,23 @@
+[gd_scene format=3 uid="uid://b04necycv535f"]
+
+[ext_resource type="Script" uid="uid://d2fws5c605hb3" path="res://scripts/components/atm.gd" id="1_poy5f"]
+[ext_resource type="Texture2D" uid="uid://bnn082w6v5mmv" path="res://art/objects/Interactables/atm.png" id="2_f6pqs"]
+[ext_resource type="PackedScene" uid="uid://l6jfg123c1fw" path="res://scenes/components/interactable.tscn" id="3_0jdtg"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_5uupw"]
+size = Vector2(20, 25)
+
+[node name="ATM" type="Node2D" unique_id=1556260754]
+y_sort_enabled = true
+script = ExtResource("1_poy5f")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1542110979]
+y_sort_enabled = true
+texture = ExtResource("2_f6pqs")
+
+[node name="Interactable" parent="." unique_id=19325871 instance=ExtResource("3_0jdtg")]
+prompt_text = "Use ATM"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Interactable" unique_id=1079521650]
+position = Vector2(0, 8.5)
+shape = SubResource("RectangleShape2D_5uupw")

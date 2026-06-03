@@ -7,28 +7,38 @@ default
 
 
 
-#Dialogue cheat sheet
-
-#default                    # absolute fallback (specificity -1)
-#mon                        # any single tag (weekday/location/timeofday/weather/flag)
-#bodega.mon.rainy           # multiple tags (all must match; specificity = tag count)
-#*                          # match anything (specificity 0)
-#event:bodega_introa         # one-shot, only fires when queued
-
-# Inline preconditions after `|`, a
-#mon | trust >= 30 ; has_item baggie
-#fri | event_done bodega_introaa
-
-# Body markup:
-#$h $s $a $w $n             # portrait codes (extend as you add art)
-#$b                         # page break
-#$q ... $r                  # question block
-#%player %name              # substitutions (rendered by 4b runtime)
-
-# Inside a $q block:
-#--> "Response text" | affinity +5 ; trust +2
-#    Optional follow-up body specific to this response
-#--> "Other response" | set first_meeting
-#    Effects can also flip flags
-#$r
-#After $r, body continues with whatever was below the question.
+# ============================================================
+#  .dlg QUICK REFERENCE   (everything after # is a comment)
+# ============================================================
+#
+# ENTRY KEYS (one block each; pick the matching entry by tags)
+#   default            # fallback when nothing else matches (lowest priority)
+#   *                  # matches always (priority 0)
+#   mon.bodega         # tags joined by '.' — needs BOTH 'mon' AND 'bodega' in context
+#   event:intro_scene  # an event block, run by the event director
+#
+# ENTRY PRECONDITIONS  (after a '|', separated by ';' — ALL must pass)
+#   mon.bodega | has_pager ; !has_job          # flag set ; flag NOT set
+#   * | trust >= 50                            # compare a stat (ops: >= <= == != > <)
+#   * | event_done met_hank ; has_item slim_jim
+#
+# BODY (indented under the key; tabs or spaces, must be deeper than key)
+#   $h Hey there.          # $<code> = portrait/speaker code, rest = text
+#   And welcome.           # continuation line (appends to previous text)
+#   $b                     # page break (next text is a new box)
+#
+# QUESTIONS / CHOICES
+#   $q                                         # start a choice block
+#     --> "Sure thing." | set global:has_job   # response | clauses
+#     --> "Not now." | trust < 20              # response shown only if clause passes
+#       $h Suit yourself.                      # indented = follow-up after picking
+#   $r                                         # END the question block (required!)
+#
+# RESPONSE CLAUSES  (after '|', ';'-separated — preconditions AND effects mix freely)
+#   EFFECTS:   set NAME      # set flag true   (NPC-local unless 'global:' prefix)
+#              clear NAME     # set flag false
+#              set global:has_job   # GLOBAL flag (autoloads listen to these!)
+#              trust +5       # stat delta (trust / affinity), +N or -N
+#              affinity -2
+#   PRECONDS:  same forms as entry preconditions (flags, compare, has_item, event_done)
+# ============================================================

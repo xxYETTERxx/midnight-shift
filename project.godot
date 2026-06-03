@@ -64,6 +64,9 @@ VendorStateStore="*uid://tfqecnx2xojq"
 RecipeRegistry="*uid://drm8t3osvcgy2"
 ScavengeSpawner="*uid://c8aw7dl040u6j"
 BarShiftSession="*uid://d2iivsrdado2u"
+EmploymentSystem="*uid://bjbd2owl55jm0"
+SuspicionSystem="*uid://dcgrwnuqx23kb"
+CourtSummons="*uid://dyf6nn6xtx3hw"
 
 [display]
 

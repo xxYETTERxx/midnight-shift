@@ -13,6 +13,8 @@
 [ext_resource type="Script" uid="uid://ce3kux6bky6vb" path="res://scripts/ui/notification_label.gd" id="10_61ul8"]
 [ext_resource type="PackedScene" uid="uid://bphslxlns571t" path="res://scenes/ui/gift_panel.tscn" id="11_e3hyu"]
 [ext_resource type="PackedScene" uid="uid://c4ydukfwj0vw4" path="res://scenes/ui/time_picker_panel.tscn" id="11_jhx03"]
+[ext_resource type="PackedScene" uid="uid://b33x51mvoy3t6" path="res://scenes/ui/atm_panel.tscn" id="14_o8fc1"]
+[ext_resource type="PackedScene" uid="uid://gofdqqspxdbh" path="res://scenes/ui/debug_panel.tscn" id="15_xo05s"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_e3hyu"]
 font_size = 13
@@ -37,14 +39,6 @@ mouse_filter = 2
 color = Color(0, 0, 0, 0)
 script = ExtResource("4_tnun7")
 
-[node name="RentDueLabel" type="Label" parent="HUD" unique_id=182750691]
-offset_left = 268.0
-offset_top = 10.0
-offset_right = 424.0
-offset_bottom = 33.0
-text = "Rent Due Tomorrow"
-horizontal_alignment = 1
-
 [node name="ClockLabel" type="Label" parent="HUD" unique_id=1022818317]
 anchors_preset = 1
 anchor_left = 1.0
@@ -62,6 +56,18 @@ offset_left = 2.0
 offset_top = 85.0
 offset_right = 42.0
 offset_bottom = 108.0
+
+[node name="BankLabel" type="Label" parent="HUD" unique_id=2039296282]
+offset_left = 2.0
+offset_top = 107.45
+offset_right = 42.0
+offset_bottom = 130.45001
+
+[node name="DebtLabel" type="Label" parent="HUD" unique_id=564621292]
+offset_left = 2.0
+offset_top = 133.605
+offset_right = 42.0
+offset_bottom = 156.60509
 
 [node name="PagerIndicator" parent="HUD" unique_id=2099724978 instance=ExtResource("7_8job4")]
 offset_left = 576.0
@@ -154,8 +160,6 @@ script = ExtResource("5_17trp")
 
 [node name="CraftingPanel" parent="HUD" unique_id=1947525258 instance=ExtResource("7_q5onr")]
 
-[node name="CallbackPanel" parent="HUD" unique_id=2008453775 instance=ExtResource("8_dfh1m")]
-
 [node name="AppointmentPanel" parent="HUD" unique_id=1298381124 instance=ExtResource("9_j81pg")]
 anchors_preset = 2
 anchor_top = 1.0
@@ -177,10 +181,15 @@ offset_bottom = 43.0
 mouse_filter = 2
 script = ExtResource("10_61ul8")
 
-[node name="SkillDebug" type="Label" parent="HUD" unique_id=1781553279]
-offset_left = 3.0
-offset_top = 1.0
-offset_right = 207.0
-offset_bottom = 65.0
-
 [node name="GiftPanel" parent="HUD" unique_id=1957251125 groups=["gift_panel"] instance=ExtResource("11_e3hyu")]
+
+[node name="ATM_panel" parent="HUD" unique_id=689811983 instance=ExtResource("14_o8fc1")]
+visible = false
+
+[node name="CallbackPanel" parent="HUD" unique_id=227763905 instance=ExtResource("8_dfh1m")]
+visible = false
+
+[node name="DebugPanel" parent="HUD" unique_id=2021630815 instance=ExtResource("15_xo05s")]
+offset = Vector2(90.805, 0)
+scale = Vector2(1.12, 1)
+transform = Transform2D(1.12, 0, 0, 1, 90.805, 0)

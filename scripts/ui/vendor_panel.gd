@@ -450,21 +450,24 @@ func _count_items(inv_state: Dictionary) -> Dictionary:
 
 func _update_net() -> void:
 	var net := _compute_net()
+	var pool := _vendor.pay_pool()
 	if net > 0:
 		net_label.text = "Net: +$%d" % net
 		net_label.modulate = Color(0.6, 1.0, 0.6)
 	elif net < 0:
 		net_label.text = "Net: -$%d" % -net
-		net_label.modulate = Color(1.0, 0.6, 0.6) if Wallet.can_afford(-net) else Color(1.0, 0.3, 0.3)
+		net_label.modulate = Color(1.0, 0.6, 0.6) if Wallet.can_afford(-net, pool) else Color(1.0, 0.3, 0.3)
 	else:
 		net_label.text = "Net: $0"
 		net_label.modulate = Color.WHITE
-	confirm_button.disabled = (net < 0 and not Wallet.can_afford(-net))
+	confirm_button.disabled = (net < 0 and not Wallet.can_afford(-net, pool))
 	_update_vendor_cash()
 
 
 func _update_balance() -> void:
-	balance_label.text = "Cash: %s" % Wallet.format_balance()
+	var pool := _vendor.pay_pool()
+	var label := "Cash" if pool == Wallet.POOL_CASH else "Bank"
+	balance_label.text = "%s: %s" % [label, Wallet.format_balance(pool)]
 
 
 func _update_vendor_cash() -> void:
@@ -500,7 +503,8 @@ func _on_wallet_changed(_pool: String, _new_balance: int) -> void:
 
 func _on_confirm() -> void:
 	var net := _compute_net()
-	if net < 0 and not Wallet.can_afford(-net):
+	var pool := _vendor.pay_pool()
+	if net < 0 and not Wallet.can_afford(-net, pool):
 		return
 
 	# Tell the vendor how much they spent this trip (revenue, not net).
@@ -511,9 +515,9 @@ func _on_confirm() -> void:
 		_vendor.record_purchase(sell_revenue)
 
 	if net > 0:
-		Wallet.add(net)
+		Wallet.add(net, pool)
 	elif net < 0:
-		Wallet.spend(-net)
+		Wallet.spend(-net, pool)
 	_player_inv.load_state(_player_shadow.save_state())
 	_vendor.stock.load_state(_vendor_shadow.save_state())
 	_close()

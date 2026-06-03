@@ -54,12 +54,14 @@ func _register_all_npcs() -> void:
 	var hank_scene: PackedScene = load("res://scenes/npcs/hank.tscn")
 	var jason_scene: PackedScene = load("res://scenes/npcs/jason.tscn")
 	var gary_scene: PackedScene = load("res://scenes/npcs/gary.tscn")
+	var beth_scene: PackedScene = load("res://scenes/npcs/beth.tscn")
 	register_npc(&"oliver", oliver_scene, "Oliver")
 	register_npc(&"erik", erik_scene, "Erik")
 	register_npc(&"felix", felix_scene, "Felix")
 	register_npc(&"hank", hank_scene, "Hank")
 	register_npc(&"jason", jason_scene, "Jason")
 	register_npc(&"gary", gary_scene, "Gary")
+	register_npc(&"beth", beth_scene, "Beth")
 
 
 # --- Schedule queries ---------------------------------------------------

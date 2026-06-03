@@ -5,7 +5,7 @@
 [ext_resource type="PackedScene" uid="uid://l6jfg123c1fw" path="res://scenes/components/interactable.tscn" id="2_dkgso"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_5uupw"]
-size = Vector2(20, 25)
+size = Vector2(20, 35)
 
 [node name="Payphone" type="Node2D" unique_id=1556260754]
 y_sort_enabled = true
@@ -19,5 +19,5 @@ texture = ExtResource("1_js0cm")
 prompt_text = "Use Phone"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Interactable" unique_id=1079521650]
-position = Vector2(0, 8.5)
+position = Vector2(0, 13.5)
 shape = SubResource("RectangleShape2D_5uupw")

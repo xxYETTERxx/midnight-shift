@@ -54,18 +54,9 @@ signal customer_removed(customer: Customer)
 func _ready() -> void:
 	SaveSystem.register_savable("customer_roster", self)
 	_rng.seed = Time.get_ticks_usec()
-	PagerSystem.pager_aquired.connect(seed_starter_customer)
 
 
 # --- Public API ---
-
-# Called once by world.gd._new_game() — seeds the starter customer.
-# No-op if the roster already has customers (i.e., a save was just loaded).
-func seed_starter_customer() -> void:
-	if not _customers.is_empty():
-		return
-	var starter := _generate_customer(0)
-	_add_customer(starter)
 
 
 func get_customer(id: StringName) -> Customer:
@@ -101,6 +92,9 @@ func roll_page_quantity(c: Customer, rng: RandomNumberGenerator) -> int:
 		effective_max = c.quantity_min
 	var rolled: int = rng.randi_range(c.quantity_min, effective_max)
 	return min(rolled, ABSOLUTE_MAX_QUANTITY)
+
+func roster_size() -> int:
+	return _customers.size()
 
 # --- Generation ---
 

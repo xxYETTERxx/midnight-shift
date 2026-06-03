@@ -16,8 +16,15 @@ const WALK_SPEED: float = 70.0
 const WALK_PREFIX: String = "walk"
 const IDLE_PREFIX: String = "idle"
 
+const CRIME_TYPE: StringName = &"weed_deal"
+const PLAYER_MAX_DISTANCE: float = 64.0
+
+const PREP_TIME_BASE: float = 2.8
+const PREP_TIME_MIN: float = 1.7
+
 @onready var sprite: CharacterSprite = $Sprite
 @onready var interactable: Interactable = $Interactable
+@onready var _progress_bar: ProgressBar = $ProgressBar
 
 var meeting_id: StringName = &""
 
@@ -27,6 +34,12 @@ var _segment_idx: int = 0          # index of the segment currently being walked
 var _segment_progress: float = 0.0 # distance walked into _route[_segment_idx]
 var _arrived: bool = false
 var _facing: String = "s"
+var _action_player: Node = null
+var _action_duration: float = 2.0
+var _action_elapsed: float = 0.0
+var _crime_id: int = -1
+var _dealing: bool = false
+
 
 var _leaving: bool = false
 
@@ -34,6 +47,10 @@ var _leaving: bool = false
 func _ready() -> void:
 	interactable.interacted.connect(_on_interacted)
 	_play_anim(IDLE_PREFIX, _facing)
+	_progress_bar.visible = false
+	_progress_bar.min_value = 0.0
+	_progress_bar.max_value = 1.0
+	_progress_bar.value = 0.0
 
 
 # Called by the spawner right after instantiation to hook this NPC up to
@@ -67,6 +84,9 @@ func walk_route(points: Array[Vector2]) -> void:
 
 
 func _process(delta: float) -> void:
+	if _action_player != null:
+		_tick_action(delta)
+		return
 	if _arrived or _route.size() < 2:
 		return
 	var step: float = WALK_SPEED * delta
@@ -121,8 +141,8 @@ func _play_anim(prefix: String, facing: String) -> void:
 	sprite.play_anim(prefix, facing)
 
 
-func _on_interacted(_player: Node) -> void:
-	if _leaving:
+func _on_interacted(player_node: Node) -> void:
+	if _leaving or _dealing:
 		return
 	var meeting: Meeting = _resolve_meeting()
 	if meeting == null:
@@ -145,6 +165,17 @@ func _on_interacted(_player: Node) -> void:
 		print("[Deal] %s: \"You're short. Come back when you've got %d.\"" %
 			[customer.display_name, meeting.quantity_requested])
 		return
+
+	# Validation passed — open the timed deal window. The sale itself happens
+	# in _complete_action; until then nothing is deducted or paid.
+	_action_player = player
+	_action_elapsed = 0.0
+	_action_duration = lerpf(PREP_TIME_BASE, PREP_TIME_MIN, DealerExperience.street_skill_fraction())
+	_dealing = true
+	_progress_bar.visible = true
+	_progress_bar.value = 0.0
+	var area_id: StringName = _current_area_id()
+	_crime_id = CrimeSystem.begin_crime(CRIME_TYPE, self, global_position, area_id)
 
 	# Deduct product, pay out at retail margin.
 	_consume_item(inv, RAW_BUD_ID, meeting.quantity_requested)
@@ -193,6 +224,52 @@ func _count_item(inv: Inventory, id: StringName) -> int:
 			total += stack.count
 	return total
 
+func _tick_action(delta: float) -> void:
+	if not is_instance_valid(_action_player):
+		_cancel_action()
+		return
+	if _action_player.global_position.distance_to(global_position) > PLAYER_MAX_DISTANCE:
+		_cancel_action()
+		return
+	_action_elapsed += delta
+	_progress_bar.value = _action_elapsed / _action_duration
+	if _action_elapsed >= _action_duration:
+		_complete_action()
+
+func _complete_action() -> void:
+	if _crime_id != -1:
+		CrimeSystem.end_crime(_crime_id, CrimeSystem.Outcome.COMPLETED)
+		_crime_id = -1
+	_action_player = null
+	_dealing = false
+	_progress_bar.visible = false
+
+	var meeting: Meeting = _resolve_meeting()
+	if meeting == null:
+		return
+	var customer: Customer = meeting.get_customer()
+	var player := get_tree().get_first_node_in_group("player")
+	if player == null or customer == null:
+		return
+	var inv: Inventory = player.inventory
+
+	# Re-check inventory at completion — the player could have dropped product
+	# mid-action. Cheap guard against a free payout.
+	if _count_item(inv, RAW_BUD_ID) < meeting.quantity_requested:
+		print("[Deal] %s: deal fell through, short on product." % customer.display_name)
+		return
+
+	_consume_item(inv, RAW_BUD_ID, meeting.quantity_requested)
+	var item: ItemDef = ItemRegistry.get_item(RAW_BUD_ID)
+	var unit_price: int = 0
+	if item != null:
+		unit_price = int(round(item.base_value * RETAIL_MULTIPLIER))
+	var payout: int = unit_price * meeting.quantity_requested
+	Wallet.add(payout)
+
+	print("[Deal] %s paid $%d for %d units" %
+		[customer.display_name, payout, meeting.quantity_requested])
+	MeetingManager.mark_completed(meeting.id)
 
 func _consume_item(inv: Inventory, id: StringName, count: int) -> void:
 	var remaining: int = count
@@ -205,3 +282,29 @@ func _consume_item(inv: Inventory, id: StringName, count: int) -> void:
 		var to_take: int = min(stack.count, remaining)
 		inv.consume_from_slot(i, to_take)
 		remaining -= to_take
+
+func _cancel_action() -> void:
+	if _crime_id != -1:
+		CrimeSystem.end_crime(_crime_id, CrimeSystem.Outcome.CANCELLED)
+		_crime_id = -1
+	_action_player = null
+	_action_elapsed = 0.0
+	_dealing = false
+	_progress_bar.visible = false
+	
+func is_dealing() -> bool:
+	return _dealing
+
+
+func bust_cancel() -> void:
+	if _crime_id != -1:
+		CrimeSystem.end_crime(_crime_id, CrimeSystem.Outcome.CANCELLED)
+		_crime_id = -1
+	_action_player = null
+	_dealing = false
+	_progress_bar.visible = false
+	
+func _current_area_id() -> StringName:
+	if RoomManager.current_room == null:
+		return &""
+	return StringName(RoomManager.current_room.scene_file_path.get_file().get_basename())

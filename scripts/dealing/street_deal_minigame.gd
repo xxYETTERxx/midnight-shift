@@ -22,9 +22,12 @@ const EYEBALL_TAX_MAX_PCT: float = 0.40
 const COP_CHANCE_GROWTH: float = 0.06
 const COP_CHANCE_MAX: float = 0.6
 
-# Chance per accepted sale that a new pager customer is gained. Only fires
-# if the player has the pager.
-const NEW_CUSTOMER_CHANCE_ON_ACCEPT: float = 0.03
+# Street-deal customer conversion scales with how full the roster is. Empty
+# roster = high chance (bootstrap the early game fast); as it fills, referrals
+# (§6.6) take over and street conversion drops toward near-zero so it stops
+# cluttering a roster meant to grow by referral.
+const CONVERT_CHANCE_EMPTY: float = 0.50   # roster empty
+const CONVERT_CHANCE_FULL: float = 0.01    # roster at cap
 
 const IDLE_SPEEDUP_MULT: float = 5.0
 
@@ -39,12 +42,14 @@ var _live_cops: Array = []
 # it busts. Mirrors CopProfile.notice_delay — a per-encounter threshold is
 # rolled in [0, delay], so the exact window varies. Read from the cop's
 # profile when present; this is the fallback.
-const COP_NOTICE_DELAY_FALLBACK: float = 2.5
-const NOTICE_MIN: float = 1.0
+const NOTICE_DELAY_BASE: float = 0.3   # tier 0 — cops notice faster than old 0.5
+const NOTICE_DELAY_MAX: float = 0.65   # tier 5 — just barely longer than old 0.5
 
 # cop instance_id -> { "elapsed": float, "threshold": float }
 var _cop_notice: Dictionary = {}
 var _busted: bool = false
+
+var _gained_customer_this_session: bool = false
 
 # Spawn / customer-odds table by time-of-day window.
 # spawn_minutes is in GAME minutes — actual real-time elapsed depends on
@@ -87,11 +92,14 @@ func _ready() -> void:
 	_collect_paths()
 	_cash_earned = 0
 	_lock_player(true)
+	_face_player_south()
 	exit_button.pressed.connect(_on_exit_pressed)
 	_reset_spawn_timer()
 	_cop_spawn_timer = StreetDealSession.cop_check_interval_minutes
 	_refresh_speed()
 	_refresh_ui()
+	var player := get_tree().get_first_node_in_group("player")
+	player.last_direction = "s"
 	CrimeSystem.crime_witnessed.connect(_on_crime_witnessed)
 
 
@@ -135,6 +143,13 @@ func _unhandled_input(event: InputEvent) -> void:
 		if _cancel_active_deal():
 			get_viewport().set_input_as_handled()
 
+func _face_player_south() -> void:
+	var player := get_tree().get_first_node_in_group("player")
+	if player == null:
+		return
+	var sprite := player.get_node_or_null("AnimatedSprite2D")
+	if sprite != null and sprite.sprite_frames != null and sprite.sprite_frames.has_animation("idle_s"):
+		sprite.play("idle_s")
 
 func _cancel_active_deal() -> bool:
 	for c in _live_customers:
@@ -275,13 +290,23 @@ func _on_customer_offer_resolved(willing: bool, completed: bool, _customer: Node
 	var unit_label: String = "g" if is_raw else (" bag" if qty == 1 else " bags")
 	NotificationSystem.warn("+$%d  (%d%s)" % [cash, qty, unit_label])
 
-	if PagerSystem.has_pager and _rng.randf() < NEW_CUSTOMER_CHANCE_ON_ACCEPT:
+	if PagerSystem.has_pager and not _gained_customer_this_session and _rng.randf() < _conversion_chance():
 		var new_cust = CustomerRoster.add_random_customer(0)
 		if new_cust != null:
+			_gained_customer_this_session = true
 			NotificationSystem.warn("New contact: %s" % new_cust.display_name)
 
 	_refresh_ui()
 
+# Conversion chance lerps from CONVERT_CHANCE_EMPTY (empty roster) down to
+# CONVERT_CHANCE_FULL (roster at cap), based on current fill fraction.
+func _conversion_chance() -> float:
+	var cap: int = CustomerRoster.MAX_ROSTER_SIZE
+	if cap <= 0:
+		return CONVERT_CHANCE_FULL
+	var fill: float = clampf(float(CustomerRoster.roster_size()) / float(cap), 0.0, 1.0)
+	var eased: float = sqrt(fill)
+	return lerpf(CONVERT_CHANCE_EMPTY, CONVERT_CHANCE_FULL, eased)
 
 func _on_customer_freed(customer: Node) -> void:
 	_live_customers.erase(customer)
@@ -442,9 +467,7 @@ func _tick_notice(delta: float) -> void:
 			_cop_notice.erase(id)
 			continue
 		if not _cop_notice.has(id):
-			var delay: float = _notice_delay_for(cop)
-			var threshold: float = max(NOTICE_MIN, _rng.randf_range(0.0, delay))
-			_cop_notice[id] = {"elapsed": 0.0, "threshold": threshold}
+			_cop_notice[id] = {"elapsed": 0.0, "threshold": _notice_delay_for(cop)}
 		var entry: Dictionary = _cop_notice[id]
 		entry["elapsed"] += delta
 		if entry["elapsed"] >= entry["threshold"]:
@@ -467,11 +490,8 @@ func _cop_sees_player(cop: Node, player: Node2D) -> bool:
 	return cop.global_position.distance_to(player.global_position) < 200.0
 
 
-func _notice_delay_for(cop: Node) -> float:
-	if "profile" in cop and cop.profile != null \
-			and "notice_delay" in cop.profile and cop.profile.notice_delay > 0.0:
-		return cop.profile.notice_delay
-	return COP_NOTICE_DELAY_FALLBACK
+func _notice_delay_for(_cop: Node) -> float:
+	return lerpf(NOTICE_DELAY_BASE, NOTICE_DELAY_MAX, DealerExperience.street_skill_fraction())
 
 
 func _bust() -> void:
@@ -479,10 +499,30 @@ func _bust() -> void:
 		return
 	_busted = true
 	NotificationSystem.warn("Busted! Lost all product.")
+	# Tell any in-progress customers to bail out of their crime cleanly.
 	for c in _live_customers:
 		if is_instance_valid(c) and c.has_method("bust_cancel"):
 			c.bust_cancel()
 	_bud_left = 0
+	CrimeSystem.record_bust(&"weed_deal", StreetDealSession.area_id)
 	_request_exit()
+	
+# On a bust, the cops take everything illegal — not just the session product.
+# Sweep the player's inventory and confiscate any DRUG-category item.
+func _confiscate_drugs() -> void:
+	var player := get_tree().get_first_node_in_group("player")
+	if player == null or not ("inventory" in player) or player.inventory == null:
+		return
+	var inv = player.inventory
+	var confiscated: int = 0
+	for i in range(inv.slots.size()):
+		var stack = inv.get_slot(i)
+		if stack == null or stack.item == null:
+			continue
+		if stack.item.category == ItemDef.Category.DRUG:
+			confiscated += stack.count
+			inv.consume_from_slot(i, stack.count)
+	if confiscated > 0:
+		NotificationSystem.warn("Cops took %d items of product." % confiscated)
 	
 	

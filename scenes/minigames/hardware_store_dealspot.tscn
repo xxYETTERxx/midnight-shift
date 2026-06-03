@@ -3924,7 +3924,7 @@ text = "Leave"
 [node name="Path1" type="Node2D" parent="Paths" unique_id=1366631728]
 
 [node name="entry" type="Marker2D" parent="Paths/Path1" unique_id=496833306]
-position = Vector2(-35, -102)
+position = Vector2(-35, -83)
 
 [node name="exit" type="Marker2D" parent="Paths/Path1" unique_id=1503427771]
-position = Vector2(-33, 99)
+position = Vector2(-34, 83)

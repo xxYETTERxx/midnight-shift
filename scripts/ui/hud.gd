@@ -3,7 +3,8 @@ extends CanvasLayer
 @onready var clock_label: Label = $ClockLabel
 @onready var interact_prompt: Label = $InteractPrompt
 @onready var cash_label: Label = $CashLabel
-@onready var rent_label: Label = $RentDueLabel
+@onready var bank_label: Label = $BankLabel
+@onready var debt_label: Label = $DebtLabel
 @onready var skill_debug: Label = $SkillDebug
 
 @onready var stamina_bar: ProgressBar = $StaminaBar
@@ -17,6 +18,7 @@ func _ready() -> void:
 	TimeSystem.minute_tick.connect(_on_minute_tick)
 	Wallet.balance_changed.connect(_on_balance_changed)
 	_refresh_cash()
+	_refresh_debt()
 
 	StaminaSystem.stamina_changed.connect(_on_stamina_changed)
 	_on_stamina_changed(StaminaSystem.current_value(), StaminaSystem.maximum())
@@ -31,8 +33,8 @@ func _ready() -> void:
 
 	InteractionManager.winner_changed.connect(_on_winner_changed)
 	_on_winner_changed(InteractionManager.active)
-	RentSystem.rent_due_warning.connect(_fire_rent_warning)
-	rent_label.visible = false
+	
+	DebtSystem.debt_changed.connect(_on_debt_changed)
 
 func _on_winner_changed(interactable: Node) -> void:
 	if interactable == null:
@@ -49,7 +51,6 @@ func _on_minute_tick(_total: int) -> void:
 	if timer > 0:
 		timer -= 1
 	else:
-		rent_label.visible = false
 		timer = 0
 
 
@@ -110,15 +111,20 @@ func _on_thirst_threshold(band: String) -> void:
 		"thirsty": NotificationSystem.warn("You need a drink.")
 		"dehydrated": NotificationSystem.warn("You're dehydrated!")
 
+
+
 func _refresh_cash() -> void:
-	cash_label.text = Wallet.format_balance()
+	cash_label.text = "Cash: " + str(Wallet.format_balance("cash"))
+	bank_label.text = "Account: " + str(Wallet.format_balance("clean"))
+	
+func _refresh_debt() -> void:
+	debt_label.text = "Debt: " + str(DebtSystem.amount("hank"))
 
 func _on_balance_changed(_pool: String, _new_balance: int) -> void:
 	_refresh_cash()
-	
-func _fire_rent_warning(amount: int) -> void:
-	rent_label.visible = true
-	timer += 30
+
+func _on_debt_changed(_vendor_id: StringName, _new_amount: int) -> void:
+	_refresh_debt()
 
 func _on_skill_debug_refresh(_skill_id: StringName, _new_xp: int) -> void:
 	_refresh_skill_debug()

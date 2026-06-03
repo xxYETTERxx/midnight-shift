@@ -10,7 +10,7 @@ var xp: int = 0
 
 # Tier thresholds. Index = tier number, value = xp needed to reach that tier.
 # Tune freely. Tier 0 is always reached (starter customer territory).
-const TIER_THRESHOLDS: Array[int] = [0, 25, 75, 150, 300]
+const TIER_THRESHOLDS: Array[int] = [0, 30, 90, 180, 320, 520, 820, 1250]
 
 # XP awarded per unit of product sold. Bigger orders feed tier progression
 # faster — by design, the network growing IS the progression.
@@ -23,6 +23,7 @@ const XP_PENALTY_MISSED_DEAL: int = -5
 signal xp_changed(new_xp: int)
 signal tier_unlocked(tier: int)
 
+const STREET_SKILL_MAX_TIER: int = 5
 
 func _ready() -> void:
 	SaveSystem.register_savable("dealer_experience", self)
@@ -79,8 +80,13 @@ func _change_xp(delta: int) -> void:
 	# the player recovers (filtered in CustomerRoster.active_customers).
 	if new_tier > prev_tier:
 		for t in range(prev_tier + 1, new_tier + 1):
+			NotificationSystem.info("You're getting better at this")
 			tier_unlocked.emit(t)
+			if t == 5:
+				RelationshipSystem.set_global_flag("tier_5_reached",true)
 
+func street_skill_fraction() -> float:
+	return clampf(float(current_tier()) / float(STREET_SKILL_MAX_TIER), 0.0, 1.0)
 
 # --- Save/load ---
 

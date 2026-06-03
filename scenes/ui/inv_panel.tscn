@@ -13,6 +13,7 @@ offset_right = 14.0
 offset_bottom = 12.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 1
 script = ExtResource("1_0vv6v")
 
 [node name="Background" type="ColorRect" parent="." unique_id=1064360199]
@@ -20,7 +21,7 @@ layout_mode = 0
 offset_left = -12.0
 offset_top = -10.0
 offset_right = 620.0
-offset_bottom = 258.0
+offset_bottom = 343.0
 mouse_filter = 2
 color = Color(0.32549, 0.396078, 0.490196, 0.854902)
 

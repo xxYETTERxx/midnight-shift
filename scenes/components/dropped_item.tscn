@@ -1,0 +1,17 @@
+[gd_scene format=3 uid="uid://7ukphggrgv6j"]
+
+[ext_resource type="Script" uid="uid://c25tvwqa2rkao" path="res://scripts/items/dropped_item.gd" id="1_bnv0t"]
+[ext_resource type="PackedScene" uid="uid://l6jfg123c1fw" path="res://scenes/components/interactable.tscn" id="2_d3gfk"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_kxa1l"]
+
+[node name="DroppedItem" type="Node2D" unique_id=274093759]
+script = ExtResource("1_bnv0t")
+
+[node name="Sprite" type="Sprite2D" parent="." unique_id=2098923008]
+
+[node name="Interactable" parent="." unique_id=702434313 instance=ExtResource("2_d3gfk")]
+prompt_text = "Pick Up"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Interactable" unique_id=357303291]
+shape = SubResource("RectangleShape2D_kxa1l")

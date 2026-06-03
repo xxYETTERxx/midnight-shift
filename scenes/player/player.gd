@@ -49,6 +49,7 @@ func _ready() -> void:
 	SaveSystem.register_savable("player", self)
 	inventory.active_slot_changed.connect(_on_active_slot_changed)
 	inventory.slot_changed.connect(_on_inventory_slot_changed)
+	#RelationshipSystem.set_global_flag("has_job")
 	_settle_idle()
 
 
@@ -71,19 +72,28 @@ func _physics_process(delta: float) -> void:
 	if input_vector.length() > 1.0:
 		input_vector = input_vector.normalized()
 
-	# Sprint: held action, gated on having any stamina and actually moving.
-	# Drains continuously; terminates when stamina hits zero (player keeps
-	# moving at walk speed). Exhaustion / passout flow is a separate concern.
 	var moving: bool = input_vector.length_squared() > 0.01
-	var wants_sprint: bool = Input.is_action_pressed("sprint")
-	_is_sprinting = wants_sprint and moving and not StaminaSystem.is_exhausted()
+	var on_skateboard: bool = active_mode == &"skateboard"
+	
+	# Skateboard only works on pavement — ride off it and you step off.
+	if on_skateboard and not _is_on_pavement():
+		_exit_active_mode()
+		on_skateboard = false
+		NotificationSystem.warn("Can't skate off the pavement.")
+
+	# Sprint is disabled while riding — you're already moving fast, and you
+	# can't push off a board you're coasting on.
+	var wants_sprint: bool = Input.is_action_pressed("sprint") and not on_skateboard
+	_is_sprinting = wants_sprint and moving and stamina > 0.0
 
 	var move_multiplier: float = PlayerSkills.speed_multiplier()
 	if _is_sprinting:
 		move_multiplier *= sprint_multiplier
-		StaminaSystem.spend(StaminaSystem.SPRINT_DRAIN_PER_SECOND * delta)
+		StaminaSystem.spend(sprint_drain_per_second * delta)
 
-	velocity = input_vector * speed * move_multiplier * _survival_speed_multiplier()
+	# Active modes (skateboard) override the base walk speed; otherwise use it.
+	var base_speed: float = active_mode_speed if on_skateboard else speed
+	velocity = input_vector * base_speed * move_multiplier * _survival_speed_multiplier()
 	move_and_slide()
 
 	# Tell StaminaSystem what state we're in so passive/movement decay knows.
@@ -106,42 +116,6 @@ func _unhandled_input(event: InputEvent) -> void:
 		if not InteractionManager.try_interact(self):
 			PlacementSystem.try_place_active(self)
 	
-	if event is InputEventKey and event.pressed and not event.echo:
-		if event.keycode == KEY_F1:
-			RelationshipSystem.push_dialogue("mira", "bodega_intro")
-			print("[debug] queued bodega_intro for mira")
-		elif event.keycode == KEY_F2:
-			RelationshipSystem.set_global_flag("greeting", true)
-			RelationshipSystem.set_trust("mira", 0)
-			print("[debug] set greeting flag + trust=0")
-		elif event.keycode == KEY_F3:
-			RelationshipSystem.set_global_flag("greeting", false)
-			print("[debug] cleared greeting flag")
-		elif event.keycode == KEY_F4:
-			PlayerSkills.adjust(&"athletics", 200)
-			print("[debug] +200 athletics XP -> ", PlayerSkills.value(&"athletics"),
-				" (L", PlayerSkills.tier(&"athletics"), ")")
-		elif event.keycode == KEY_F5:
-			PlayerSkills.adjust(&"athletics", -PlayerSkills.value(&"athletics"))
-			print("[debug] reset athletics")
-		elif event.keycode == KEY_F6:
-			PlayerSkills.adjust(&"strength", 200)
-			print("[debug] +200 strength XP -> ", PlayerSkills.value(&"strength"),
-				" (L", PlayerSkills.tier(&"strength"), ", slots=",
-				PlayerSkills.inventory_slot_count(), ")")
-		elif event.keycode == KEY_F7:
-			PlayerSkills.adjust(&"lockpicking", 50)
-			print("[debug] +50 lockpicking XP -> ", PlayerSkills.value(&"lockpicking"),
-				" (L", PlayerSkills.tier(&"lockpicking"),
-				", mult=%.2f)" % PlayerSkills.lockpick_duration_multiplier())
-		elif event.keycode == KEY_F8:
-			CallingCardSystem.try_spend(1)
-			print("[debug] burned 1 minute -> total=", CallingCardSystem.total_minutes(),
-				", cards=", CallingCardSystem.card_count())
-		elif event.keycode == KEY_F12:
-			_debug_replay_event("oliver_intro")
-			get_viewport().set_input_as_handled()
-			return
 	
 	# Hotbar cycling
 	if event.is_action_pressed("hotbar_prev"):
@@ -248,6 +222,7 @@ func _settle_idle() -> void:
 func _debug_replay_event(event_id: String) -> void:
 	RelationshipSystem.mark_event_undone(event_id)
 	EventDirector.force_fire(event_id)
+
 	
 #---- Save Systems ------------------------------------------------------
 
@@ -303,6 +278,19 @@ func _current_speed() -> float:
 	if active_mode != &"":
 		return active_mode_speed
 	return speed * PlayerSkills.speed_multiplier()
+
+# True if the player is currently standing over a tile in the room's
+# "pavement" TileMapLayer. Used to gate the skateboard — it only works on
+# pavement. If there's no pavement layer in the room, returns false (no
+# pavement = nowhere to skate).
+func _is_on_pavement() -> bool:
+	if RoomManager.current_room == null:
+		return false
+	var layer = RoomManager.current_room.find_child("pavement", false, false)
+	if layer == null or not (layer is TileMapLayer):
+		return false
+	var cell: Vector2i = layer.local_to_map(layer.to_local(global_position))
+	return layer.get_cell_source_id(cell) != -1
 
 # --- Vault ---
 
@@ -483,6 +471,7 @@ func _try_use_tool(item: ItemDef) -> bool:
 			return true
 		&"pager":
 			PagerSystem.activate()
+			RelationshipSystem.set_global_flag("has_pager")
 			inventory.consume_active(1)
 			return true
 		&"lottery_scratchers":
@@ -495,6 +484,10 @@ func _try_use_tool(item: ItemDef) -> bool:
 			return true
 		&"weed_oz":
 			inventory.add(ItemRegistry.get_item("weed_buds"),28)
+			inventory.consume_active(1)
+			return true
+		&"box_ziplock":
+			inventory.add(ItemRegistry.get_item("large_ziplock"),30)
 			inventory.consume_active(1)
 			return true
 		_:
@@ -530,6 +523,9 @@ func _try_enter_skateboard(item: ItemDef) -> void:
 		return
 	if item.movement_speed <= 0.0:
 		push_warning("Skateboard item has no movement_speed set")
+		return
+	if not _is_on_pavement():
+		NotificationSystem.warn("Need to be on pavement to ride.")
 		return
 	active_mode = &"skateboard"
 	active_mode_speed = item.movement_speed

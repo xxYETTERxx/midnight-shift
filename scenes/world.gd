@@ -2,6 +2,7 @@ extends Node2D
 
 const PLAYER_SCENE: PackedScene = preload("res://scenes/player/player.tscn")
 var player: Node2D = null
+@onready var _debug_panel: CanvasLayer = $HUD/DebugPanel
 
 func _ready() -> void:
 	player = PLAYER_SCENE.instantiate()
@@ -53,6 +54,8 @@ func _input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed:
 		match event.keycode:
 			KEY_1: TimeSystem.advance_to(TimeSystem.total_minutes + 60)
+			KEY_F2: _debug_panel.toggle()
+			KEY_F3: SuspicionSystem._add(10.0)
 			KEY_F9:
 				SaveSystem.save_to_disk()
 			KEY_F11:  # bonus: wipe save
@@ -75,4 +78,3 @@ func _jump_to_hour(target_hour: int) -> void:
 	else:
 		minutes_to_advance = (1440 - current_minute_of_day) + target_minute_of_day
 	TimeSystem.advance_to(TimeSystem.total_minutes + minutes_to_advance)
-		

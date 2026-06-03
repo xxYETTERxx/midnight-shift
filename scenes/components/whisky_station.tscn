@@ -2,8 +2,10 @@
 
 [ext_resource type="Script" uid="uid://bsf7qj2xqq2lm" path="res://scripts/components/drink_station.gd" id="1_82qch"]
 [ext_resource type="PackedScene" uid="uid://l6jfg123c1fw" path="res://scenes/components/interactable.tscn" id="1_x8ofx"]
+[ext_resource type="Texture2D" uid="uid://cwlnmy65l3oul" path="res://art/objects/Interactables/WhiskyShotStation/WhiskeyShots5.png" id="3_luxpi"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_82qch"]
+size = Vector2(12, 22)
 
 [node name="WhiskyStation" type="Node2D" unique_id=271358619]
 script = ExtResource("1_82qch")
@@ -14,8 +16,20 @@ prep_time = 3.0
 prompt_text = "Pour shots"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Interactable" unique_id=1570558953]
+position = Vector2(0, 1)
 shape = SubResource("RectangleShape2D_82qch")
 
 [node name="ProgressBar" type="ProgressBar" parent="." unique_id=1734499320]
-offset_right = 4.0
-offset_bottom = 27.0
+z_index = 5
+offset_left = -2.0
+offset_top = -38.0
+offset_right = 2.0
+offset_bottom = -11.0
+
+[node name="TextureRect" type="TextureRect" parent="." unique_id=967041780]
+offset_left = -8.999999
+offset_top = -9.999999
+offset_right = 31.0
+offset_bottom = 30.0
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("3_luxpi")

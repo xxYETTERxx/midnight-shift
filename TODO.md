@@ -1,12 +1,16 @@
-Transparent bottom wall tiles
-Consistent character animations
-polish pixel gitter
+Todo:
+Street deal alley - update waypoints
+BarMinigame
+- progress bars
+- patience time
+- drink time
+- layout
+- station artwork
 
-A few smaller things that I'd genuinely defer:
+Collapsing at work
 
-%player and %nbhd substitutions — %name works, the others are wired into the parser but unimplemented. Defer until you actually have a player name and a neighborhood concept (probably Stage 5 or later).
-has_item precondition — parsed but stubbed false. Wire up when Inventory grows a has_item_id() method.
-NPC idle animation — your TestMale has an AnimatedSprite2D. If it's currently a single-frame static sprite that's fine for now; idle animations are a Stage 9 NPC-expansion concern.
 
-Car looted sprite
-Slimjim/locked car doors implementation
+New:
+Personal Heat Mechanics
+Courtdates
+Busted Tally = reporting hooks in place

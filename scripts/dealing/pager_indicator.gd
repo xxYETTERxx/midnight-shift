@@ -12,7 +12,6 @@ var _blink_timer: float = 0.0
 var _blink_on: bool = false
 
 
-
 func _ready() -> void:
 	count_label.visible = false
 	icon.visible = false
@@ -21,11 +20,22 @@ func _ready() -> void:
 	PagerSystem.page_received.connect(_on_page_received)
 	PagerSystem.queue_changed.connect(_refresh)
 	PagerSystem.pager_aquired.connect(show_icon)
+	CourtSummons.court_paged.connect(_on_court_paged)
+	CourtSummons.court_confirmed.connect(_on_court_changed)
+	CourtSummons.court_resolved.connect(_on_court_changed)
 	_refresh()
 
 
+# Total things demanding the player's attention from the pager surface.
+func _pending_total() -> int:
+	var n: int = PagerSystem.pending_count()
+	if CourtSummons.has_pending() and not CourtSummons.can_attend():
+		n += 1
+	return n
+
+
 func _process(delta: float) -> void:
-	if PagerSystem.pending_count() <= 0:
+	if _pending_total() <= 0:
 		return
 	_blink_timer += delta
 	if _blink_timer >= blink_period_seconds:
@@ -47,6 +57,18 @@ func _on_page_received(_page: PendingPage) -> void:
 	if beep_player.stream != null:
 		beep_player.play()
 
+
+func _on_court_paged() -> void:
+	show_icon()  # court can summon before the pager is owned — reveal regardless
+	if beep_player.stream != null:
+		beep_player.play()
+	_refresh()
+
+
+func _on_court_changed() -> void:
+	_refresh()
+
+
 func show_icon() -> void:
 	icon.visible = true
 
@@ -54,7 +76,7 @@ func show_icon() -> void:
 func _refresh() -> void:
 	if icon.visible == false:
 		return
-	var count := PagerSystem.pending_count()
+	var count := _pending_total()
 	if count > 1:
 		count_label.visible = true
 		count_label.text = "%d" % count

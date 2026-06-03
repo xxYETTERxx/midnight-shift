@@ -21,6 +21,10 @@ func _ready() -> void:
 	MeetingManager.meeting_started.connect(_on_meetings_changed)
 	MeetingManager.meeting_completed.connect(_on_meetings_changed)
 	MeetingManager.meeting_missed.connect(_on_meetings_changed)
+	EmploymentSystem.shift_scheduled.connect(_on_shift_changed)
+	CourtSummons.court_paged.connect(_on_court_changed)
+	CourtSummons.court_confirmed.connect(_on_court_confirmed)
+	CourtSummons.court_resolved.connect(_on_court_changed)
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -29,6 +33,21 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_cancel"):
 		close()
 		get_viewport().set_input_as_handled()
+
+
+func _on_shift_changed(_minute: int) -> void:
+	if _is_open:
+		_rebuild_list()
+
+
+func _on_court_changed() -> void:
+	if _is_open:
+		_rebuild_list()
+
+
+func _on_court_confirmed(_court_minute: int) -> void:
+	if _is_open:
+		_rebuild_list()
 
 
 func toggle() -> void:
@@ -87,6 +106,21 @@ func _rebuild_list() -> void:
 	for c in list_container.get_children():
 		c.queue_free()
 
+	# Court date sits at the top — it's the obligation that overrides everything.
+	if CourtSummons.has_pending():
+		var court_lbl := Label.new()
+		if CourtSummons.can_attend():
+			court_lbl.text = "COURT — be at the bus stop @ %s" % \
+				MeetingManager.format_minute(CourtSummons.court_minute())
+		court_lbl.modulate = Color(1.0, 0.5, 0.5)
+		list_container.add_child(court_lbl)
+
+	if EmploymentSystem.has_shift_scheduled():
+		var shift_lbl := Label.new()
+		shift_lbl.text = "WORK — Bar shift @ %s" % \
+			MeetingManager.format_minute(EmploymentSystem.next_shift_minute)
+		list_container.add_child(shift_lbl)
+
 	var now: int = TimeSystem.total_minutes
 	var meetings: Array = []
 	meetings.append_array(MeetingManager.active_meetings_now())
@@ -94,9 +128,10 @@ func _rebuild_list() -> void:
 	meetings.sort_custom(func(a, b): return a.scheduled_minute < b.scheduled_minute)
 
 	if meetings.is_empty():
-		var lbl := Label.new()
-		lbl.text = "No upcoming appointments."
-		list_container.add_child(lbl)
+		if not EmploymentSystem.has_shift_scheduled() and not CourtSummons.can_attend():
+			var lbl := Label.new()
+			lbl.text = "Nothing scheduled."
+			list_container.add_child(lbl)
 		return
 
 	for m in meetings:

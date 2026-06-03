@@ -1,0 +1,42 @@
+[gd_scene format=3 uid="uid://b33x51mvoy3t6"]
+
+[ext_resource type="Script" uid="uid://dodujdkyv2edw" path="res://scripts/ui/atm_panel.gd" id="1_pcorg"]
+
+[node name="ATM_panel" type="Control" unique_id=689811983]
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_pcorg")
+
+[node name="PanelContainer" type="PanelContainer" parent="." unique_id=1347931956]
+layout_mode = 0
+offset_right = 284.0
+offset_bottom = 150.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer" unique_id=123048695]
+layout_mode = 2
+
+[node name="AmountField" type="LineEdit" parent="PanelContainer/VBoxContainer" unique_id=1409471350]
+layout_mode = 2
+
+[node name="DepositButton" type="Button" parent="PanelContainer/VBoxContainer" unique_id=893447514]
+layout_mode = 2
+text = "Deposit"
+
+[node name="WithdrawButton" type="Button" parent="PanelContainer/VBoxContainer" unique_id=2023604899]
+layout_mode = 2
+text = "Withdraw"
+
+[node name="CancelButton" type="Button" parent="PanelContainer/VBoxContainer" unique_id=709899418]
+layout_mode = 2
+text = "Cancel"
+
+[node name="CashLabel" type="Label" parent="PanelContainer/VBoxContainer" unique_id=2132516410]
+layout_mode = 2
+text = "Cash:"
+
+[node name="BankLabel" type="Label" parent="PanelContainer/VBoxContainer" unique_id=1814176710]
+layout_mode = 2
+text = "Account:"
+
+[node name="FeedbackLabel" type="Label" parent="PanelContainer/VBoxContainer" unique_id=1478870634]
+layout_mode = 2

@@ -1,7 +1,8 @@
 extends Control
 
 const SLOT_SCENE := preload("res://scenes/ui/hotbar_slot.tscn")
-const HOTBAR_SLOT_COUNT: int = 12
+const HOTBAR_SLOT_COUNT: int = 6
+const DROPPED_ITEM_SCENE := preload("res://scenes/components/dropped_item.tscn")
 
 @onready var hotbar_row: HBoxContainer = $PanelContainer/VBoxContainer/HotbarRow
 @onready var backpack_grid: GridContainer = $PanelContainer/VBoxContainer/BackpackGrid
@@ -61,6 +62,12 @@ func _unhandled_input(event: InputEvent) -> void:
 	
 	if not _is_open:
 		return  # other inputs only consumed while open
+	
+	if _cursor_stack != null and event is InputEventMouseButton \
+			and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		_drop_cursor_into_world()
+		get_viewport().set_input_as_handled()
+		return
 	
 	# Cancel — return cursor to source if held, then close
 	if event.is_action_pressed("ui_cancel"):
@@ -383,6 +390,31 @@ func _handle_move_one_pickup(inv: Inventory, slot_index: int) -> void:
 		else:
 			_update_cursor_visual()
 
+func _drop_cursor_into_world() -> void:
+	if _cursor_stack == null or _cursor_stack.item == null:
+		return
+	var player := get_tree().get_first_node_in_group("player")
+	var room := RoomManager.current_room
+	if player == null or room == null:
+		return
+
+	var dropped_item: ItemDef = _cursor_stack.item
+	var dropped_count: int = _cursor_stack.count
+
+	var drop := DROPPED_ITEM_SCENE.instantiate()
+	var jitter := Vector2(randf_range(-8.0, 8.0), randf_range(-8.0, 8.0))
+	var parent: Node = room.get_node_or_null("DroppedItems")
+	if parent == null:
+		parent = room
+	parent.add_child(drop)
+	drop.global_position = player.global_position + jitter
+	drop.setup(dropped_item, dropped_count)
+
+	var area_id := StringName(room.scene_file_path.get_file().get_basename())
+	CrimeSystem.report_timed_crime(&"littering", player.global_position, area_id, 3.0)
+
+	_clear_cursor()
+	NotificationSystem.info("Dropped %d %s." % [dropped_count, dropped_item.display_name])
 
 func _clear_cursor() -> void:
 	_cursor_stack = null

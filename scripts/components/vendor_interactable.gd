@@ -31,6 +31,14 @@ extends Node2D
 @export var gated_stock_counts: Array[int] = []
 @export var gated_stock_min_tier: Array[int] = []
 
+# === Payment pool ===
+
+# Which wallet pool the player pays FROM when buying here, and is paid INTO
+# when selling. Informal vendors (Hank, Felix, Oliver, gas station) use
+# "cash" (dirty). Formal/mail-order vendors use "clean". Per §25.3 the pools
+# are domain-locked: a cash vendor will not touch the player's bank balance.
+@export var payment_pool: String = "cash"
+
 
 # === Buy filter ===
 
@@ -144,6 +152,9 @@ func _on_interacted(player: Node) -> void:
 
 	_open_panel(player)
 
+# Which Wallet pool this vendor transacts in.
+func pay_pool() -> String:
+	return payment_pool
 
 func _open_panel(player: Node) -> void:
 	var panel := get_tree().get_first_node_in_group("vendor_panel")

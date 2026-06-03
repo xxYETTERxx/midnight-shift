@@ -72,12 +72,17 @@ func start(npc_id: String, display_name: String, entry: Dictionary) -> void:
 # (caller can then `await dialogue_ended`); false if there was no match or
 # the runtime was busy.
 func trigger(npc_id: String, display_name: String) -> bool:
+	print("[trig] trigger() npc=", npc_id, " running=", _is_running, " has_npc=", DialogueDatabase.has_npc(npc_id))
 	if _is_running:
+		print("[trig] BAIL: already running")
 		return false
 	if npc_id == "" or not DialogueDatabase.has_npc(npc_id):
+		print("[trig] BAIL: empty id or no entries for this npc")
 		return false
 	var entry := DialogueDatabase.get_line(npc_id, _build_context())
+	print("[trig] get_line returned empty=", entry.is_empty(), " keys=", entry.keys())
 	if entry.is_empty():
+		print("[trig] BAIL: no matching entry for context ", _build_context())
 		return false
 	start(npc_id, display_name, entry)
 	return true
@@ -143,11 +148,22 @@ func select_response(index: int) -> void:
 	var response: Dictionary = eligible[index]
 
 	# Atomic check: if anything this response demands the player give up
-	# isn't available, abort before applying anything. State is untouched,
-	# so re-engaging will surface the same line again.
+	# isn't available, take the fail branch. Effects are NOT applied, so
+	# state is untouched and re-engaging surfaces the same line again.
 	if not _can_afford_response(response["effects"]):
-		NotificationSystem.warn("You don't have that")
-		_end(false)
+		var fail_body: Array = response.get("fail_body", [])
+		if fail_body.is_empty():
+			# No authored fail branch — preserve legacy behavior.
+			NotificationSystem.warn("You don't have that")
+			_end(false)
+			return
+		# Play the fail branch in place of the success follow-up. The
+		# question is consumed either way (the player made a choice).
+		response_selected.emit(index)
+		_queue.pop_front()
+		for i in range(fail_body.size() - 1, -1, -1):
+			_queue.push_front(fail_body[i])
+		_play_next()
 		return
 
 	response_selected.emit(index)

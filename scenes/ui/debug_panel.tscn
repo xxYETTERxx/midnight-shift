@@ -1,0 +1,19 @@
+[gd_scene format=3 uid="uid://gofdqqspxdbh"]
+
+[ext_resource type="Script" uid="uid://ccupeynhlgbp3" path="res://scripts/ui/debug_panel.gd" id="1_iihrd"]
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_iihrd"]
+
+[node name="DebugPanel" type="CanvasLayer" unique_id=2021630815]
+script = ExtResource("1_iihrd")
+
+[node name="PanelContainer" type="PanelContainer" parent="." unique_id=1420719871]
+offset_right = 40.0
+offset_bottom = 40.0
+theme_override_styles/panel = SubResource("StyleBoxTexture_iihrd")
+
+[node name="MarginContainer" type="MarginContainer" parent="PanelContainer" unique_id=1429862880]
+layout_mode = 2
+
+[node name="Output" type="RichTextLabel" parent="PanelContainer/MarginContainer" unique_id=1865337328]
+layout_mode = 2

@@ -19,3 +19,7 @@ interact_priority = 40
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Interactable" unique_id=125489113]
 position = Vector2(1.5, 3)
 shape = SubResource("RectangleShape2D_0hp6l")
+
+[node name="ProgressBar" type="ProgressBar" parent="." unique_id=872775819]
+offset_right = 4.0
+offset_bottom = 27.0

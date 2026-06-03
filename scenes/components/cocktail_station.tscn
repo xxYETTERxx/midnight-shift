@@ -2,8 +2,10 @@
 
 [ext_resource type="PackedScene" uid="uid://l6jfg123c1fw" path="res://scenes/components/interactable.tscn" id="1_dctv3"]
 [ext_resource type="Script" uid="uid://bsf7qj2xqq2lm" path="res://scripts/components/drink_station.gd" id="1_xai7b"]
+[ext_resource type="Texture2D" uid="uid://w3r32v2kxfwi" path="res://art/objects/Interactables/CocktailStation/cockail_station10.png" id="3_wjohs"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_xai7b"]
+size = Vector2(12, 27)
 
 [node name="CocktailStation" type="Node2D" unique_id=271358619]
 script = ExtResource("1_xai7b")
@@ -14,8 +16,20 @@ prep_time = 5.0
 prompt_text = "Mix Cocktail"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Interactable" unique_id=628552222]
+position = Vector2(0, 3.5)
 shape = SubResource("RectangleShape2D_xai7b")
 
 [node name="ProgressBar" type="ProgressBar" parent="." unique_id=632142252]
-offset_right = 4.0
-offset_bottom = 27.0
+z_index = 5
+offset_left = -2.0
+offset_top = -38.0
+offset_right = 2.0
+offset_bottom = -11.0
+
+[node name="TextureRect" type="TextureRect" parent="." unique_id=963192578]
+offset_left = -8.0
+offset_top = -9.0
+offset_right = 32.0
+offset_bottom = 31.0
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("3_wjohs")

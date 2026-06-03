@@ -20,7 +20,7 @@ animations = [{
 }]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_vek5b"]
-size = Vector2(49, 20)
+size = Vector2(49, 47)
 
 [node name="BarCustomer" type="Node2D" unique_id=274827478]
 script = ExtResource("1_1dl2e")
@@ -49,5 +49,5 @@ prompt_text = "Serve Drink"
 interact_priority = 60
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Interactable" unique_id=490400314]
-position = Vector2(14.5, 0)
+position = Vector2(14.5, -13.5)
 shape = SubResource("RectangleShape2D_vek5b")

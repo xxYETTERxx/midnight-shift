@@ -5,7 +5,7 @@ extends Node2D
 # is handled by the minigame controller (Step 4); this script owns the want,
 # the timer, and the leave lifecycle.
 
-@export var patience_seconds: float = 12.0
+@export var patience_seconds: float = 24.0
 
 @onready var _sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var _order_icon: TextureRect = $OrderBubble/OrderIcon

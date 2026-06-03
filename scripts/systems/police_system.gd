@@ -74,11 +74,8 @@ func _on_cop_state_changed(new_state: int, cop: CopNPC) -> void:
 
 
 func _on_player_caught(cop: CopNPC) -> void:
-	# First-chunk MVP: just a notification + end pursuit. Apprehension flow
-	# (fine, dialogue, item confiscation) lands in a later chunk.
-	NotificationSystem.warn("Busted by %s!" % cop.display_name)
+	CrimeSystem.execute_bust(&"pursuit", &"", cop)
 	player_caught.emit(cop)
-	cop.end_pursuit()
 
 
 func _on_backup_requested(_position: Vector2, _cop: CopNPC) -> void:

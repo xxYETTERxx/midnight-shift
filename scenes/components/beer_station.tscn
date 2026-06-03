@@ -2,8 +2,10 @@
 
 [ext_resource type="Script" uid="uid://bsf7qj2xqq2lm" path="res://scripts/components/drink_station.gd" id="1_e4x7e"]
 [ext_resource type="PackedScene" uid="uid://l6jfg123c1fw" path="res://scenes/components/interactable.tscn" id="2_bt7ai"]
+[ext_resource type="Texture2D" uid="uid://cng11nxkbiyeo" path="res://art/objects/Interactables/beer_taps6.png" id="3_bt7ai"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_28cxx"]
+size = Vector2(13, 19)
 
 [node name="BeerStation" type="Node2D" unique_id=271358619]
 script = ExtResource("1_e4x7e")
@@ -12,8 +14,20 @@ script = ExtResource("1_e4x7e")
 prompt_text = "Pour Beer"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Interactable" unique_id=1592345025]
+position = Vector2(0.5, 5.5)
 shape = SubResource("RectangleShape2D_28cxx")
 
 [node name="ProgressBar" type="ProgressBar" parent="." unique_id=1156186401]
-offset_right = 4.0
-offset_bottom = 27.0
+z_index = 5
+offset_left = -2.0
+offset_top = -40.0
+offset_right = 2.0
+offset_bottom = -13.0
+
+[node name="TextureRect" type="TextureRect" parent="." unique_id=1324330757]
+offset_left = -9.0
+offset_top = -11.0
+offset_right = 31.0
+offset_bottom = 29.0
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("3_bt7ai")

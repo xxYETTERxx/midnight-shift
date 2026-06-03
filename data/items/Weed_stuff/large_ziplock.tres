@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="ItemDef" format=3 uid="uid://baspsgoempncw"]
+
+[ext_resource type="Script" uid="uid://2ndmr7htrd8w" path="res://scripts/items/item_def.gd" id="1_lfniv"]
+[ext_resource type="Texture2D" uid="uid://bjbrpu8bmjobi" path="res://art/icons/art_items/large_ziplock.png" id="1_rq4bo"]
+
+[resource]
+script = ExtResource("1_lfniv")
+id = &"large_ziplock"
+tool_id = &"large_ziplock"
+display_name = "Large Ziplock"
+icon = ExtResource("1_rq4bo")
+giftable = false
+metadata/_custom_type_script = "uid://2ndmr7htrd8w"

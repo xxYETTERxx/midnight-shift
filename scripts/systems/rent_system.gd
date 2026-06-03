@@ -24,18 +24,19 @@ func _ready() -> void:
 
 func _on_day_rolled(dow: int, _dom: int) -> void:
 	if dow == WARN_DAY_OF_WEEK:
-		rent_due_warning.emit(weekly_rent)
-		print("[Rent] Due tomorrow: $%d" % weekly_rent)
+		if RelationshipSystem.get_global_flag("apartment_rented"): 
+			rent_due_warning.emit(weekly_rent)
+			print("[Rent] Due tomorrow: $%d" % weekly_rent)
 	elif dow == RENT_DAY_OF_WEEK:
 		_collect()
 
 
 func _collect() -> void:
-	if Wallet.can_afford(weekly_rent):
-		Wallet.spend(weekly_rent)
+	if Wallet.can_afford(weekly_rent, Wallet.POOL_CLEAN):
+		Wallet.spend(weekly_rent, Wallet.POOL_CLEAN)
 		strikes = 0  # paying clears the slate
 		rent_paid.emit(weekly_rent)
-		print("[Rent] Paid $%d" % weekly_rent)
+		print("[Rent] Paid $%d (clean)" % weekly_rent)
 	else:
 		strikes += 1
 		rent_missed.emit(weekly_rent, strikes)
@@ -43,7 +44,6 @@ func _collect() -> void:
 		if strikes >= 2:
 			evicted.emit()
 			print("[Rent] EVICTED (MVP: no consequence wired yet)")
-
 
 # --- Save/load ---
 

@@ -31,7 +31,9 @@ const WALLET_POOLS: Array = ["cash", "clean"]
 #     "text": String,                # what the player sees
 #     "preconditions": Array[Dict],
 #     "effects": Array[Dict],
-#     "follow_up": Array[Dict],      # body segments shown after picking
+#     "follow_up": Array[Dict],      # body shown after picking (success path)
+#     "fail_body": Array[Dict],      # body shown if effects are unaffordable;
+#                                    #   empty array = no fail branch authored
 #   }
 #
 # Precondition shapes:
@@ -45,6 +47,8 @@ const WALLET_POOLS: Array = ["cash", "clean"]
 #   { "kind": "set_flag",     "name": String,  "value": bool }  # set X / clear X
 #   { "kind": "wallet_delta", "pool": String,  "delta": int }   # cash +50 / cash -20
 #   { "kind": "item_delta",   "item": String,  "delta": int }   # give X / take X N
+
+
 
 
 # Parses an entire .dlg file. Returns:
@@ -287,6 +291,11 @@ static func _parse_body(lines: PackedStringArray, start: int, parent_indent: int
 			errors.append("Line %d: $r outside a $q block" % (i + 1))
 			i += 1
 			continue
+		
+		if stripped == "$fail":
+			_flush_text(body, current_text)
+			current_text = {}
+			return {"body": body, "next_line": i + 1, "errors": errors, "stopped_at_fail": true}
 
 		# Text line — may have a portrait code prefix
 		var portrait: String = ""
@@ -416,18 +425,30 @@ static func _parse_response(lines: PackedStringArray, start: int, response_inden
 					preconds.append(pre)
 
 	# Follow-up body lives at indent strictly greater than response_indent.
-	var body_result: Dictionary = _parse_body(lines, start + 1, response_indent)
+	# It may be split by a `$fail` marker into a success body and a fail body.
+	var success_result: Dictionary = _parse_body(lines, start + 1, response_indent)
+	var fail_body: Array = []
+	var next_line: int = success_result["next_line"]
+	var errors: Array = success_result.get("errors", [])
+
+	if success_result.get("stopped_at_fail", false):
+		# Everything after $fail (at the same body indent) is the fail branch.
+		var fail_result: Dictionary = _parse_body(lines, next_line, response_indent)
+		fail_body = fail_result["body"]
+		next_line = fail_result["next_line"]
+		errors.append_array(fail_result.get("errors", []))
 
 	var response: Dictionary = {
 		"text": text,
 		"preconditions": preconds,
 		"effects": effects,
-		"follow_up": body_result["body"],
+		"follow_up": success_result["body"],
+		"fail_body": fail_body,
 	}
 	return {
 		"response": response,
-		"next_line": body_result["next_line"],
-		"errors": body_result.get("errors", []),
+		"next_line": next_line,
+		"errors": errors,
 	}
 
 

@@ -5,6 +5,8 @@ extends Node2D
 # Customers, stations, tips come in later steps.
 const CUSTOMER_SCENE: PackedScene = preload("res://scenes/components/bar_customer.tscn")
 const DRINK_TYPES: Array[StringName] = [&"beer", &"whiskey", &"cocktail"]
+const SHIFT_TIME_SCALE: float = 2.0
+const SHIFT_LENGTH: int = 4
 
 # Seconds between spawn attempts. Tune to taste.
 const SPAWN_INTERVAL: float = 5.0
@@ -21,6 +23,9 @@ var _rng := RandomNumberGenerator.new()
 var _spawn_timer: float = 0.0
 # slot_index -> customer node (or absent if free)
 var _occupied: Dictionary = {}
+
+var _speed_pushed: bool = false
+
 @onready var _slots: Node2D = $CounterSlots
 
 
@@ -45,6 +50,8 @@ var _ended: bool = false
 
 func _ready() -> void:
 	add_to_group("bar_shift")
+	TimeSystem.push_speed(SHIFT_TIME_SCALE)
+	_speed_pushed = true
 	exit_button.text = "Clock Out"
 	exit_button.pressed.connect(_on_exit_pressed)
 	_rng.seed = Time.get_ticks_usec()
@@ -101,6 +108,7 @@ func _on_customer_resolved(served: bool, _customer: Node, slot_index: int) -> vo
 		NotificationSystem.warn("Served.")
 	else:
 		NotificationSystem.warn("A customer stormed out.")
+		_tips_accrued -= 1
 
 func try_deliver_to(customer: Node) -> void:
 	if not is_holding_drink():
@@ -131,14 +139,16 @@ func _finish(completed: bool) -> void:
 	if _ended:
 		return
 	_ended = true
-
 	var payout: int = int(ceil(_tips_accrued))
 	if payout > 0:
-		Wallet.add(payout)
+		Wallet.add(payout,"clean")
 
 	if completed:
-		NotificationSystem.warn("Shift over. %d served, $%d in tips." % [_served_count, payout])
+		Wallet.add(40, "clean")
+		SuspicionSystem.report_legit_work(SHIFT_LENGTH)
+		NotificationSystem.warn("Shift over. %d served, $%d in tips. $%d in wages" % [_served_count, payout, 40])
 	else:
+		EmploymentSystem.record_strike()
 		NotificationSystem.warn("Clocked out early. %d served, $%d in tips." % [_served_count, payout])
 
 	BarShiftSession.end_session(completed)
@@ -184,4 +194,8 @@ func _update_drink_indicator() -> void:
 		var pretty: String = DRINK_NAMES.get(_held_drink, String(_held_drink))
 		drink_label.text = "Carrying: %s" % pretty
 		
+func _exit_tree() -> void:
+	if _speed_pushed:
+		TimeSystem.pop_speed()
+		_speed_pushed = false
 		

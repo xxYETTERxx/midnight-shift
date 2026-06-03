@@ -5,7 +5,9 @@ extends Node2D
 # if willing, halts and runs a progress action that registers a deal
 # crime; if witnessed by a cop during the window, the bust check fires.
 
-const ACTION_DURATION: float = 2.0
+const PREP_TIME_BASE: float = 2.8   # tier 0 — deliberately slower than the old flat 2.0
+const PREP_TIME_MIN: float = 1.7    # tier 5 — slightly faster than old 2.0
+
 const PLAYER_MAX_DISTANCE: float = 64.0
 const CRIME_TYPE: StringName = &"weed_deal"
 
@@ -34,6 +36,7 @@ var _arrived: bool = false
 
 # Action progress (only used in the willing branch).
 var _action_player: Node = null
+var _action_duration: float = 2.0
 var _action_elapsed: float = 0.0
 var _crime_id: int = -1
 
@@ -162,6 +165,7 @@ func _on_interacted(player: Node) -> void:
 	# Willing — kick off the action window.
 	_action_player = player
 	_action_elapsed = 0.0
+	_action_duration = lerpf(PREP_TIME_BASE, PREP_TIME_MIN, DealerExperience.street_skill_fraction())
 	_progress_bar.visible = true
 	_progress_bar.value = 0.0
 	_crime_id = CrimeSystem.begin_crime(CRIME_TYPE, self, global_position, _area_id)
@@ -179,8 +183,8 @@ func _tick_action(delta: float) -> void:
 		_cancel_action()
 		return
 	_action_elapsed += delta
-	_progress_bar.value = _action_elapsed / ACTION_DURATION
-	if _action_elapsed >= ACTION_DURATION:
+	_progress_bar.value = _action_elapsed / _action_duration
+	if _action_elapsed >= _action_duration:
 		_complete_action()
 
 
@@ -238,27 +242,23 @@ func _build_info_text() -> String:
 	var tier: int = DealerExperience.current_tier()
 	if tier <= 0 or archetype == null:
 		return ""
-
-	
 	if tier == 1:
 		var mid: float = (archetype.purchase_chance_min + archetype.purchase_chance_max) * 0.5
 		if mid >= 0.65: return "Likely"
 		elif mid >= 0.35: return "Maybe"
 		else: return "Unlikely"
-
 	if tier == 2:
 		var lo_pct: int = int(round(archetype.purchase_chance_min * 100.0))
 		var hi_pct: int = int(round(archetype.purchase_chance_max * 100.0))
 		return "~%d-%d%%" % [lo_pct, hi_pct]
-
 	if tier == 3:
 		var center: int = int(round(willingness_pct * 100.0))
-		var lo: int = clamp(center - 15, 0, 100)
-		var hi: int = clamp(center + 15, 0, 100)
-		return "%d-%d%%" % [lo, hi]
-
-	var pct: int = int(round(willingness_pct * 100.0))
-	return "%d%%" % [pct]
+		return "%d-%d%%" % [clamp(center - 15, 0, 100), clamp(center + 15, 0, 100)]
+	if tier == 4:
+		var c: int = int(round(willingness_pct * 100.0))
+		return "%d-%d%%" % [clamp(c - 7, 0, 100), clamp(c + 7, 0, 100)]
+	# Tier 5+: the mastery payoff — read them outright.
+	return "WILL BUY" if is_willing else "WON'T BUY"
 
 # Called externally by the minigame on bust — ends the crime cleanly and
 # clears action state without firing offer_resolved (bust is its own flow).

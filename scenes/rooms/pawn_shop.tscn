@@ -9,6 +9,7 @@
 [ext_resource type="Resource" uid="uid://cwr704bsgjs0o" path="res://data/items/Tools/notebook.tres" id="7_kuhmp"]
 [ext_resource type="Resource" uid="uid://cbrguahiutxcb" path="res://data/items/Tools/scale.tres" id="7_kxswg"]
 [ext_resource type="Resource" uid="uid://bhlt5cg8a6sf" path="res://data/items/Books/paperback_mystery.tres" id="8_00pxe"]
+[ext_resource type="Resource" uid="uid://q0888yvk6var" path="res://data/items/Tools/skateboard_1.tres" id="8_mcgfg"]
 [ext_resource type="Resource" uid="uid://tdatwa04y72s" path="res://data/items/Books/paperback_romance.tres" id="9_mcgfg"]
 [ext_resource type="Resource" uid="uid://dtm0e56hcffa7" path="res://data/items/Books/paperback_scifi.tres" id="10_to411"]
 [ext_resource type="Resource" uid="uid://b12sxolyjyukb" path="res://data/items/Books/paperback_self_help.tres" id="11_bst2y"]
@@ -85,8 +86,8 @@ position = Vector2(146, -59)
 vendor_id = &"felix"
 vendor_name = "Felix"
 sell_multiplier = 0.8
-initial_stock = Array[ExtResource("4_om1fm")]([ExtResource("5_tv1wn"), ExtResource("7_kuhmp"), ExtResource("7_kxswg")])
-initial_stock_counts = Array[int]([1, 1])
+initial_stock = Array[ExtResource("4_om1fm")]([ExtResource("5_tv1wn"), ExtResource("7_kuhmp"), ExtResource("7_kxswg"), ExtResource("8_mcgfg")])
+initial_stock_counts = Array[int]([1, 1, 1])
 will_buy_items = Array[ExtResource("4_om1fm")]([ExtResource("8_00pxe"), ExtResource("9_mcgfg"), ExtResource("10_to411"), ExtResource("11_bst2y"), ExtResource("12_7msdk"), ExtResource("13_rehof"), ExtResource("14_liljx"), ExtResource("15_knu5o"), ExtResource("16_jsil0"), ExtResource("15_knu5o"), ExtResource("17_lrsfk"), ExtResource("18_2c7vg"), ExtResource("19_x31fw"), ExtResource("20_iqmp1"), ExtResource("21_fk8ly"), ExtResource("22_6hlet"), ExtResource("23_gd84s"), ExtResource("24_3y1f4"), ExtResource("25_l5h3t"), ExtResource("26_wq4tw"), ExtResource("27_tk05c"), ExtResource("28_nf0er"), ExtResource("29_aibqh"), ExtResource("30_oflef"), ExtResource("31_chcvo"), ExtResource("32_xjda1"), ExtResource("33_51ymb"), ExtResource("34_8o0aa"), ExtResource("35_0vjns"), ExtResource("36_5nksb"), ExtResource("37_7b0uo")])
 daily_buy_budget = 225
 rotating_pool = Array[ExtResource("4_om1fm")]([ExtResource("8_00pxe"), ExtResource("9_mcgfg"), ExtResource("10_to411"), ExtResource("11_bst2y"), ExtResource("12_7msdk"), ExtResource("14_liljx"), ExtResource("16_jsil0"), ExtResource("15_knu5o"), ExtResource("17_lrsfk"), ExtResource("38_00pxe"), ExtResource("18_2c7vg"), ExtResource("19_x31fw"), ExtResource("20_iqmp1"), ExtResource("21_fk8ly"), ExtResource("22_6hlet"), ExtResource("23_gd84s"), ExtResource("24_3y1f4"), ExtResource("25_l5h3t"), ExtResource("26_wq4tw"), ExtResource("27_tk05c"), ExtResource("39_mcgfg"), ExtResource("28_nf0er"), ExtResource("29_aibqh"), ExtResource("30_oflef"), ExtResource("32_xjda1"), ExtResource("31_chcvo"), ExtResource("33_51ymb")])

@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="Recipe" format=3 uid="uid://dt0aq6cxvrc6m"]
+
+[ext_resource type="Script" uid="uid://bhnqgduqxf6v0" path="res://scripts/crafting/recipe_input.gd" id="1_lvfv5"]
+[ext_resource type="Resource" uid="uid://baspsgoempncw" path="res://data/items/Weed_stuff/large_ziplock.tres" id="2_2q3fv"]
+[ext_resource type="Script" uid="uid://2ndmr7htrd8w" path="res://scripts/items/item_def.gd" id="2_el0pj"]
+[ext_resource type="Script" uid="uid://crtim25fsjngu" path="res://scripts/crafting/recipe.gd" id="3_hpq6q"]
+[ext_resource type="Resource" uid="uid://d1ciphqy0cmrd" path="res://data/items/Weed_stuff/weed_buds.tres" id="3_uam7k"]
+[ext_resource type="Resource" uid="uid://bx0o1rt8wingx" path="res://data/items/Weed_stuff/weed_oz.tres" id="4_lr1c6"]
+[ext_resource type="Resource" uid="uid://cbrguahiutxcb" path="res://data/items/Tools/scale.tres" id="6_l31qp"]
+
+[sub_resource type="Resource" id="Resource_vsg6t"]
+script = ExtResource("1_lvfv5")
+item = ExtResource("2_2q3fv")
+metadata/_custom_type_script = "uid://bhnqgduqxf6v0"
+
+[sub_resource type="Resource" id="Resource_sh6el"]
+script = ExtResource("1_lvfv5")
+item = ExtResource("3_uam7k")
+count = 28
+metadata/_custom_type_script = "uid://bhnqgduqxf6v0"
+
+[resource]
+script = ExtResource("3_hpq6q")
+id = &"oz_bag"
+display_name = "Oz of bud"
+inputs = Array[ExtResource("1_lvfv5")]([SubResource("Resource_vsg6t"), SubResource("Resource_sh6el")])
+output_item = ExtResource("4_lr1c6")
+station_tags = Array[StringName]([&"packing_counter"])
+required_tools = Array[ExtResource("2_el0pj")]([ExtResource("6_l31qp")])
+metadata/_custom_type_script = "uid://crtim25fsjngu"

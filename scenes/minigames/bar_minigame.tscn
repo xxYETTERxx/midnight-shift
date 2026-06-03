@@ -41,6 +41,11 @@ y_sort_enabled = true
 format = 2
 layer_0/y_sort_enabled = true
 
+[node name="Furniture" type="TileMapLayer" parent="." unique_id=1629723803]
+y_sort_enabled = true
+tile_map_data = PackedByteArray("AAD/////AQAAAAEAAAD//wAAAQAAAAIAAAD//wEAAQAAAAIAAAD//wIAAQAAAAMAAAAAAAEAAQABAAIAAAAAAAIAAQABAAMAAAABAAEAAQABAAIAAAABAAIAAQABAAMAAAACAAEAAQABAAIAAAACAAIAAQABAAMAAAADAAEAAQABAAIAAAADAAIAAQABAAMAAAAEAAEAAQABAAIAAAAEAAIAAQABAAMAAAAFAAEAAQABAAIAAAAFAAIAAQABAAMAAAAGAAIAAQABAAMAAAAGAAMAAQAAAAIAAAAGAAQAAQAAAAEAAAAGAAUAAQAAAAIAAAAGAAYAAQAAAAEAAAAGAAcAAQAAAAIAAAAGAAgAAQAAAAMAAAAHAAcAAQABAAIAAAAHAAgAAQABAAMAAAAGAAEAAQABAAIAAAACAP//AQABAAEAAAAEAP//AQABAAEAAAAGAP//AQABAAEAAAAAAP7/AQABAAAAAAAAAP//AQABAAEAAAD///7/AQAAAAAAAAABAP7/AQABAAAAAAABAP//AQABAAEAAAACAP7/AQABAAAAAAADAP7/AQABAAAAAAADAP//AQABAAEAAAAEAP7/AQABAAAAAAAFAP7/AQABAAAAAAAFAP//AQABAAEAAAAGAP7/AQABAAAAAAAHAP7/AQABAAAAAAAHAP//AQABAAEAAAAIAP7/AQABAAAAAAAIAP//AQABAAEAAAAJAP7/AQABAAAAAAAJAP//AQABAAEAAAA=")
+tile_set = ExtResource("1_yiu1d")
+
 [node name="Interactables" type="Node2D" parent="." unique_id=1919529190]
 
 [node name="BarClockIn" type="Node2D" parent="Interactables" unique_id=996034804]
@@ -51,25 +56,24 @@ position = Vector2(128.79, 140)
 prompt_text = "Work Shift"
 
 [node name="BeerStation" parent="Interactables" unique_id=271358619 instance=ExtResource("4_llrdu")]
-position = Vector2(141, -2)
+z_index = 1
+position = Vector2(100, -23)
 
 [node name="WhiskyStation" parent="Interactables" unique_id=1942158533 instance=ExtResource("5_v3ec1")]
-position = Vector2(141, 107)
+z_index = 1
+position = Vector2(38, -20)
 
 [node name="CocktailStation" parent="Interactables" unique_id=648287355 instance=ExtResource("6_6ehmr")]
-position = Vector2(156, 53)
+z_index = 1
+position = Vector2(70, -21)
 
 [node name="SpawnPoints" type="Node2D" parent="." unique_id=814176097]
-position = Vector2(5, 16)
+position = Vector2(-61, 22)
 
 [node name="default" type="Marker2D" parent="SpawnPoints" unique_id=2066943066]
-position = Vector2(135, 70)
+position = Vector2(192, 90)
 
 [node name="Waypoints" type="Node2D" parent="." unique_id=1215555829]
-
-[node name="Furniture" type="TileMapLayer" parent="." unique_id=1629723803]
-tile_map_data = PackedByteArray("AAAHAAYAAQAAAAIAAAAHAAcAAQAAAAMAAAAIAAYAAQABAAIAAAAIAAcAAQABAAMAAAAJAAYAAQABAAIAAAAJAAcAAQABAAMAAAAHAAEAAQAAAAIAAAAHAAIAAQAAAAIAAAAHAAMAAQAAAAIAAAAHAAQAAQAAAAIAAAAHAAUAAQAAAAIAAAAHAAAAAQAAAAEAAAAHAP//AQAAAAAAAAA=")
-tile_set = ExtResource("1_yiu1d")
 
 [node name="UI" type="CanvasLayer" parent="." unique_id=888981501]
 
@@ -104,13 +108,13 @@ text = "Leave"
 [node name="CounterSlots" type="Node2D" parent="." unique_id=1296050679]
 
 [node name="Slot1" type="Marker2D" parent="CounterSlots" unique_id=162418940]
-position = Vector2(105, 14)
+position = Vector2(25, 51)
 
-[node name="Slot2" type="Marker2D" parent="CounterSlots" unique_id=1824722028]
-position = Vector2(103, 44)
+[node name="Slot2" type="Marker2D" parent="CounterSlots" unique_id=901437977]
+position = Vector2(90, 53)
 
-[node name="Slot3" type="Marker2D" parent="CounterSlots" unique_id=901437977]
-position = Vector2(103, 71)
+[node name="Slot3" type="Marker2D" parent="CounterSlots" unique_id=939876494]
+position = Vector2(-20, 14)
 
-[node name="Slot4" type="Marker2D" parent="CounterSlots" unique_id=689016101]
-position = Vector2(103, 102)
+[node name="Slot4" type="Marker2D" parent="CounterSlots" unique_id=446170943]
+position = Vector2(89, 108)

@@ -10,8 +10,12 @@ default
 	$b
 	$h It's $500 for the damage deposit and $100 a week.
 	$q
-	--> "Deal" | cash -500; set global:apartment_rented
+	--> "Deal" | clean -500; set global:apartment_rented
 		$n Welcome home. Rent's every Sunday — don't be late.
+		$fail
+		$a What is this? I don't want you're drug money
+		$b
+		$n write a check like an adult
 	--> "Nah, I'm good"
 		$n Come back when you've got the money.
 	$r

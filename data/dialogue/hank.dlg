@@ -10,6 +10,16 @@ default
 mon
     $n I got new product. Stop by later
 
+tier_5_reached
+	$n You growing you're own product now?
+	$q
+	-->"Yep, did you want to buy some? (sell an oz)" | weed_oz - 1; cash + 180; clear tier_4_reached
+		$h Sure do, thanks kid. I can pass you're name to a few people if you've got more
+	-->"Not yet. I might soon"
+		$n well let me know...
+	$r
+
+
 
 
 #Dialogue cheat sheet

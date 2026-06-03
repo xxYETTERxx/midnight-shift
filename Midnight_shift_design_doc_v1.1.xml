@@ -1,0 +1,1730 @@
+# MIDNIGHT SHIFT — MVP Design Document
+
+**Status:** Living document. MVP scope only. Story content deferred.
+**Last updated:** v1.1
+
+---
+
+**Changes from v1.0:**
+
+- **New §7.9 — Bartending (the first legit job).** A full new minigame and the first *scheduled-commitment* system. Three drink stations, carry-one-drink constraint, patience-timed customers, speed-based tips. Built on a reusable employment/scheduling spine (EmploymentSystem) that future scheduled obligations (community service, other jobs) will ride on. Shifts are scheduled 12-36h out at legal hours, surfaced in the Appointment Panel, with a clock-in grace window, strikes, and a two-strikes-fired rule driven by global flags + dialogue. This is the concrete first step of the long-discussed legit axis. See §7.9.
+- **§6.6 — Customer roster overhaul.** The referral chain is now the organic growth mechanism: completing deals raises trust, crossing a trust threshold (45) refers a new customer one tier *above* the referrer (one-shot per customer, capped at tier 4). Per-tier quantity bands replace the old formula (1-3 g at tier 0 up to 7-14 g at tier 4), so order sizes scale with relationship depth. A roster cap (12) evicts the weakest contact (lowest tier, then lowest trust) on every intake, producing gradual upward drift. Street pickups remain the tier-0 bootstrap. See §6.6 and the updated §7.
+- **Player-set appointment times.** Returning a call no longer auto-assigns a random time. The payphone callback now offers 3-5 future time slots at one spot; the player picks. The Appointment Panel shows alongside (redocked top-right). Implemented via a dedicated time-picker panel that owns the pause while open. See §7 loop step 3.
+- **Vendor dialogue + owner-presence gating clarified.** Vendors trigger their NPC's normal contextual dialogue on interact (awaited before the panel opens) — vendor_id doubles as the npc_id / .dlg key, and a shared `DialogueRuntime.trigger(npc_id, display_name)` now centralizes context-build + line resolution for both NPCs and vendors. Owner-presence gating uses `NPCDirector.is_npc_present(vendor_id)` (schedule-driven room presence), not a physical proximity check. See §5 vendor system.
+- **Street-deal / pager pricing reconciled.** RETAIL_MULTIPLIER for pager deals set to 1.0 (was 1.5 — the source of early over-earning). The risk premium moved to street dealing instead (STREET_MULTIPLIER 1.5): street sales pay more because they're the higher-risk, sell-to-strangers channel. Street dealing now expects to sell dime bags as the base unit. See §5 pricing.
+- **New §23.5 — Gameplay progression ladder (housing).** The concrete long-arc spine committed: Tent → Apartment room 1 → rooms 1&2 → room 3 (1&2 combined) → 3rd-floor apartment → buy the apartment complex (roof access, weekly income) → buy a house on the right side of the tracks. This is the spend-sink that the income tracks feed and the eventual clean-cash gate attaches to.
+- **§7.95 — Bottle collection & sale (planned, not built).** A trivial bottom-rung legit income vector that was never added: collect discarded bottles/cans from the world, sell for deposit value. Logged as a near-term easy add.
+- **Future design captured (§25 NEW — Post-MVP Design Threads).** Two substantial threads from design discussion that aren't built but are load-bearing for the game's identity: the **Courthouse / adjudication system** (personal heat → court date → fine/community-service/jail, all denominated in lost time), and the **clean vs. dirty cash** economy (two-meter model: heat = witnessed-crime, scrutiny = does-your-money-make-sense; dirty spends freely in the informal economy, clean required at formal gates like rent/property/mail-order). Also the other planned legit jobs (delivery, panhandling) and fronts (lemonade stand → laundering firehose). See §25.
+
+---
+
+**Changes from v0.8:**
+
+- Stage 12 (Heat / Pursuit) confirmed complete — cop pursuit + witness model + neighborhood-heat-scales-patrol-spawn shipped. References to "deferred" cop pursuit throughout the doc updated. Stealth skill remains deferred (it's the only sub-piece of the heat surface not yet wired).
+- §5 Vendor system: The Fence removed entirely. The deprecated abstract vendor is replaced by three named vendors with distinct trade positions and moral framings — Hank (contraband wholesale, criminal tools), Felix (semi-legal equipment, skill-track items, equipment-availability gate), Oliver (legit grow supplies). Lingering Fence references in §5.5, §15, and §17 cleaned up.
+- §7 Pager dealing reframed as **Stage 2 of the dealing track**, not the default capability. PagerSystem gates on a `has_pager` flag set on activation of a pager item. HUD pager indicator hides until activation. CustomerRoster seeds the starter customer on `pager_acquired` rather than at new-game.
+- **New §7.5 — Two-Bit Street Dealing.** The on-ramp loop that fills the opening-hour vacuum the old design had. Hank fronts an ounce with a 7-day pay-back deadline; player deals 1g bags at marked spots to passersby. NPC archetype classification, explicit-decision-to-approach gameplay, per-spot repeat heat, time-of-day windows, eyeball-tax → scale upgrade progression. Bust outcomes route through the existing cumulative heat surface (§15.2).
+- §12 Cast rewritten — full named cast committed (Erik, Henry, Hank, Oliver, Felix, Bruce, Rosa, Tyrone, Reggie, the apartment neighbor, the neighbor's daughter). Thematic frame: three age strata × three philosophies on the same neighborhood decline. Neighbor character's design principles documented in detail; she carries the project's "treated seriously" tonal commitment.
+- §13 Locations — actual neighborhood geometry committed. Single-map four-quadrant layout described. Three dealing-spot placements form a stakes ladder. Reggie's beat anchored.
+- **New §14 — Opening Arc.** Day 1 through pay-Hank-back is now an authored on-ramp, replacing the previous "fresh apartment with no inciting incident" opening. Geography-driven, no quest markers — the inevitability of foot traffic does the level-design work.
+- Doc hygiene: duplicated v0.6→v0.7 changelog block removed from intro; stale Fence references purged; Stage 12 status corrected.
+
+---
+
+## §W Engine version
+
+Migrated from Godot 4.2 to Godot 4.6.0 on May 11 2026.
+- `Project → Tools → Upgrade Project Files` applied (unique node IDs).
+- Existing `TileMap` nodes preserved (not migrated to `TileMapLayer`).
+- `get_cell_tile_data(layer_index, tile)` calls retained — `TileMap` signature
+  requires the layer index.
+
+## 0. What's in this doc
+
+This is a forward-looking design reference, not a build log. Feed it to a new chat instance to get back up to speed. It captures the high-level concept, the systems we've designed, the technical approach, what's actually been built so far, and the open questions. It does not capture art assets created, specific tile layouts, or per-line code — those live in the project itself.
+
+---
+
+## 1. High Concept
+
+A 90s-set, urban, pixel-art life sim about scraping by — and building yourself up — through a mix of hustles, relationships, and risk management. Imagine **Stardew Valley's** loop and craft systems welded onto **Schedule I's** subject matter and **Disco Elysium's** willingness to sit with adult themes.
+
+The player starts in a shitty apartment in a rough neighborhood, fronted an ounce of weed by a local sleazebag with a 7-day clock. They earn money through a mix of legal and illegal means: street-dealing 1g bags to passersby, eventually graduating to pager-summoned repeat customers, growing their own product in the apartment, looting parked cars, taking criminal jobs through Hank, and — on the legit side — working scheduled jobs like bartending (the first legit job, built; see §7.9) and collecting bottles for deposit. The shine isn't in the mechanics — those are deliberately simple. The shine is in the characters, the dialogue, the relationships, and the texture of the world.
+
+The legit path is, for now, a **supplement** to the dealing/crime tracks rather than a parallel win condition: legit jobs fill schedule downtime, anchor the player's time with hard commitments, and (once the clean/dirty cash economy ships post-MVP) produce the *clean* money the formal economy demands. They aren't balanced to out-earn crime. See §25 for the long-term legit-axis design.
+
+**MVP goal:** A vertical slice that proves the loop is fun. One handcrafted neighborhood, the player's apartment, ~10 named characters with dialogue/relationship support (prioritized by opening-arc involvement), two parallel income tracks (dealing and crime), a working day/calendar, a heat system, and a structured opening week that ends with the systems opening up.
+
+**Tone references:**
+- Schedule I (criminal life sim, irreverence)
+- Stardew Valley (loop, dialogue system, relationships)
+- Disco Elysium (adult themes treated seriously)
+- Kentucky Route Zero (melancholy of place)
+- Sean Baker films, *Tangerine* / *The Florida Project* (working people treated as subjects of their own stories)
+- GTA: Vice City / San Andreas (90s urban texture)
+
+---
+
+## 2. Setting & Aesthetic
+
+**Setting:** A fictional US city, mid-1990s. Player's home neighborhood is run-down — boarded windows, weed-cracked sidewalks, neon signs missing letters. Other neighborhoods (when added post-MVP) range from working-class to affluent.
+
+**Why the 90s:**
+- No smartphones — pagers, payphones, paper maps create gameplay friction (this is now a load-bearing design choice, see §7)
+- Weed is unambiguously illegal everywhere, raises stakes
+- Aesthetic is well-trodden and pixel-art-friendly
+- Lets the writing engage with the era's specific anxieties
+- Slim jims and car radios actually work as period-correct loot vectors (see §5.5)
+
+**Visual direction:**
+- Stardew Valley as the structural reference (top-down, similar character proportions)
+- Palette pivots hard from Stardew's saturated greens/yellows to greys, browns, sodium-vapor oranges, dirty teals
+- **Palette baseline: Waldgeist** (39 colors, Lospec — warm desaturated, tagged murky/dark/nostalgic). Expect to drop 3-5 colors and add 3-5
+- Strong use of warm interior light vs. cold exterior light for mood
+- Rain and night are visual events, not just lighting toggles
+
+**Asset pipeline:**
+- Tilesets split by function (interior_floor, interior_wall, outdoor_ground, outdoor buildings, outdoor_decoration) rather than by aesthetic — same node structure across rooms means swapping a tileset is a one-line change
+- Outdoor terrain uses 47-tile autotile templates (purchased asset pack) configured as Godot terrain sets. Probability weighting handles variant tiles within a terrain
+- Hand-authored work concentrates on characters, key props, decorations. Terrain/ground is largely purchased + recolored
+- Palette discipline upstream: every new tile passes through an indexed-palette pass in Aseprite before entering Godot
+
+---
+
+## 3. Core Loop
+
+**One day in the player's life (target experience):**
+
+Wake up at 2 PM in a shitty apartment. Stamina full. Check the plants — one needs water, one's ready to harvest. While doing that, hit Saturday — rent's due tomorrow and you're $40 short. Check the pager: nothing yet. Walk down to the gas station and post up — sell three bags in twenty minutes to passersby, eyeball-tax them all because you still haven't bought a scale. While crossing the block your pager buzzes — Dee P., wants 3 units, meet at the Shell lot in two hours. Run to the payphone, return the call, agree to terms. You've got an hour to kill, so you stop at the hardware store for soil. Get to the Shell lot ten minutes early to avoid looking sketchy. Deal goes clean, $67 in your pocket. Walk home past the bodega; the owner waves. Make dinner, water the plants, sleep. Rent gets paid in your sleep. Next day starts.
+
+That's the loop. Hustle pressure, schedule disruption, small decisions that compound.
+
+**Five-category time budget:**
+
+1. **Maintenance** — non-negotiable, predictable (plants, eating, sleeping)
+2. **Income** — varied risk/time profiles (street dealing, pager dealing, growing, car looting)
+3. **Social** — relationship maintenance (NPC schedules, gifts, hangouts)
+4. **Exploration / Long-term** — skill grinding, casing locations, gossip at the bar
+5. **Neighborhood investment** — multi-day/week projects (see §23)
+
+The day should *almost* fit. See §6.
+
+---
+
+## 4. Time & Calendar
+
+**Wake hour: 2 PM.** Player wakes at 14:00 in-game, day rolls at 14:00 the next day. This is a 90s-criminal-life-sim tonal choice — the player keeps vampire hours.
+
+**Sleep window: 06:00–14:00.** This is a hard window during which game logic considers the player asleep. Pages don't fire. Customers don't try to meet. NPC schedules respect it for "this NPC sleeps too" behavior.
+
+**Day display granularity: 10 minutes.** HUD shows time rounded to the nearest 10. Internal calculations use exact minutes.
+
+**Single integer `total_minutes` is source of truth.** All other queries derive (current_hour, current_minute, day_of_week, day_of_month).
+
+**Day-of-week.** Indexed 0 = Mon, 6 = Sun. Rent is due Sunday (dow == 6). Saturday is the warning day.
+
+**Pause counter, not bool.** Multiple systems can pause concurrently. Time runs only when count is zero.
+
+---
+
+## 5. Economy ✅ STAGE 5 COMPLETE
+
+### Income sources (MVP)
+
+| Source | Track | Risk | Setup Cost | Skill Ceiling | Time Cost | Day-fill role |
+|---|---|---|---|---|---|---|
+| **Street dealing (2-bit)** | Dealing | Medium-high | Low (oz fronted by Hank) | Low | Spot-anchored, time-of-day windows | **The opening engine** |
+| Weed growing | Dealing | Low | Medium | Medium | Slow (multi-day cycles) | Background maintenance |
+| **Pager dealing** | Dealing | Medium | Medium (pager from Felix) | Medium-high | Variable, schedule-disrupting | **The schedule engine** |
+| Car looting | Criminal | Medium | Low (slim jim from Hank) | Low-medium | Fast (seconds per car) | Filler / opportunistic |
+| Chop shop deliveries (late) | Criminal | High | Med (skills) | High | Medium (delivery walks) | Big-payoff session activity |
+| **Bartending** | Legit | None (legal) | None (hired via dialogue) | Low | **4h scheduled blocks, hard commitment** | **Downtime-filler + scheduling tension** |
+| Bottle collection (planned) | Legit | None | None | None | Opportunistic, trivial | Bottom-rung clean trickle |
+
+The two *illegal* tracks (Dealing, Criminal) mirror each other structurally. Each has an XP spine (DealerExperience, CriminalExperience), each has tier-gated content, each unlocks tools/contacts/locations as it progresses. The player can lean into either, both, or alternate.
+
+The **legit track** is deliberately not a third XP spine. Legit jobs are flat income with no tier ladder — their long-term value is laundering and clean-cash access (post-MVP, §25), not raw profit. Bartending is the first built example; it introduces the *scheduled-commitment* pattern (you can't tend plants, take a page, or meet a customer during a shift) that is the real point of the legit axis. See §7.9.
+
+Within the dealing track there's now a clean progression: street-deal to passersby (high friction, high heat per deal) → graduate to pager dealing (named repeat customers, scheduled deals, better margins) → grow your own product (eliminates wholesale cost). The pager is the dividing line between hand-to-hand and relationship-mediated dealing.
+
+### Wallet
+
+Multi-pool by design. MVP only uses `"cash"`. The pool architecture supports future expansion to `"clean"` (banked/checked) for catalogue mail-order, plus laundering bookkeeping. All Wallet methods take an optional pool parameter so the expansion is additive.
+
+Starting cash: $50. Weekly rent: $100. Raw bud base value: $15.
+
+Hank's debt on the fronted ounce: $X owed by Sunday of Week 1 (tune in playtest — target a number reachable by ~half the street-dealing potential of that week). Late penalty: $Y added per day past deadline (target: enough to feel real but not unrecoverable from a single bad day).
+
+### Expenses
+- **Rent:** weekly, due Sunday (auto-deducted). 2 misses = eviction (MVP: logged signal only; future: shanty-town tent fallback)
+- **Hank's debt:** week-1 fronted-ounce balance, escalating after deadline (see §7.5)
+- **Food:** stamina maintenance — skip too long and tomorrow's stamina cap drops (deferred, post-MVP polish)
+- **Supplies:** soil, seeds, lockpicks, baggies, calling-card minutes, etc.
+- **Gifts:** social currency
+- **Bribes / fines:** when caught
+- **Equipment upgrades:** scale (from Felix), pager (from Felix), grow lamps, planter beds, tools, eventually a skateboard (see §24)
+
+### Vendor system
+
+One `VendorInteractable` node type supports both buying and selling via two multipliers:
+
+- `buy_multiplier` — applied to ItemDef.base_value when player buys from vendor
+- `sell_multiplier` — applied when player sells to vendor
+
+Setting `sell_multiplier = 0` makes a vendor buy-only. The VendorPanel UI handles both directions transparently — click your inventory to stage sells, click their stock to stage buys, see live net, confirm.
+
+**Owner-NPC gating.** A vendor declares its identity via `vendor_id: StringName` (which also matches the owner NPC's id). On interact, the vendor checks `NPCDirector.is_npc_present(vendor_id)` — schedule-driven room presence, *not* a physical-proximity check. If the owner's current schedule window doesn't place them in this room, the counter refuses with a notification ("X isn't here right now."). Vendors whose owner is always-scheduled-present (or vending-machine style) just always pass. This expresses "store closed when the shopkeeper isn't there" by reusing the schedule system as the single source of truth, with no duplicated schedule logic on the vendor. (Schedule presence is room-granular, not standing-at-the-counter — being scheduled into the room counts as attending. A stricter proximity check is available if a roaming-in-room NPC ever needs it.)
+
+**Vendor dialogue on interact (v1.1).** Interacting with a staffed vendor first triggers the owner NPC's *normal contextual dialogue* — the same line they'd say if you talked to them anywhere else — and the vendor panel only opens once that dialogue finishes (the interact handler awaits `DialogueRuntime.dialogue_ended`). `vendor_id` doubles as the npc_id / `.dlg` key, so there's one Oliver dialogue file, not a vendor-specific one. Both NPC interaction and vendor interaction route through a shared `DialogueRuntime.trigger(npc_id, display_name)` that builds the dialogue context (weekday/timeofday/location) and resolves the best-matching line — context logic lives in exactly one place. If there's no matching line for the current context, the panel opens immediately. This keeps vendors as character touchpoints (they're at their stations most of the game) rather than silent shop UIs, and lets flags be set/cleared through the existing dialogue parser — the mechanism intended for, e.g., Hank's wholesale-customer unlock.
+
+**The three named vendors:**
+
+| Vendor | Role | Buys | Sells | vendor_id |
+|---|---|---|---|---|
+| **Hank** | Contraband wholesaler + criminal-track contact | Raw bud, stolen goods, electronics, anything no-questions | Slim jim (when CRIM tier 1), electronics kit (when CRIM tier 2), wholesale product when player is short | `hank` |
+| **Felix** | Pawn shop. Semi-legal, refuses obvious contraband. Equipment-availability gate. | Most non-contraband items at fair value (he knows what things are worth) | **Pager** (the dealing-track unlock), **scale** (eliminates eyeball tax), skateboard, used tools, eventually bike/rollerblades. Stock is curated — Felix's inventory is the lever for staging equipment unlocks. | `felix` |
+| **Oliver** | Hardware store. Everything legit. | Doesn't buy player items (`sell_multiplier = 0`) | Pots, soil, seeds, watering cans — all growing supplies. | `oliver` |
+
+The three are mirror positions on the same moral question: Hank profits from the neighborhood's decline, Oliver endures it with dignity, Felix occupies the slippery legal middle. This is intentional. Vendor choice is also character interaction.
+
+**Tier-gated stock.** Vendors support `gated_stock` / `gated_stock_counts` / `gated_stock_min_tier` parallel arrays alongside `initial_stock` — items that only appear once `DealerExperience.current_tier()` reaches their `min_tier`. The shelf rebuilds on day-roll, week-roll, *and* on `DealerExperience.tier_unlocked` (so a newly-unlocked item appears immediately rather than waiting for the next morning). There's also a weekly-rotating pool (`rotating_pool` / `rotating_pick_count`) for variety. (v1.1 fix: tier-gated items weren't surfacing because nothing rebuilt the shelf on tier-up, and a duplicated `_ready` rehydration block was cleaned up.)
+
+**Pricing example (reconciled in v1.1):**
+- Raw bud wholesale to Hank: 0.6× base
+- **Pager (relationship) deal: 1.0× base** — flat base value. The pager channel is the *safer, lower-margin* one; you trade a cut for reliability, no eyeball tax, no cop heat. (Was 1.5× — that was the source of early over-earning.)
+- **Street deal: 1.5× base** (STREET_MULTIPLIER) — the risk premium lives here. Selling to strangers on a corner is the high-risk, high-touch channel, so it pays more per unit. Street dealing is expected to move **dime bags** as the base unit, not loose grams long-term.
+- Street bags are still subject to eyeball tax until a scale is bought (§7.5).
+
+The inversion is intentional: cultivating pager relationships rewards you with a *steadier, safer* channel even though the per-unit cut is lower; street dealing pays more but carries the danger. Pricing is keyed off each item's `base_value` in its `.tres`, so editing one number propagates.
+
+### Pawn shop curation (intentional gate)
+
+Felix's stock is the primary lever for staging equipment unlocks across the game's progression. Pre-pager (week 1), Felix's visible stock is limited: scale, baggies, calling cards, a watering can or two. Pager appears once player has paid Hank back (event flag triggers stock update). Skateboard appears later. Bikes / rollerblades later still. This makes Felix a recurring destination, gives equipment unlocks a moment of "he didn't have this last time," and routes all gear progression through one NPC the player has a relationship with.
+
+Mechanically, this is just per-NPC stock-rotation logic gated on flags/tiers — same vendor scene, dynamic stock contents.
+
+### Dirty vs. clean cash
+
+Architected via the multi-pool wallet but inert for MVP. **Full design now captured in §25.3** — two-meter trouble model, dirty-spends-informal / clean-required-at-formal-gates, laundering coupled to grow expansion. The catalogue system, when it ships, will use a `"clean"` pool. Money laundering loop is post-MVP and gated on stabilizing the economy first.
+
+---
+
+## 5.5. Criminal Income Track ✅ MVP COMPLETE (CAR LOOTING)
+
+The Criminal Experience track parallels the Dealer Experience track. The player gets XP for every committed crime, scaled by tier/severity. CriminalExperience.tier() gates criminal-track unlocks at Hank (Hank is the criminal-track contact — slim jim, electronics kit, and chop shop access all flow through him).
+
+### Car looting
+
+Parked cars spawn each morning across outdoor scenes. The player can break into them for loot.
+
+**Mechanic:**
+- Walk up to a car, hold E. Progress bar fills. Action completes → loot lands in inventory, CRIM_XP awarded, car marked looted (dimmed, non-interactable) for the rest of the day
+- Locked cars take longer than unlocked ones (gated on slim jim possession — slim jim is sold by Hank at CRIM tier 1)
+- Walking away mid-action cancels
+- Per-car state persists across saves within a day; full reset at day rollover
+
+**Car tiers (0/1/2):**
+- Tier 0 — beaters, loose change, light junk
+- Tier 1 — sedans, mid-tier loot, more frequent locked
+- Tier 2 — luxury, car radios + wallets, almost always locked
+
+Loot tables are authored as `.tres` resources per tier. Sprite variants exist per tier × orientation (4 orientations: N/S/E/W).
+
+**Spawning:**
+- Each outdoor scene contains `CarSpawnPoint` markers (orientation per marker)
+- On first entry per day, spawner generates 3-6 cars at random subset of points
+- Tier weights per neighborhood (one `NEIGHBORHOOD_TIER_WEIGHTS` dict, scene_path → weights). MVP has one neighborhood using defaults
+- Looted state persists mid-day, clears at day rollover
+
+### Criminal track unlocks (CRIM-of-crime tiers)
+
+- **Tier 0 (start):** Loot unlocked cars only
+- **Tier 1:** Slim jim available from Hank — open locked cars
+- **Tier 2:** Electronics kit available from Hank — pull radios and electronics from cars
+- **Tier 3:** Chop shop access via Hank — "claim" a car, walk to chop shop, fence the whole vehicle for a fat payout
+
+### Slim jim minigame (deferred)
+
+For MVP, locked cars just take longer (5s vs 2s). Eventually replaced with a multi-phase minigame matching the real-world mechanic:
+
+1. **Insert** — slip the tool between window and weather stripping (commit, no skill check)
+2. **Hunt** — slide-and-probe for the door linkage rod (position-based search with audio/visual cue)
+3. **Yank** — pull in the correct direction at the right moment
+
+Failure states: tool slips (retry), wrong-direction yank (rod damaged, car becomes "broken" — only smashable). Damaged cars are evidence — passing NPCs notice, increment area heat.
+
+### Chop shop loop (Stage 3 of criminal track)
+
+The criminal-track analog to the pager dealing loop. Mechanical shape:
+
+1. Slim-jim a tier-2 car with chop shop access (unlocked via Hank)
+2. Car becomes "claimed" — gameplay state flag, persisted
+3. Walk to the chop shop (far corner of the map — the walk *is* the gameplay)
+4. Hand off → big payout, big area heat tick
+5. Claim has a time limit; let it expire and the car becomes inert/despawns
+
+Cars are also a fast-travel mechanic when player owns one — minecart-equivalent, no driving sim. Once player has a personal car, every chop shop steal is a choice between "convert to cash" or "keep as transit."
+
+---
+
+## 5.6. Gift Giving ✅ COMPLETE
+
+Stardew-style relationship currency. Player gives NPCs items, receives an affinity reaction graded by category. One special "perfect" gift per NPC unlocks event flags for story-gated content.
+
+### Tiers and deltas
+
+Six tiers, global config on GiftSystem autoload:
+
+- **HATE** (−40 affinity)
+- **DISLIKE** (−20)
+- **NEUTRAL** (0) — fallback for any category not declared in an NPC's preferences
+- **LIKE** (+20)
+- **LOVE** (+80)
+- **PERFECT** (+200) — declared on the ItemDef, not the NPC
+
+Default reaction lines live on GiftSystem (`"Why would you give me this?"` for HATE, `"Thanks."` for NEUTRAL, etc.). Per-NPC overrides authored in the GiftPreferences .tres file.
+
+### Authoring
+
+**Per-NPC preferences:** `res://data/gifts/<npc_id>.tres`, a `GiftPreferences` Resource. Four typed arrays of ItemDef.Category — `like_categories`, `love_categories`, `dislike_categories`, `hate_categories`. Anything not in any list defaults to NEUTRAL. Optional per-tier line overrides as multiline strings. This is the only system using .tres for content — preferences are too small to warrant a parser, and the inspector affords clean dropdown authoring.
+
+**Perfect gift:** declared on the ItemDef itself via `perfect_gift_for: StringName`. Empty = no perfect target. Giving the named NPC this specific item beats category lookup, fires `perfect_gift_given` signal, and sets the global flag `<npc_id>_perfect_gift_received` for event scenes to gate on. Triggering the cutscene is the event system's job, not the gift system's — the flag is the handoff.
+
+**ItemDef.giftable:** boolean field, default true. Set false on tools, keys, and quest items to hide them from the gift panel.
+
+### Category redesign
+
+The original `Category` enum (TOOL/SEED/MATERIAL/CONSUMABLE/GIFT/KEY/MISC) was inventory-facing only. Extended with gift-side categories: FOOD, DRINK, FLOWER, JEWELRY, ENTERTAINMENT, CLOTHING, DECORATION, DRUG. One flat tag set — same enum drives inventory filtering and gift grading. CONSUMABLE and GIFT are retained as legacy values for backwards-compatibility but not used for new items.
+
+### Daily cooldown
+
+One gift per NPC per in-game day. Tracked on RelationshipSystem via `_last_gift_day: Dictionary` (npc_id → day_index). Resets on day rollover automatically. NPC interaction silently rejects the gift panel open with a notification line when the cooldown is active.
+
+### Flow
+
+1. Player presses alt_interact near NPC (handled via InteractionManager.try_alt_interact)
+2. NPC checks `RelationshipSystem.can_receive_gift(npc_id)` — fails fast with a notification if cooldown is active
+3. GiftPanel opens, listing only items where `item.giftable == true` from player inventory
+4. Player clicks a stack → one item consumed → `GiftSystem.give_gift(npc_id, item)` resolves the tier, applies the affinity delta, records the cooldown, emits signals
+5. Panel closes, inline reaction dialogue plays via DialogueRuntime
+6. For perfect gifts, the global flag is set — event scenes gated on `<npc_id>_perfect_gift_received` can fire next time their other conditions are satisfied
+
+---
+
+## 6. The Day-Filling Principle
+
+The single most important design principle in the project.
+
+**Stardew's secret is that the day is always slightly too short to do everything you want.** That tension is the engine of "one more day" engagement. If the player ever finishes their list with hours of in-game time left, the loop has failed.
+
+Every activity falls into one of five time-cost categories (see §3).
+
+**Tuning principle 1:** Time costs should feel real but not punishing. A trip across town to a payphone is ~20-30 in-game minutes — felt but not crippling.
+
+**Tuning principle 2:** The schedule should *almost* fit, not comfortably fit. If a productive day is ~16 in-game hours (2 PM to 6 AM), the player's want-to-do list should average 20-22 hours. The 4-6 hour overflow is what makes them want to play tomorrow.
+
+**Tuning principle 3 (new):** The opening week is the only stretch where the day budget is intentionally generous. The player is learning systems; we don't want them feeling behind before they understand what behind means. Hank's deadline is the only week-1 pressure. After week 1, the full day-doesn't-fit pressure kicks in (pages, rent, relationships, growing cycles all stacking).
+
+---
+
+## 6.5. NotificationSystem ✅ COMPLETE
+
+A global notification autoload that any system can call to surface short messages to the player. Replaces the "every feature has its own HUD label" trap.
+
+```
+NotificationSystem.info("Rent paid")
+NotificationSystem.loot(item, count)
+NotificationSystem.warn("Can't place here")
+NotificationSystem.error("Inventory full")
+```
+
+A single HUD widget (`NotificationLabel`) listens to the broadcast signal and renders messages as a vertical stack of color-coded labels that fade out after 3 seconds. Max 5 visible at once; oldest evicted on overflow.
+
+Used by car looting, vendor refusals, rent system, locked doors, skateboard activation refusal, pager activation, street-deal outcomes. Also the right call for: page received, DEX/CRIM tier-up, placement refused, skill threshold crossed.
+
+---
+
+## 6.6. Customer Roster & Referral Chain ✅ COMPLETE (overhauled v1.1)
+
+How the customer list grows, scales, and self-prunes. This is the organic-growth engine behind pager dealing — it replaces the old "waves of tier-0 customers on DEX tier-up" model with a relationship-driven chain.
+
+### Acquisition: two sources
+
+- **Street pickups (bootstrap).** Completing a street deal has a small chance (~3%) to add a tier-0 customer to the roster, once the pager is active. This is how you get your *first* customers — the bottom rung. Anonymous, always tier 0.
+- **Referrals (the chain).** Each customer can refer exactly one new customer, once, when their trust crosses a threshold. The referred customer enters at **referrer.tier + 1** (clamped to a max tier). The new customer then carries the chain forward when *their* own trust crosses the threshold. This is the escalation path — a single bootstrapped tier-0 contact can seed a chain that climbs T0 → T1 → T2 → T3 → T4.
+
+### Referral mechanics
+
+- Trust rises +5 per completed deal (caps at 100), drops on flakes.
+- When a completed deal pushes a customer's trust to **45+** and they haven't referred before, they refer one new customer at `min(tier + 1, MAX_REFERRAL_TIER)` and flip a one-shot `has_referred` flag (persisted in save).
+- `MAX_REFERRAL_TIER = 4`. Tier-4 customers refer tier-4 customers (the chain plateaus rather than dying — each tier-4 still refers exactly one more tier-4). Beyond tier 4 is the wholesale track (oz-based, gated through Hank — the long-discussed next escalation; see §25).
+- The referral fires from `MeetingManager.mark_completed` right after the trust bump, so the deal that crosses the threshold is the one that triggers the referral. A notification surfaces it.
+
+### Quantity bands (per tier)
+
+Order sizes are tier-derived, so deeper chains ask for more. Explicit per-tier table (replaced the old `1 + tier` formula):
+
+- T0: 1-3 g
+- T1: 2-5 g
+- T2: 3-8 g
+- T3: 5-11 g
+- T4: 7-14 g
+
+The actual rolled quantity is still gated by **trust** (a fresh, low-trust customer asks near their floor; the band opens toward the max as trust builds). So a high-tier referral starts asking meaningful amounts immediately (its *floor* is high) and grows from there. This fixed the "everyone asks for 1-2 g forever" problem — the old anonymous tier-0 referrals never scaled.
+
+### Roster cap & self-pruning
+
+- `MAX_ROSTER_SIZE = 12`. Enforced inside `_add_customer`, so every intake path (street pickups, referrals, any future source) is capped automatically.
+- When an add exceeds the cap, the **weakest** customer is evicted: lowest tier first, then lowest trust, then fewest deals, then id (deterministic). A `customer_removed` signal fires.
+- This is self-correcting: a fresh tier-0 pickup (trust 0) dropped into a full roster of established contacts will itself be the weakest and get evicted — the add cleanly no-ops, no special-casing needed.
+- Net effect: the roster drifts *upward* over time. Stronger contacts displace weaker ones, so the 1-2 g crowd gets shed by attrition as the chain deepens. This same mechanism is what will let wholesale (tier-5) customers eventually push out the last grams-tier stragglers.
+
+### Customer data model
+
+Each customer carries: `tier` (gate + band), `affinity`, `trust`, `times_dealt`, `times_flaked`, `quantity_min`/`quantity_max`, `has_referred`, `blacklisted`. Repeat flakers still auto-blacklist. (Blacklisting is a real flag but currently has minimal downstream behavior — flagged as not-yet-a-full-mechanic.)
+
+### Open knobs
+
+- Trust threshold (45), max tier (4), roster cap (12), per-tier bands — all first-pass numbers, expect playtest tuning.
+- Eviction protection for customers with an active pending page or scheduled meeting is *not* yet implemented — a customer could be evicted mid-obligation (handled gracefully by null-guards downstream, but worth revisiting).
+
+---
+
+## 7. Pager Dealing Loop ✅ STAGE 6 COMPLETE (now gated on §7.5)
+
+The **schedule-disrupting engine** of the game. Not just income — the system that creates moment-to-moment dramatic choices.
+
+**Reframe in v0.9:** This was previously the player's first dealing mechanic. It's now Stage 2 of the dealing track. The player must first do street dealing (§7.5) to pay back Hank and earn enough to buy a pager from Felix. Activating the pager is the moment the world "starts taking notice" of the player as a regular dealer — repeat customers seed, pages begin to fire, the HUD pager indicator appears.
+
+### Pager as equipment
+
+The pager is a purchasable item (Felix's pawn shop). Acquired via the existing player tool-dispatch path (`try_tool` / active item handler — same pattern that handles the watering can on plants and skateboard activation): with the pager in the active slot, press interact in open space to activate. The item is consumed; PagerSystem's `has_pager` flag is set; HUD indicator appears; starter customer seeds. One-way unlock — there's no losing the pager.
+
+Before activation:
+- HUD pager indicator is hidden
+- `PagerSystem` does not generate pages (early-return on minute tick)
+- CustomerRoster is empty
+- The Appointment Panel is unreachable (no clickable icon)
+- The Callback Panel at the payphone will open and show "No messages" — payphones have other future uses so the panel itself is not gated
+
+After activation:
+- All of the above wire up
+- One-time notification ("Pager activated.")
+- Starter customer (currently "Dee P.") seeds via the `pager_acquired` signal
+- The pager loop is live
+
+### The loop
+
+1. **Page arrives** — pure interruption, you don't control timing. Pager indicator blinks on HUD
+2. **Click pager or find payphone** — clicking pager shows appointments; payphone returns calls
+3. **Return the call** — the payphone callback now offers **3-5 candidate time slots** at one auto-assigned spot, and the **player picks** the time (no longer auto-set). Slots are future, sleep-window-avoiding, quarter-hour-aligned. A dedicated time-picker panel handles this and owns the time pause while open; the Appointment Panel shows alongside it (redocked top-right) so the player can see existing commitments while choosing. Picking a slot commits the meeting.
+4. **Commit to a window** — buyer waits 60 in-game minutes at the spot
+5. **Travel and execute** — get there during the window, talk → auto-sell if you have enough product, payout at retail (1.5× base value)
+6. **Back to whatever you were doing**
+
+### Implemented systems
+
+- **Customer roster** — persistent list across save sessions. Empty until pager acquired. Grown via street pickups (tier-0 bootstrap) and a trust-driven referral chain that escalates tier; capped at 12 with weakest-evicted pruning. **See §6.6 for the full model** (overhauled v1.1 — replaced the old DEX-tier-up wave model).
+- **PagerSystem** — drives time-driven page generation. Gated on `has_pager`. Each waking minute, each active customer rolls a small per-customer chance scaled by their tier. Per-customer cooldown (24h) prevents double-paging. Pages have 6-hour waking-time callback deadlines.
+- **MeetingManager** — when player returns a call, offers 3-5 slots at an available `MeetSpot` (`offer_slots`) and commits the player's choice (`schedule_meeting_at`). Spots register on `_ready`, persist in the manager. Window collision detection prevents simultaneous overlap at same spot. Also owns the trust bump + referral trigger on `mark_completed` (§6.6).
+- **MeetingSpawner** — listens to `meeting_started`, instantiates `CustomerNPC` at the spot during the active window. Despawns on completion/miss/window-close. Handles cross-room materialization on room change.
+- **CustomerNPC** — interactable. Talk → if inventory has enough raw_bud, deduct + payout + complete; if not, prompt to come back with more.
+- **AppointmentPanel** — clicking the pager icon opens a list of upcoming and active meetings. `[NOW]` prefix on active ones. Defensive gate: refuses to open pre-pager.
+
+### Pager rep / DealerExperience
+
+Per design doc, pager rep is the spine of progression for the dealing track. Implemented as `DealerExperience` autoload — single int XP, tier function, tier_unlocked signal. Awarded on completed sales (proportional to quantity sold). Penalized on missed callbacks and missed deals.
+
+- **Tier thresholds:** [0, 25, 75, 150, 300] — tunable
+- **XP per unit sold:** 1 (pager-mediated) or 1 (street, see §7.5)
+- **Missed callback penalty:** -2
+- **Missed deal penalty:** -5
+- **Tier-up:** historically spawned a wave of new customers (`WAVE_SIZE_PER_TIER`). As of v1.1 the roster grows primarily through the referral chain + street pickups (§6.6); DEX tier still gates which customers are *active* (a customer only pages once `DealerExperience.current_tier() >= customer.tier`) and gates vendor stock, equipment, and content. The wave-on-tier-up path may be retained, reduced, or removed in favor of the organic chain — flagged for tuning.
+
+### Buyer relationship system
+
+Each customer carries minimal versions of the NPC relationship axes:
+- **Affinity** — friendliness toward player
+- **Trust** — willingness to introduce friends, work bigger deals
+- **times_dealt** / **times_flaked** — tracked for blacklisting
+
+Repeat flakers (3+ no-show meetings or missed callbacks) get blacklisted automatically.
+
+### Buyer archetypes (future content, post-MVP)
+
+Customers are currently randomly generated from name/sprite pools. Eventually some customers become *named characters* with full dialogue trees — the recurring weekly Friday-afternoon college kid, the chatty late-night woman, the haggler. The data model already supports this; it's a content-authoring task.
+
+---
+
+## §X Calling Cards
+
+Replaces direct cash payment at payphone. Aligns with period-setting and creates ongoing errand cadence at bodega.
+
+### Mechanic
+- Calls cost a variable number of "minutes."
+- Minutes live on physical calling card items in player inventory.
+- Each calling card is an `ItemStack` with `data: {"minutes": N}` per-instance.
+- Cards do not merge across denominations or remaining-minutes values.
+- Inventory friction is intentional — each card is its own slot.
+
+### Cost taxonomy (initial values, tunable)
+- Pager callback (set up a deal): 1 minute
+- NPC hangout / relationship call: variable, ~5-10 minutes
+- Special calls (future content): TBD per call site
+
+### SKUs (sold at bodega)
+- 30-minute card: $5
+- 120-minute card: $15
+
+### Player start
+- Single 30-min card item spawned with `minutes: 20` at game start.
+
+---
+
+## §Y ItemStack per-instance data (architectural note)
+
+`ItemStack` now carries an arbitrary `data: Dictionary` for per-instance state.
+- Empty for most items.
+- Populated for cards, future durability, etc.
+- `can_merge_with` requires identical `data` — prevents inappropriate merging.
+- `ItemDef.initial_stack_data()` virtual: subclasses (e.g. `CallingCardDef`) override to seed fresh stacks.
+
+---
+
+## 7.5. Two-Bit Street Dealing ✅ STAGE 7 COMPLETE
+
+**The on-ramp loop.** Fills what playtesting revealed as a vacuum in the opening hour: not enough progression pressure, no inciting incident, the pager loop assumed product the player didn't yet have. Street dealing is the gameplay layer between "wake up in apartment" and "be a real dealer with repeat customers."
+
+### Inciting incident: Hank's fronted ounce
+
+On the player's first visit to Hank, his vendor panel offers FRONT mode (see §5 vendors). Player takes an ounce of weed on credit. A debt is recorded against `&"hank"` in DebtSystem; interest is 10% per rolling 7 days. Once owed, all subsequent vendor visits to Hank lock to DEBT mode — no shopping until debt cleared. Full-payment only; partial payment is a deferred enhancement.
+
+This is the **week-1 timer.** Rent is week-2's problem. The deadline is felt but recoverable from a couple of bad days.
+
+### Dealing spots
+
+Outdoor scenes contain `DealSpot` markers (same spawn-pattern as MeetSpot, Waypoint — see §17). Each spot exposes inspector knobs that define its character:
+
+- **spot_id** — used by SpotHeatTracker for cop spawn scaling
+- **area_id** — heat scope for refusal/witness events  
+- **spawn_interval_minutes** — base game-minutes between foot-traffic spawns
+- **archetypes** + **archetype_weights** — what kinds of people walk this spot
+- **cop_check_interval_minutes** — how often the cop spawn check rolls
+
+A single time-of-day modifier multiplies spawn interval globally (evening 0.75×, day 1.0×, late night 1.4×, early morning 2.0×). Spots otherwise express their identity through their inspector config — author once per spot.
+
+### The minigame model
+
+Posting up is a scene change. Player E's a DealSpot → all bud is banked into a session counter → `RoomManager.change_room` to the dedicated `street_deal_minigame.tscn`. The real player is preserved in a frozen state via `input_locked`; the minigame scene has its own fixed camera and spawn markers off-screen left/right. NPCs walk straight across the screen.
+
+On exit (player presses "Leave," or bud hits zero, or bust): leftover bud + earnings deposit back, return to the outdoor scene at the spot position. Time and stamina pass naturally during the session — posting up burns hours of the day.
+
+**Idle-skip speed multiplier:** when no live customers exist on screen, `TimeSystem.push_speed(5.0)` engages — the world fast-forwards. A customer spawns → pop, normal speed. Walks off → push again. Empty-street tedium collapses to ~3-4 real-seconds per customer at a spot with ~30 game-minute base intervals; the player visibly sees the clock jump between encounters.
+
+### Customer archetypes
+
+Three archetypes ship at MVP, each a `CustomerArchetype` resource (`.tres`) with display name, sprite_frames pool, and a min/max purchase-chance range:
+
+| Archetype | Purchase range | Sprite cue |
+|---|---|---|
+| **Pothead** | 70-100% | Casual / scruffy |
+| **Normal** | 40-60% | Plain pedestrian |
+| **Business Man** | 0-30% | Briefcase, suit |
+
+Each spawn picks an archetype by spot-defined weight, rolls a willingness from the archetype's range, then rolls accept/refuse against that willingness. Sprite identity is the player's primary read; visual variety within an archetype comes from the per-archetype sprite_frames pool.
+
+The Narc archetype from the previous design is not yet implemented. Refusals raise area heat uniformly 0-5 points (HeatSystem), regardless of archetype — refining heat consequences per archetype is a deferred polish item.
+
+### Player-side reveal (DEX-gated)
+
+An always-visible overhead label appears above customers once DEX ≥ tier 1. Reveal scales with DEX:
+
+| DEX tier | Overhead label |
+|---|---|
+| 0 | (hidden) |
+| 1 | `~<jittered range>%` — bounds wobble ±10% per spawn |
+| 2 | `~<archetype min>-<max>%` — stable archetype range |
+| 3 | `<rolled ±15>%` — fuzzy band around true value |
+| 4 | `<rolled>%` — exact |
+
+The walk-across is the decision window. Higher DEX lets the player commit or skip from across the screen with confidence.
+
+### Offer flow (deal as crime)
+
+On player interact:
+1. If unwilling: instant refusal, +0-5 heat to area, customer continues off-screen
+2. If willing: customer stops moving, 2-second progress bar fills, `CrimeSystem.begin_crime(&"weed_deal", ...)` registers an active crime for the window
+3. If player walks too far during the action: action cancels, crime ends with `Outcome.CANCELLED`, no sale
+4. If a cop walks into FOV during the window: WitnessComponent witnesses the crime, CrimeSystem fires `crime_witnessed`, minigame handles bust
+5. Completion: +$10 per gram (1-2g per accept), DEX XP +1 per gram, eyeball tax accumulates, 3% chance per accept of seeding a new pager customer (only if pager is active)
+
+The progress-bar window is the bust window. Posting up safely means watching the street before pressing E on a willing customer.
+
+### Bust mechanic
+
+Cops spawn into the minigame scene as actual `CopNPC` instances (same scene used by PoliceSystem for patrols), unregistered from PoliceSystem on spawn so they don't enter pursuit independently — they patrol straight across as visual hazards. Their WitnessComponents remain active for the bust check.
+
+Cop spawn check fires every `cop_check_interval_minutes` game-minutes. Spawn chance scales with `SpotHeatTracker.recent_deal_count(spot_id)` over a rolling 3-day window: 8% per recorded deal, capped at 60%. First deal at a fresh spot is always safe — `recent_deal_count == 0` short-circuits the roll.
+
+A bust during a willing-progress deal: all session bud is lost, session ends immediately. The deal counter still increments. Walking off the spot to escape mid-session is acceptable; cops won't pursue across the scene boundary.
+
+### Eyeball tax
+
+Without a scale, every successful sale wastes a uniform 0-70% of the grams sold. Accumulates as a float across the session; at session end, the rounded total is deducted from leftover bud. Notification fires once at exit ("Shorted yourself Xg").
+
+Scale upgrade and pre-packaged baggies remain as designed in the prior revision of this section, deferred to post-MVP.
+
+### Per-spot heat tracking
+
+`SpotHeatTracker` autoload tracks per-spot completed deals per game-day, with automatic rollover at `TimeSystem.day_rolled`. Days outside the 3-day window are pruned on rollover. Spots cool naturally as long as the player rotates.
+
+### Implemented systems
+
+- **DealSpot.tscn / .gd** — outdoor interactable. Wraps an Interactable; reads player's raw_bud, deducts it all into session, fires `StreetDealSession.begin_session()`
+- **StreetDealSession** autoload — orchestrates the cross-scene minigame. Owns: return room/position, bud bank, spot config (archetypes, intervals)
+- **StreetDealMinigame.tscn / .gd** — the puppet scene. Owns: live customers, live cops, spawn timers (driven by game-time, not real time), idle-skip speed multiplier, end-of-session settlement
+- **StreetCustomer.tscn / .gd** — walks straight across, optionally stops on E for progress-bar action. Overhead `InfoLabel` shows tier-gated archetype info
+- **CustomerArchetype.gd** — Resource. archetype_id, display_name, sprite_frames_pool, purchase_chance_min/max
+- **SpotHeatTracker** autoload — per-spot, per-day deal counter with 3-day rolling window
+- **DebtSystem** autoload — tracks per-creditor debt with 7-day interest rolling cadence
+
+### Architecture notes
+
+- Cop patrol cops in the minigame are unregistered from PoliceSystem in `_spawn_cop`. Their WitnessComponent stays active so CrimeSystem can witness the deal crime, but PoliceSystem treats them as if they don't exist (no top-up logic touches them, they free themselves on patrol completion).
+- `CrimeSystem.begin_crime(&"weed_deal", ...)` is the bridge — same crime type used by pager deal handoffs (§7), so the heat surface treats street and pager deals uniformly when witnessed.
+- The minigame inherits `TimeSystem.push_speed`'s pause/resume cleanly: pause() during shadow-inventory UIs (like vendor panel) coexists with speed-up because is_running() short-circuits during pause regardless of multiplier.
+
+### Tuning targets (for playtest)
+
+- Average week-1 dealing income: enough to pay Hank back AND have $30-50 left over for a scale and maybe a calling card, but NOT enough to also buy a pager
+- Pager comes online: week 2, after Hank-payment event
+- First bust: roughly day 3-4 if player is grinding one spot
+- First scale purchase: end of week 1
+
+### Open design questions
+
+- Archetype heat differentiation — should a business_man refusal heat more than a pothead refusal? Currently uniform 0-5
+- Bust apprehension flow — currently "Busted, lose product, session ends." Future: hospital flow, fine, criminal record bumps that gate certain dialogue
+- Scale upgrade implementation surface — packaging interaction location, baggie item flow
+---
+---
+
+## 7.6. Debt System ✅ COMPLETE
+
+`DebtSystem` autoload, supports per-creditor debt tracking with rolling-week interest.
+
+### Mechanic
+
+- Keyed by `vendor_id: StringName` (e.g. `&"hank"`)
+- Single debt per creditor (no stacking; design lever — "settle up before fronting again")
+- Interest: 10% per 7 game-days, rolling from incurrence. Catch-up math runs on `day_rolled` so time skips don't escape it.
+- Full payment only; partial payment is a deferred enhancement.
+
+### Vendor panel integration
+
+Vendor panel has three modes, picked at open:
+
+- **NORMAL** — standard buy/sell grids
+- **FRONT_AVAILABLE** — normal grids + "Take Front" button below
+- **DEBT_OWED** — exclusive takeover, only the amount and pay button
+
+Mode priority: DEBT_OWED wins if debt > 0 → FRONT_AVAILABLE if `vendor.offers_front` → NORMAL.
+
+Vendor inspector exports per-vendor:
+- `vendor_id`, `vendor_name`, `offers_front`
+- `front_offer_item`, `front_offer_count`, `front_offer_debt`
+
+Debt amount is snapshotted at front time — it doesn't fluctuate with vendor prices afterward.
+
+### Future
+
+- Partial payments
+- Multiple parallel debts per creditor
+- "Hank gets mad" deadline event at 7 days unpaid (currently just interest fires; no narrative consequence yet)
+
+---
+
+## 7.7. Survival: Hunger & Thirst ✅ COMPLETE
+
+Two new autoloads, `HungerSystem` and `ThirstSystem`, mirror each other in API. Drive a speed multiplier on the player and route to a shared collapse flow on hitting zero.
+
+### Why two systems instead of one
+
+Cleaner save state. Cleaner signals. Different decay rates. Can disable either independently for tuning. The small amount of duplicated boilerplate is the kind that ages well — no `if stat == HUNGER` branching downstream.
+
+### Decay rates
+
+Both decay during waking play on `minute_tick`. Decay halves during sleep, with a per-sleep cap to prevent "stayed up late, woke up starving" punishment:
+
+| | Decay/hr | Sleep mult | Sleep cap |
+|---|---|---|---|
+| Hunger | 12.5 | 0.5× | 20 pts |
+| Thirst | 6.25 | 0.5× | 15 pts |
+
+Target: two meals + one drink per day satisfies a normal play day. Margin built in so missing a meal stings but isn't catastrophic.
+
+### Threshold bands
+
+| Hunger band | Range | Speed mult | Notification |
+|---|---|---|---|
+| Fed | 50-100% | 1.0 | — |
+| Peckish | 25-50% | 1.0 | "You're getting hungry" |
+| Hungry | 10-25% | 0.75 | "You should eat" |
+| Starving | 0-10% | 0.50 | "You need to eat NOW" |
+| Collapse | 0% for 30+ game-min | — | (hospital wake) |
+
+Mirror for thirst (parched / thirsty / dehydrated).
+
+Notifications fire **once on threshold crossing**, not every tick. Tracked via `_last_band`.
+
+### Worst-of speed multiplier
+
+Player `_survival_speed_multiplier` = `min(HungerSystem.speed_multiplier(), ThirstSystem.speed_multiplier())`. Hunger at 25% + thirst at 25% = 0.75× speed, not 0.56×. Multiplicative stacking punishes too hard.
+
+Composes with `PlayerSkills.speed_multiplier()` and the sprint multiplier: velocity = input * speed * move_multiplier * _survival_speed_multiplier() where `move_multiplier` already includes skill + sprint.
+
+### Consumables
+
+ItemDef gained two optional fields: `hunger_restore: float`, `thirst_restore: float`. Non-zero on either makes the item consumable. Eaten via the player's `_try_tool_interact` path — consumables are checked **before** the `tool_id` early-return, so food doesn't need a tool_id.
+
+MVP consumables (all sold at gas station):
+
+| Item | Hunger | Thirst | Cost |
+|---|---|---|---|
+| Chips | +30 | — | $2 |
+| Burrito | +60 | — | $4 |
+| Soda | — | +60 | $2 |
+
+Future: apartment fridge for cheap filler food (slow respawn), bathroom sink for free water (1× per day), cooking from purchased ingredients.
+
+### UI
+
+Three vertical bars on the HUD — stamina, hunger, thirst. Bars are real `ProgressBar` nodes. Color modulate shifts at threshold crossings: white → amber → orange → red. Stamina was promoted from a text ratio to a bar in the same pass.
+
+### Player skill hook (future)
+
+Slot reserved for a `survivalist` skill that slows decay rates. Not yet wired — design lever for the post-MVP skill expansion.
+
+---
+
+## 7.8. Collapse System ✅ COMPLETE
+
+Three failure conditions route through one `CollapseSystem` autoload:
+
+| Cause | Trigger | Penalty | Wake |
+|---|---|---|---|
+| **Exhaustion** | Stamina hits 0 (mid-day) | 10% cash | Tomorrow 16:00, apartment exterior, 50% stamina |
+| **Hunger** | Hunger at 0 for 30+ game-min | 20% cash + all drugs | Tomorrow 16:00, apartment exterior, full bars |
+| **Thirst** | Thirst at 0 for 30+ game-min | 20% cash + all drugs | Tomorrow 16:00, apartment exterior, full bars |
+
+Exhaustion narratively: "Erik found you collapsed." Hospital narratively: "Woke up at the hospital." Both currently land at the apartment exterior — the actual hospital scene is deferred.
+
+### Flow
+
+1. Trigger fires (`spend_stamina` calls `CollapseSystem.trigger_exhaustion()`, or HungerSystem/ThirstSystem emit `collapsed`)
+2. Penalties applied immediately (cash deducted, drugs confiscated from inventory)
+3. `TimeSkipSystem.skip_to(next_wake_minute(), {kind: "collapse"})` runs — fade out, advance time, listeners fire while screen black
+4. `CollapseSystem._on_time_skipped` (listening for `kind == "collapse"`) places player at wake anchor, restores stats per cause
+5. Fade back in, notification with what was lost
+
+### Architecture notes
+
+- Wake location resolved via `apartment_exterior_anchor` group — any Node2D in that group in `ext_central.tscn` becomes the wake position. Fallback to `(0,0)` if missing.
+- `DRUG_ITEM_IDS` is a constant array on CollapseSystem. Currently `[&"weed_buds"]`. Extends naturally as drug variety grows. Could promote to a category check (`item.category == DRUG`) once the ItemDef enum has that distinction.
+- `_pending_cause` field guards against re-entry — if hunger AND thirst both hit zero in the same minute tick, only the first collapse runs; the second is no-op until the cause clears.
+- Old `_force_sleep` at 6AM in player.gd remains as a safety net for the "made it to dawn with stamina intact" case.
+
+### Future
+
+- Real hospital scene + bill + DebtSystem hookup (already-designed bridge: can't afford bill → debt to `&"hospital"` creditor with same interest mechanic)
+- Cause-specific wake animations (Erik finding you vs. waking in a hospital bed)
+- Exhaustion wake should probably restore hunger/thirst to ~60% so player doesn't immediately collapse again
+
+
+## 7.9. Bartending — First Legit Job ✅ COMPLETE (minigame + scheduling spine)
+
+The first legit job, and the project's first **scheduled-commitment** system. Built this session end-to-end. Two layers, deliberately separated:
+
+1. **The bartending minigame** — a self-contained scene controller (twin of the street-deal minigame): customers, drink stations, tips. Bartending-specific.
+2. **The employment/scheduling spine** (`EmploymentSystem` autoload) — schedules shifts, tracks attendance, strikes, firing, pay. *Reusable* — community service (§25 courthouse) and any future scheduled job ride on this same spine. It knows nothing about drinks; it knows "it's shift time, did the player show up, launch the job scene, record the result."
+
+This split is load-bearing: the scheduling layer is the spine, the minigame is one thing that can fill a shift block.
+
+### Why bartending (design rationale)
+
+The dealing loop has structural downtime (set an appointment hours out, then wait). The first instinct was a delivery job (cheap to build, reuses meetspots/timers) — but delivery is the *same verb* as dealing (route → interact → timer) and would deepen tedium rather than relieve it. Bartending is a genuinely new verb, and more importantly it's a **fixed commitment** that collides with the game's real core loop (scheduling: customers, plants, appointments). A 4-hour shift isn't 4 hours of content — it's 4 hours you *can't* tend plants or take a page. The minigame is almost incidental; the commitment is the feature. Bartending is "more game"; delivery would have been "more dealing." (Delivery and panhandling are still planned, gated behind map work and ambient-NPC work respectively — see §25.)
+
+### The minigame
+
+- **Bar scene** with a counter, three drink stations at different ends/middle (Beer / Whiskey / Cocktail), and a row of counter-slot `Marker2D`s where customers stand (slot count caps concurrent customers).
+- **Customers** spawn at free slots on a timer, display a requested-drink icon, and run a **patience timer**. Ignored too long → storm out. Served correctly → leave happy. (`bar_customer.gd`, modeled on `street_customer.gd`.)
+- **Drink stations** — one `drink_station.gd` script, three instances, each with an exported `drink_type` (clean id token: `beer`/`whiskey`/`cocktail`) and `prep_time` (different per drink — cocktail slowest, the stressful order). Interact → progress bar → produces a drink. Player is locked during prep (scoped lock, just for the progress bar — released on finish or scene-exit).
+- **Carry one drink at a time** — the core constraint. The held drink is tracked on the minigame controller (not the player inventory, not a real item). A station refuses to prep while you're already carrying. This is what turns the bar into a routing puzzle: stations far apart + one-at-a-time = "serve the impatient one or the closer one?"
+- **Delivery** — each customer has an `Interactable`; walk up holding their drink, press E → served, tip scaled by patience remaining. Wrong drink → rejected (keep holding). A drop/dump action clears a wrong/unwanted drink.
+- **Tips** accrue as float across the shift, rounded up and deposited to the wallet once at shift end (single transaction + summary notification).
+
+### Interaction arbitration (the clean solution)
+
+Stations, customers, and the held-drink state all compete in `InteractionManager`. Rather than tune priorities, eligibility is encoded via `can_interact()`:
+- A **station** is eligible only when **empty-handed** (and not mid-prep).
+- A **customer** is eligible only when **carrying their exact drink**.
+
+So holding a whiskey, standing between the whiskey station and a whiskey-wanting customer: the station filters itself out (not empty-handed), only the customer remains. Picking up / dropping a drink calls `InteractionManager.notify_player_state_changed()` to re-arbitrate (eligibility changes without a zone enter/exit). Priority only breaks genuine same-eligibility ties (customers > stations). This encodes the actual rule — "you can only do what makes sense for your current hand" — instead of hoping numbers sort it out.
+
+### Time acceleration during shifts
+
+A 4-hour shift would be tedious real-time waiting. The shift clock rides game-time (`TimeSystem.push_speed`/`pop_speed`, same stack the street game uses for idle-skip), so the clock — and the whole world — ticks faster during a shift. Critically, **prep and patience timers run on real `delta`**, so they're unaffected: drinks still take the same real seconds, customers wait the same real seconds, only the corner clock runs fast. `SHIFT_TIME_SCALE` (~2.5-3.0) is the pacing dial; the 4-hour fiction (and its real cost to your schedule) stays intact. The whole world advancing is correct — 4 game-hours of your life genuinely pass (plants grow, time-of-day shifts).
+
+### The scheduling spine (`EmploymentSystem`)
+
+- **Hiring** is a global flag `has_job` (set via dialogue — the intended path, so hire/fire conversations live in `.dlg` files). When `has_job` flips true (listens to `RelationshipSystem.global_flag_changed`), the system schedules the next shift.
+- **Scheduling**: next shift 12-36 game-hours out, snapped to a legal start hour. Legal window is **14:00-01:00** (avoids the 02:00-13:59 sleep span; nothing starts after 01:00 since shifts are 4h and the player must get home to sleep). One shift scheduled at a time (player only needs to see their next shift). Shown in the Appointment Panel.
+- **Clock-in**: the player walks to the bar's clock-in interactable. It's gated on `can_clock_in()` — a **±15-minute grace window** around the scheduled start (15 early through 15 late). Clocking in launches the minigame via `BarShiftSession.begin_session` (the cross-scene handoff, twin of `StreetDealSession`).
+- **Missed shift**: `EmploymentSystem` watches `minute_tick`; if the start + 15 min passes without a clock-in, it's a miss → strike → reschedule (only if not fired).
+- **Shift end**: the minigame reports back via a `shift_ended(completed: bool)` signal — `true` = clock ran out (worked it), `false` = clocked out early. Tips are already banked inside the minigame. On end, the spine reschedules the next shift (if still employed). An early clock-out is one strike (same as a no-show — bailing is bailing; a conscious MVP choice).
+- **Strikes & firing**: strikes accumulate, reset on `week_rolled`. The strike that pushes the count **past 2** (i.e. the 3rd in a rolling week) fires the player: sets a `fired` global flag, clears `has_job`, notification "Missed shift — you're fired." (Re-hire = clear `fired` + set `has_job` via dialogue, the same flag path — owned by dialogue content, not this system.)
+- **Pay**: flat shift wage (~$40, owned by the spine since only it knows attendance) + tips (banked in the minigame). Wage payout wiring lives with the employment layer so a bailed shift doesn't pay a full wage. (Wage is designed; tips are the built earner this session.)
+
+### Architecture notes
+
+- `BarShiftSession` autoload = the `StreetDealSession` twin (cross-scene handoff: store inputs, fade out, swap to mock bar scene; on exit fade back, restore player, emit result).
+- The minigame controller adds itself to group `bar_shift`; stations and customers resolve it via `get_tree().get_first_node_in_group("bar_shift")` *lazily on interact* (not cached in `_ready` — the controller is the scene root, so its `_ready` runs after the children's, and a cached lookup would be null).
+- Drink ids are clean tokens (`beer`), display names mapped separately (`"Beer"`) — never put prompt/display text in the id, or customer-order matching (`held_drink() == order`) silently never matches.
+
+### Open knobs / remaining polish
+
+- All numbers need tuning: customer patience, per-drink prep times, `SHIFT_TIME_SCALE`, tip ceiling, wage, shift length (4h "might feel a tad long" — time-accel is the relief).
+- Bar layout/visual polish; order-icon art (wired, needs final art).
+- Strike-system edge testing (week-rollover reset, full-shift completion not striking).
+- Optional: hide the clock-in prompt entirely outside the grace window (currently press-and-reject with a notification).
+- Wage payout final wiring; re-hire dialogue.
+
+---
+
+## 7.95. Bottle Collection & Sale (PLANNED — not built)
+
+A trivial bottom-rung legit income vector that was scoped but never added. Collect discarded bottles/cans from the world (interactable pickups, or part of general world clutter), sell them for deposit value at the bodega or a recycling point. No risk, no skill, minimal payout — the absolute floor of the income ladder, thematically apt for the setting and a clean source of *clean* cash once that economy ships (§25). Flagged as a near-term easy add (reuses inventory + vendor systems entirely).
+
+---
+
+## 8. Income System: Weed Growing ✅ STAGE 3 COMPLETE
+
+Pot/planter placeable system, soil-seed-water-harvest cycle, per-room persistence via WorldStateSystem. Quality modifiers tracked but only one (`water_missed`) wired for MVP. Strain expansion is post-MVP — the modifier system supports it without refactor.
+
+Growing is the **long-term replacement** for Hank-fronted product. Once the player has paid Hank back and their own first crop is ready, they stop needing Hank for product (though they still need him for criminal-track tools). The full transition from "owes Hank" → "buys from Hank" → "doesn't need Hank for product" → "but still goes to Hank for slim jim, electronics kit, chop shop" is the long arc of the dealing track.
+
+---
+
+## 9. Income System: Pickpocketing (DEFERRED POST-MVP)
+
+Previously planned for Stage 7. Deferred — pickpocketing requires scheduled NPCs walking around, which depends on the NPC schedule system. Car looting fills the "always-viable income vector" role at MVP.
+
+When it lands, pickpocketing follows the same pattern: walk up to an NPC, hold E, progress bar, success drops loot + crim XP / failure increases witness chance + relationship damage.
+
+---
+
+## 10. Income System: B&E (DEFERRED POST-MVP)
+
+Re-scoped — B&E is effectively its own game (stealth, lockpicking, combat, fleeing). The MVP doesn't need it. The criminal track's three rungs (loot car, electronics kit, chop shop) cover the same fantasy with shared systems.
+
+When B&E eventually lands, scope is 6-10 handcrafted house layouts (not procedural). Procedural generation for B&E is a research project, not an MVP feature.
+
+---
+
+## 11. Relationships & Dialogue
+
+Per stage 4 build. Dialogue system with key-lookup, preconditions, hot-reload. NPC relationship axes: affinity, trust, knows-flags. DialogueDatabase scaffolded for the full named cast. Per §12, cast expansion is the current authoring focus.
+
+---
+
+## 11.5. NPC Schedules ✅ FRAMEWORK COMPLETE (CONTENT IN PROGRESS)
+
+The substrate that makes the world feel populated. Each named NPC has a schedule — a time-keyed map of "where are you and what are you doing." As time advances, the schedule tells the NPC where to be, and the world materializes them when the player is there to see them.
+
+### Materialize-on-room-enter
+
+NPCs only physically exist when the player is in the scene the NPC's current schedule entry points to. Otherwise the NPC is a virtual entity tracked by `NPCDirector`. Same pattern as MeetingSpawner.
+
+When the player enters a scene, NPCDirector iterates its registered NPCs and asks for each one: "does your current schedule entry point at this scene?" If yes, instantiate at the named Waypoint. If no, ensure no stale instance is hanging around. Same logic runs on every minute tick, on every room change, and on every schedule hot-reload.
+
+### Cross-scene transit gap
+
+Transit happens *inside one scene*. An NPC going from `oliver_house` → `ext_central` (the street) → `hardware_store` has three separate schedule entries: a stationary at home, a transit on the street, a stationary at the store. Transitions between schedule entries are simultaneous. From the player's perspective: if they're watching the front door at minute X they see him appear on the street side. If they're watching the bodega the moment he disappears from home, they see nothing.
+
+This is acceptable because rooms have visual boundaries (walls, doors), and the player can't see "between" rooms.
+
+### Activities
+
+Two structural kinds of schedule entry:
+
+- **Stationary** — NPC stands at a named waypoint, optionally facing a direction, playing a named animation. The animation name is arbitrary data: `stand`, `sit`, `smoke`, `work`, `sleep` — whatever's authored in the SpriteFrames. Falls back to `idle` if not found.
+- **Transit** — NPC walks a chain of 2+ waypoints in one scene. Duration is implicit — the gap to the next schedule entry. Position interpolates per frame along the Manhattan-distance line, with constant apparent speed across all legs. Facing flips per leg based on dominant axis.
+
+Transit entries declare their walking animation via a `walk:NAME` prefix. `walk:walk`, `walk:run`, `walk:limp`, etc.
+
+### Speed-as-data
+
+Because transit duration is implicit, authoring "leaves at 08:45 and arrives at 09:00" produces a faster walk than "leaves at 08:30 and arrives at 09:00." Same route, same arrival, different perceived urgency.
+
+### Authored waypoints
+
+Each scene with scheduled NPCs has a `Waypoints` Node2D child. `Waypoint` markers under it carry a `waypoint_id: StringName`. Schedule entries reference these ids. Naming convention: by location, not per-NPC. `home_door`, `store_door`, `corner_north`, `alley_west_bend` are shared across the cast.
+
+Helper waypoints at every grid corner are encouraged.
+
+### NavigationAgent2D
+
+`NavigationAgent2D` is used by pursuit cops (Stage 12, shipped). Scheduled NPCs do NOT use it — they follow authored waypoint chains exclusively.
+
+### Schedule priority vs. state machine
+
+Pursuit cops' state machine takes priority over their schedule. Reggie might miss his 13:00 precinct shift if he's still chasing the player, but he'll resume at the next entry that hasn't started yet. NPCDirector queries schedule + checks state-machine override.
+
+### Architecture
+
+- **`Schedule` resource** — thin wrapper around the `entries: Dictionary` (minute-of-day → entry dict).
+- **`ScheduleDatabase` autoload** — loads `.sched` files from `res://data/schedules/`. Hot-reloads on file change (debug builds); F6 force-reloads.
+- **`NPCDirector` autoload** — registration, reconciliation, materialization.
+
+---
+
+## 11.6. `.sched` File Format
+
+Mirrors `.dlg` deliberately so both files feel familiar to author.
+
+Current context tags include: weekday name, `weekday`/`weekend`, all global flags from RelationshipSystem, all NPC-specific flags. Forthcoming: weather, time-of-day band.
+
+### Authoring patterns
+
+**Event-driven variant:**
+
+```
+default
+    09:00 stand hardware_store counter south
+
+default | event_done bodega_incident
+    11:00 stand hardware_store counter south
+```
+
+**Weekend schedule:**
+
+```
+sat
+    10:00 stand park bench_a east
+    14:00 walk:walk ext_central park_exit->store_door
+    14:30 stand hardware_store counter south
+```
+
+### Gotchas
+
+- Scene basenames must be unique across `res://scenes/rooms/`.
+- Marker ids are case-sensitive `StringName`s.
+- A block with failing preconditions just doesn't match — always have a `default`.
+
+---
+
+## 11.7. Scripted Events ✅ STAGE 11 COMPLETE
+
+Authored cutscene system. Designed around editor-driven authoring — events are .tscn scenes, steps are nodes, beat timing is dragged into place visually.
+
+### The "event is a room" model
+
+An event scene is structurally a duplicated room (e.g., duplicate `hardware_store.tscn`, rename to `oliver_intro.tscn` in `res://scenes/events/`). Doorway interactables are stripped manually post-duplication so the player can't escape mid-cutscene.
+
+**Firing = changing rooms.** When an event's conditions pass, EventDirector calls `RoomManager.change_room(event_scene_path, "default")` under cover of a ScreenFade. The active scene becomes the event scene. On completion, change back to the originating room at the player's pre-event position.
+
+**Player handling.** The real Player node is set to `PROCESS_MODE_DISABLED` for the event's duration. Any on-screen player presence during a cutscene is a CutsceneActor puppet.
+
+### Step nodes
+
+All inherit `EventStep extends Node`. Director iterates `Steps.get_children()` and `await`s each `run(event_root)`.
+
+Shipped step types: DialogueStep, ChoiceStep (with `Branch` children), WaitStep, MoveStep, FaceStep, AnimationStep, SetFlagStep, MarkEventDoneStep.
+
+### CutsceneActor
+
+Puppet sprite, not a real NPC. Wraps an AnimatedSprite2D. Carries `dialogue_npc_id`, `display_name`, `default_portrait` for DialogueStep header lookup. Does not interact with NPCDirector, schedules, or any other NPC plumbing.
+
+### Trigger model
+
+Each Event node has:
+- `id: String` — globally unique
+- `conditions: Array[String]` — precondition strings
+- `repeatable: bool` (default false)
+- `return_room_path` / `return_spawn` — optional overrides
+
+EventDirector evaluates triggers on `TimeSystem.minute_tick` and `RoomManager.room_changed` (deferred one frame). First eligible event wins. One event runs at a time.
+
+### Condition vocabulary
+
+- `flag` / `!flag` — global flag presence/absence
+- `event_done <id>` — RelationshipSystem flag check
+- `npc_in_scene <npc_id>` — NPCDirector reports the NPC's current schedule entry is in the current room
+- `has_item <item_id>` — stubbed for future use
+- `<stat> OP <value>` — compare. Stats: `day`, `dow`, `hour`, `room` (basename). Operators: `>`, `<`, `>=`, `<=`, `==`, `!=`
+
+Per-NPC affinity/trust intentionally left out of event conditions — set a flag from a dialogue effect or SetFlagStep and gate on the flag.
+
+### Integration with future systems
+
+The flag-then-event pattern is the standard for any system that wants to fire a cutscene from an arbitrary world action: set a flag on success, author an event gated on the flag plus location/time conditions, cutscene fires the next time the player is in the right place. Used for: perfect gift unlocks; intended for: Hank-debt-paid moment (see §14 opening arc), quest turn-ins, detective knock, buyer relationship milestones, criminal-experience tier crossings.
+
+---
+
+## 12. Cast
+
+### Thematic frame
+
+The named cast is structured around three age strata × three positions on the same neighborhood decline:
+
+| | Exploit | Endure | Fight / Other response |
+|---|---|---|---|
+| **Older** (45+) | Hank | Oliver | Rosa (fight), Henry (opt-out) |
+| **Middle** (25-45) | Felix | Bruce | Reggie |
+| **Younger** (≤25) | — | Erik | Tyrone |
+
+The player is invited into Hank's position by the inciting incident and watches everyone else react.
+
+### Erik & Tyrone — the mirror pair
+
+Two seventeen-year-olds, same neighborhood, different distance down the same road. Erik is where Tyrone might end up; Tyrone is who Erik was three years ago. If the player can affect Tyrone's trajectory — and Rosa's affinity tracks it — there's a moral throughline that emerges from existing systems (relationships, gift-giving, customer roster) rather than scripted quests.
+
+**The central moral hinge of the opening arc:** Tyrone showing up as a potential mark at the school-corner dealing spot. Selling to him sets a flag. Rosa knows (relationship-system flag visible in her dialogue). The game does not punish the player mechanically. It watches.
+
+### Named cast
+
+**Erik** — 17. Homeless. Lives in the camp NW of the apartment building. Positive demeanor despite circumstances, but always either very high or actively trying to get there. Player's likely first NPC encounter (Day 1, on the walk south from the apartment); his conversation is the gateway to Hank ("you wanna make some quick money? Hank's place, back past the camp").
+
+**Henry** — 62. Homeless. Lives in the camp, very close to Erik (they're good friends). Same neighborhood for decades. Knew Hank in younger days; declined to take Hank's path despite ending up worse off, which is the moral content of his character: he opts out rather than exploits. Henry's casual mention of "be careful with that man" lands as character, not warning popup, the first time the player visits Hank.
+
+**Hank** — 50. Built his own shack just past the homeless camp; not technically homeless but lives in self-built marginal housing. Loose moral code on money. Buys stolen goods; sells slim jims, electronics kits, eventually chop-shop access; fronts product to people he reads as desperate enough. The player's criminal-track contact for the entire game. Recurring presence — not just inciting incident, but wholesaler, criminal-job dispatcher, and a study in someone who made the player's potential choices forty years earlier.
+
+**Oliver** — 66. Runs the hardware store. Lived in the neighborhood all his life in the same house, which is now in a very rundown section. Still positive, loves his work, believes there's good in everyone. The "endure with grace" position. Vendor for grow supplies. Already authored end-to-end as the proof-of-concept scheduled NPC.
+
+**Felix** — 30. Runs the pawn shop. Thinks he's very cool — slicked hair, sunglasses, cheesy one-liners, bad jokes. Self-image of the legit operator policing the line between him and Hank ("I don't deal in *that*, my guy"). Vendor for equipment (pager, scale, skateboard, used tools). His stock curation is the primary lever for staging player progression.
+
+**Bruce** — body builder. Hangs out at the gym. Says stuff like "hey, pencil neck." Gameplay function: gym membership gives the player access to targeted skill training (Athletics, Strength). Bruce as a character has more layers than the function suggests — to be developed during cast authoring. Possible angles include ex-boxer worried about the player's trajectory (parallel to Reggie / Hank — yet another middle-aged man with a position on the neighborhood), or someone whose physical confidence masks total non-engagement with the world's actual problems. Decision deferred to dialogue authoring.
+
+**Rosa** — 45. Black, overweight. Elementary school teacher at the school in the NE quadrant. Very sweet but troubled about the direction of the neighborhood. Mother of Tyrone. Her relationship affinity tracks what the player does with respect to her son — fold this into the existing flag system, no new mechanics needed.
+
+**Tyrone** — 17. Rosa's son. Smart, talented, falling in with a bad crowd. Critical that he's authored as a person with his own arc, not just "Rosa's son who might be saved." He can show up at the school-corner dealing spot at certain hours; player's decision whether to sell to him is the moral hinge of the opening arc and shapes Rosa's dialogue going forward.
+
+**Reggie** — beat cop. Good cop, good man. Patrol route covers the central cross of the neighborhood. Wants the player to stay out of trouble. The friend-becomes-disappointed arc requires early-game charm before any "I can't help you anymore" beat can land. Reggie's early dialogue should be warmth-and-coffee, not function-as-cop — if the player only ever talks to him when busted, the betrayal never registers. The dynamic where the player feels increasingly like they're betraying him as they become better friends is the load-bearing emotional arc.
+
+**The neighbor** — sex worker, single mother, lives next door to the player on the same floor. Has a seven-year-old daughter. Name TBD. This character carries the project's "treated seriously" tonal commitment and the design requires more care than the others. Detailed in §12.5 below.
+
+**The neighbor's daughter** — 7. Lives with the neighbor. A person, not a stake. Not endangered, not used as motivation, not a sympathy lever. The player has hallway encounters with her; she may like the player or not. Avoiding the "child in danger" trap is non-negotiable — that frame is itself the violation of the design's intent.
+
+### MVP authoring priorities
+
+The MVP launches with full dialogue support for the characters involved in the opening arc and the core systems:
+
+**Tier 1 (full dialogue + schedules):** Erik, Hank, Oliver, Felix, Reggie, the neighbor
+**Tier 2 (full dialogue, smaller schedule):** Rosa, Tyrone
+**Tier 3 (lighter dialogue, fixed presence):** Henry, Bruce, the daughter
+
+Tier-3 characters are in the world from MVP launch with minimal but specific dialogue. Their depth fills in post-MVP. This is dramatically more cast than the previous "6 characters" doc target — the difference reflects that the opening arc and tonal commitments need this many real presences in the neighborhood.
+
+---
+
+## 12.5. The Neighbor Character — Design Principles
+
+This character is the highest-risk, highest-reward NPC in the cast. She's also the place where the project's "Disco Elysium / treated seriously" tonal claim either lands or doesn't.
+
+### The trap to avoid
+
+The default-mode game version of this character: quest object, player as protagonist of her story, daughter as endangered stake, arc resolves through the player saving her. This is the version Schedule I would write. It strips her agency, instrumentalizes the kid, and lets the player feel virtuous about a problem they didn't earn the right to solve. Not what we're doing.
+
+### Principles
+
+1. **She has her own life and the player is incidental to it.** A working adult making hard trade-offs she's thought about more than the player ever will. The player observes the texture of that life — sounds through the wall, brief hallway encounters, who comes and goes — without ever being positioned to fix it.
+
+2. **The daughter is a person, not a stake.** No endangerment plot, ever. No "save the kid" arc. The kid is a kid.
+
+3. **No rescue arc.** What the player can do is small and material — cover rent once, watch the kid for an hour, walk her home from a bad night. Whatever resolution her story has is hers. The game does not let the player "save her from sex work" because that frame is itself the problem.
+
+4. **The interesting tension is the player's, not hers.** The player deals; she has a kid in the apartment next door; the heat the player accumulates lands on this hallway. The cost of the player's presence on the people around them is the moral content. It's the player's burden, not hers to provide.
+
+5. **What she knows.** She sees a lot — clients in the hallway, who comes and goes, who pages whose door. She's a potential information source about the building and the block. Per the §15 witness model: very high discretion (she will not call cops on a neighbor) but with relationship cost ("you saw what?" / "I saw, and I'm not stupid").
+
+6. **Period texture.** Mid-90s, pre-cellphone — pager-mediated, agency-or-street, regular client list. Worth research effort. The honest middle is closer to Sean Baker (*Tangerine*, *The Florida Project*) than to either *Pretty Woman* or *Requiem for a Dream*. People with jobs and kids treated as subjects of their own stories.
+
+7. **Gift preferences as specificity.** Most cast get category-level preferences. Hers should be *specific personal luxuries* (a particular magazine, a nail polish brand, something for the kid) that read as hers, not as "things this character type likes." Specificity is what stops a character from being a type.
+
+### Two presentations, one NPC
+
+She has two visual presentations — "home" (plain, working-day clothes, makeup-free) and "work" (done hair, lipstick, nicer top). Architecturally she's **one NPC, not two**: one schedule, one set of relationship axes, one gift-preferences file, one customer-roster-style ID. The `display_name` and `default_portrait` resolve from the schedule entry context — work blocks vs home blocks.
+
+This is conceptually a small extension to the existing schedule system: a stationary or transit entry can optionally override the NPC's display name and portrait for the duration of that block. Same pattern as the `walk:NAME` animation override.
+
+### Two names
+
+She has a real name (used by Erik, by Reggie, by herself when introducing herself) and a work name. The work name is **not** how the player learns about her. It accumulates as a fact — a pager screen the player glimpses, a client in the hallway addressing her differently, a name on a card she drops. The player addresses her by her real name from the moment she introduces herself.
+
+### Naming
+
+The instinct with this character type is to give her a name that signals something — Cherry, Angel, Crystal. That signal is itself the violation of principle 1. Pick something unstylized. Linda, Carol, Donna, Stephanie. The kind of name a real woman has. Daughter the same — Emma, Sarah, Maya. Ordinariness *is* the respect. Final names TBD.
+
+### Readability
+
+The "fairly obvious to the player what her night work is" criterion is met through **context, not costume**:
+
+- Primary signal: *when and where* the player sees her. Leaving the building at 9 PM, coming back at 3 AM, in the hallway in a coat. Getting paged.
+- The visual presentation difference is *reinforcing*, not primary. Done hair vs. plain. Lipstick vs. none. Not a uniform that announces the role.
+- Lingerie / fishnet / cliché-of-the-type sprite pushes back to the failure mode. Avoid.
+- The player figures it out from the world's rhythms; the visual is the confirmation of an inference the player already produced. That's the difference between observation and spectacle.
+
+---
+
+## 13. Locations / Neighborhood Geometry
+
+### One playable neighborhood, one map
+
+The MVP neighborhood is currently authored as a single outdoor scene with four functional quadrants. Apartment interiors, hardware store interior, pawn shop interior, etc. are separate rooms accessed via Doorway transitions.
+
+### Quadrant layout
+
+The map is bisected by a cross of major roads — horizontal east-west and vertical north-south. Four quadrants:
+
+- **NW — The marginal corner.** Hank's shack tucked into the far NW, dark and isolated. Homeless camp (tents + campfire) just south of Hank's. Player's apartment building south of the camp, just north of the road. **The player walks south past the camp every time they leave home.** This makes the Erik-as-gateway-to-Hank beat geographically inevitable — no scripted discovery needed.
+
+- **NE — The civic / family corner.** The school building (Rosa's workplace, where Tyrone attends), basketball court out front. Some industrial / warehouse structure on the east edge — placeholder for late-game expansion (possible chop shop site).
+
+- **SW — The commercial strip.** Pawn shop (Felix), bodega, gas station counter, the strip's parking lot. Oliver's hardware store is *isolated* from the main strip on its own to the west — Oliver was there before the strip grew up.
+
+- **SE — The other margin.** Gas station, then a trailer park / mobile home cluster off to the southeast. The trailer park is the diagonal rhyme of the homeless camp — poverty in different form. Possible home for some recurring street-deal customers (sprite faces the player starts recognizing without ever talking to). Bruce may live here.
+
+### The intersection
+
+The center cross is the single highest-foot-traffic point. School-to-commercial-strip traffic, apartment-to-anywhere traffic, Reggie's beat — they all converge here. Worth thinking of the intersection itself as a kind of stage.
+
+### Reggie's beat
+
+Natural beat-cop loop: perimeter of the central cross. East on the south sidewalk, north on the east side, west on the north sidewalk, south on the west side. He passes every quadrant once per loop. **Critically, he does not enter the NW quadrant.** He walks the road bordering the camp but doesn't cross into Hank's territory unless something brings him in. That spatial separation between the criminal underworld and the cop is the whole game in geometric form.
+
+### Dealing spot placements
+
+Three spots, three stakes (per §7.5):
+
+1. **Gas station spot (SE quadrant)** — Tutorial spot. Mid traffic. Most passersby are straights going to and from the station, low narc rate. The spot Hank points the player to. Always viable, low ceiling.
+2. **Pawn alley (SW, behind the strip)** — Time-gated. Daytime: low traffic, low margin. Late night: back-alley crowd, high margin, very low narc rate. Player discovers this on their own.
+3. **School corner (NE, near the basketball court)** — Highest after-school traffic. Highest narc density (parents, teachers, Rosa walking home). **Tyrone shows up here.** The moral-weight spot. Game does not point the player here.
+
+### Where characters live
+
+- **Player:** north of the central road, NW quadrant, second floor of the apartment building (or whichever floor — TBD)
+- **The neighbor + daughter:** same hallway as player, next door
+- **Hank:** NW shack
+- **Erik:** SW-most tent in the homeless camp (closest to player's footpath)
+- **Henry:** also in the camp, near Erik
+- **Oliver:** has his own house (a separate room scene) accessible from the central street, near his hardware store. Per existing schedule authoring.
+- **Felix:** likely above or behind his pawn shop, exact home TBD
+- **Bruce:** possibly the trailer park (SE)
+- **Rosa & Tyrone:** house TBD, somewhere walkable from the school
+- **Reggie:** lives outside the neighborhood (he commutes in for his beat) — his home doesn't need to be in the playable map
+
+### Outdoor chunking (future)
+
+Currently one outdoor scene. As the map expands post-MVP, the chunking framework (§22) splits into 4-7 outdoor scenes with `Doorway`-style transitions between chunks. The current single-scene approach is the MVP target.
+
+---
+
+## 13.5. Doors ✅ COMPLETE
+
+Doors are interactables with optional locking. Lockable doors have four authored configuration axes:
+
+- **Schedule hours** (`time_open`, `time_close`)
+- **Owner-NPC unlock** (`owner_npc`, `owner_home_scene`) — additive over schedule, never subtractive
+- **Late lockout** (`late_lockout`) — modifier on owner-presence path only
+- **Hard-locked days** (`locked_days`) — bitfield of days the door is hard-locked
+
+Lock resolution: hard-locked days override; else schedule hours; else owner-present-and-not-late-lockout. Notification message switches on the active path.
+
+---
+
+## 14. Opening Arc (NEW)
+
+The structured first in-game week. Replaces the previous "wake up in apartment with no inciting incident" opening.
+
+### Why this exists
+
+Playtesting v0.8 revealed the opening was a vacuum. $50 starting cash, rent in 7 days, no product, no customers, no skills, no inciting incident — just a list of systems and no reason to engage with any of them in any particular order. The pager loop assumed product the player didn't have. The grow loop took a week to produce anything. There was no "what should I be doing this hour" pull.
+
+The opening arc fixes this by inserting Hank's fronted ounce as inciting incident, gating the pager behind earning enough to buy it, and using the neighborhood's geometry to guide the player through the cast naturally.
+
+### Arc shape
+
+**Day 1, ~2 PM — Wake.** Player wakes in apartment. Some light scene-setting (TBD: cutscene candidate or environmental — the calendar showing rent in 6 days; the empty fridge). Hotbar already has weed seeds, watering can, slim jim, calling card with 20 minutes.
+
+**Day 1, leaving home — Erik (or Henry).** Walking south from the apartment, player passes the camp. Erik is the first named NPC encounter, parked just south of the camp on the footpath. Conversation surfaces: the neighborhood's vibe, Erik's situation, a casual mention of Hank ("if you ever need to make some quick money, Hank's place — back past the camp"). Erik becomes a recurring presence. Henry, if encountered first, plays an alternate version of the same beat with a different angle ("hard to refuse a man with money in the world like this — but be careful").
+
+**Day 1, optional wandering.** Player can keep walking south, cross the central intersection, see the commercial strip. Oliver might wave from the hardware store (warmth, contrast). Felix's shop is visibly there but nothing useful to do yet (the player has no equipment to pawn and no need for anything Felix sells). Rosa might be walking home from school depending on hour — pre-meeting glimpse.
+
+**Day 1 or 2 — Hank.** Player goes back to Hank. Scripted-event Hank dialogue: he reads the player fast and offers the fronted ounce. "I got an oz I can let you have. Move it, pay me $X by Sunday. You don't, it's $X+Y." Player accepts (default expected path) or refuses (much harder game; door stays open). Tutorial dialogue covers the spot-dealing mechanic and the eyeball-tax. Hank points the player at the gas station spot.
+
+**Days 2-6 — The 2-bit loop.** Player learns it. First deal at the gas station is scripted-safe (0% bust roll) so they understand the verb without losing product. Subsequent deals roll normally. Player rotates spots (or doesn't), reads passersby (or doesn't), discovers the late-night pawn alley window. Builds enough cash to:
+- Pay Hank
+- Buy the scale (Felix)
+- Maybe buy baggies (bodega)
+- Possibly buy the pager if they pushed hard (Felix)
+
+**Day 7 — Pay Hank.** This is the **pivot moment**. Hank doesn't just take the cash. He extends. "You're alright. You want regular product? Or you want better margins? I know guys." This opens both the wholesale relationship AND the criminal track (slim jim becomes available; chop shop introduced as future content). The opening arc ends with the player having real choices: keep 2-bit dealing forever, buy a pager and graduate, lean into growing, lean into crime. The closed-system tutorial week ends; the open game begins.
+
+### Geographic walk
+
+The arc walks the player across every quadrant of the map at least twice without any quest markers. The geography does the level design.
+
+### Authoring scope
+
+Events to author (using the existing §11.7 scripted event system):
+
+1. **Day 1 wake-up** — possibly environmental rather than event, TBD
+2. **Erik's first meeting** — scripted on first walk-by of the camp
+3. **Hank's first meeting / debt scene** — scripted; sets the debt state and the tutorial beats
+4. **Gas station first deal** — possibly scripted, possibly just bust-roll-pinned-to-0% on the spot's first-use-per-day counter
+5. **Hank-debt-paid moment** — scripted, fires on `flag:hank_debt_paid` + visit to Hank, transitions player into open-game state
+
+The rest of the week (deals, exploration) is emergent.
+
+### Tuning targets
+
+- Average week-1 dealing income should fund Hank-payment + scale (~$X + ~$Y) + leave ~$30-50 spending money
+- Pager (~$Z) is intentionally just-out-of-reach for week 1 if the player also wants to clear Hank — week 2 affordability
+- Bust probability calibrated so a player rotating spots and reading passersby reasonably can pay Hank back; a player camping one spot and dealing to everyone will get busted at least once
+
+---
+
+## 15. Heat / Police System ✅ STAGE 12 COMPLETE (light MVP)
+
+**Shipped MVP heat:**
+- Witnessed-crime model (§15.4)
+- Patrol cop spawning, scaled by neighborhood heat
+- Pursuit state machine (PATROL / PURSUIT / INVESTIGATE)
+- NavigationAgent2D for pursuit
+- Apprehension flow → fine
+
+**Hooks in place for the post-MVP three-layer expansion (§15.1, §15.2, §15.3 below).** The cumulative-heat tide rises in the background; specific consequences (detective knock, raid, buyer-wired) are deferred.
+
+### 15.1 Immediate heat (caught in the act)
+
+A discrete event. Cop sees crime → pursuit begins → either apprehended or escaped. Apprehension consequence scales with severity:
+- Petty crime + low cumulative → warning
+- Petty crime + high cumulative → fine
+- Serious crime + any → fine + jail time
+- Serious crime + high cumulative → escalated
+
+Pursuit is the *moment of decision* between seen and caught. Player has ~10 seconds to break line of sight after being spotted. Three outcomes:
+- **Caught at scene** → apprehension flow
+- **Escaped but witnessed** → no immediate punishment, but personal cumulative heat spikes hard
+- **Got out clean** → small cumulative tick
+
+### 15.2 Personal cumulative heat
+
+Slow-rising tide. Fed by:
+- Petty crimes that didn't go clean
+- Witnessed-but-escaped events
+- Buyer-witness reports
+- Bank deposits over a threshold (when banking ships)
+- Phone-line overuse (when phones unlock)
+- Repeat patterns at the same location (this includes the per-spot deal counter from §7.5 — dealing too much at one spot is exactly this pattern)
+- **Bust on a street deal** — what we previously called a "strike" in design discussion is just a cumulative-heat hit through this channel
+
+Decay: lay low ~1 week of in-game time and cumulative slowly drops. Lay low 2 weeks and it returns to baseline.
+
+**Hidden meter with symptoms.** No number on screen. The player feels heat through ambient cues:
+- Cruisers parked on the block more often
+- Neighbors mentioning "guy was asking about you"
+- Hangups on your new phone line
+- A specific NPC giving you a different greeting
+
+**High cumulative → detective knock** or one of several state-shift events. Player doesn't know which shoe drops, only that something will.
+
+### 15.3 Area cumulative heat (neighborhood temperature)
+
+Per-region float. Fed by every crime in the area (yours or anyone's). Decays with inactivity.
+
+Modifies:
+- Patrol cop spawn chance per check
+- Max concurrent patrol cops
+- Witness sensitivity
+
+### 15.4 Witness model
+
+When a crime fires the "witness check" event, each eligible NPC/cop in the player's viewport rolls. NPCs roll against `discretion`:
+- Criminals / customers / fellow dealers: high discretion → silent witness
+- Junkies: silent
+- Friendly NPCs (high affinity): silent — but relationship damage ("you saw what?")
+- The neighbor: very high discretion always (does not call cops on neighbors), with relationship-cost path
+- Low-affinity straights: report → cumulative heat spike + area heat tick
+- Cops: always report (pursuit begins)
+
+### 15.5 Patrol cops
+
+State machine: PATROL / PURSUIT / INVESTIGATE.
+
+- **PATROL** — walks waypoint route from one map edge to another, despawns at exit. Witness check active. Same speed as player.
+- **PURSUIT** — chasing last-seen-player position via NavigationAgent2D. Same speed as player but persistent — player must break line of sight. ~3-second awareness buffer after LOS loss before transitioning to INVESTIGATE.
+- **INVESTIGATE** — at last-seen position, looks around for N seconds before returning to PATROL or schedule.
+
+**Viewport = witness range.** `VisibleOnScreenNotifier2D`.
+
+**No game over.** All consequences are state shifts — wanted state with restricted options, eviction to shanty town. The game gets meaner; it doesn't end.
+
+---
+
+## 16. Systems Deferred Post-MVP
+
+- Money laundering / clean-vs-dirty cash economy (multi-pool wallet architected; full design §25.3)
+- Courthouse / adjudication system — heat → court → fine/community-service/jail (design §25.2)
+- Delivery job (gated on map expansion), panhandling (gated on ambient NPCs), fronts/owned businesses — the rest of the legit axis (design §25.4)
+- Wholesale customer track (oz-based, tier-5, gated through Hank — the escalation past the grams referral chain, §6.6)
+- Multiple strains and quality system content
+- Cooking
+- Dating / romance
+- Catalogue mail-order (the first clean-cash sink)
+- Pawn shop with rotating daily stock (Felix curation is gated on flags currently; rotating pool exists, see §5)
+- Body modifications / appearance
+- Multiple neighborhoods (architecture supports it via per-scene tier weights)
+- Full B&E with handcrafted house layouts
+- Pickpocketing
+- Housing ladder rungs beyond the starting apartment — expansion, buying the complex, the house across the tracks (design §23.5)
+- Three-layer heat surface (witness model and pursuit shipped; cumulative meter symptoms, scrutiny meter, detective knock state-shift events deferred — §25.1)
+- Stealth skill
+- Detective storylines
+- Eviction → shanty town (tent rung of the housing ladder)
+- Slim jim minigame
+- Dealing-spot minigame (current MVP target is dwell-time + passerby reads only)
+- Bruce's full character depth
+
+---
+
+## 17. Technical Architecture (Godot)
+
+### Autoload init order (MVP-current)
+
+1. `SaveSystem` — must precede anything that calls `register_savable`
+2. `ItemRegistry` — must precede anything that resolves item IDs
+3. `TimeSystem` — must precede time-dependent autoloads
+4. `WorldStateSystem` — room state persistence
+5. `RoomManager` — room transitions
+6. `Wallet`
+7. `RentSystem`
+8. `DealerExperience`
+9. `CriminalExperience`
+10. `CustomerRoster`
+11. `PagerSystem`
+12. `MeetingManager`
+13. `MeetingSpawner`
+14. `CarSpawner`
+15. `NotificationSystem`
+16. `PlayerSkills`
+17. `RelationshipSystem`
+18. `DialogueDatabase`
+19. `DialogueRuntime` — depends on RelationshipSystem, TimeSystem
+20. `ScheduleDatabase` — must precede NPCDirector
+21. `NPCDirector` — depends on TimeSystem, RoomManager, ScheduleDatabase
+22. `ScreenFade` — must precede EventDirector (used for room-swap cover)
+23. `GiftSystem` — depends on RelationshipSystem, TimeSystem
+24. `EventDirector` — depends on RoomManager, TimeSystem, RelationshipSystem, NPCDirector, ScreenFade, DialogueRuntime
+
+Added since (street dealing / opening arc / survival — now built):
+- `DebtSystem` — owes-Hank tracking; signal-driven
+- `StreetDealSession` — cross-scene session handoff for the street-deal minigame (twin pattern reused by BarShiftSession)
+- `CrimeSystem` / `WitnessRegistry` — crime dispatch + witness pipeline (busts route here)
+- `SpotHeatTracker` — per-spot rolling deal counts
+- `HungerSystem` / `ThirstSystem` / `CollapseSystem` — survival pipeline
+- `WorldStateSystem`, `VendorStateStore` — world/vendor state persistence
+
+Added in v1.1 (bartending / legit axis):
+- `BarShiftSession` — cross-scene handoff for a bar shift (twin of StreetDealSession): stores shift length + return info, fades into the mock bar scene, reports `shift_ended(completed)` on exit.
+- `EmploymentSystem` — the reusable scheduling spine. Watches `has_job` (via `RelationshipSystem.global_flag_changed`), schedules shifts at legal hours, watches `minute_tick` for missed-shift detection, tracks strikes (reset on `week_rolled`), fires at >2 strikes. Depends on TimeSystem, RelationshipSystem, MeetingManager (for `format_minute`), BarShiftSession, NotificationSystem. Must load after those. Persists `next_shift_minute`, `strikes`, `_clocked_in`.
+
+### Cross-autoload signal wiring
+
+When autoload A needs to connect to a signal on autoload B that loads later, the direct connect in A's `_ready` fails (B doesn't exist yet). Same pattern as the documented save/load timing trap. Two options:
+- `call_deferred` the connect in A
+- Swap autoload order if B can be moved earlier
+
+Documented because the pager_acquired wiring between CustomerRoster (10) and PagerSystem (11) hits this exact case.
+
+### Save/load timing trap
+
+`load_state` order across autoloads can't be relied on. Systems that need to sync with world state after their data loads should `call_deferred` a sync method from their own `load_state`. Examples: `CarSpawner.load_state` calls `call_deferred("_materialize_cars_for_current_scene")`; `NPCDirector.load_state` calls `call_deferred("_resync_after_load")`.
+
+### Vendor system as a reusable pattern
+
+`VendorInteractable` + `Stock` Inventory child + `VendorPanel` UI = the pattern for any "swap items for currency" interaction. Same node type covers Hank, Felix, Oliver, eventually catalogue (buy with delay). The two multipliers + sellable flag on ItemDef handle every variation. The optional `vendor_owner` field couples vendor availability to an NPC's schedule.
+
+### Spawner pattern
+
+The "register markers in scenes, manager picks from them on a trigger" pattern is now used by several systems:
+- `MeetSpot` + `MeetingManager` (one-off scheduled meetings)
+- `PatrolWaypoint` + `PatrolSpawner` (recurring patrol routes)
+- `CarSpawnPoint` + `CarSpawner` (daily-renewable spawns)
+- `Waypoint` + `NPCDirector` (per-room markers referenced by schedule entries)
+- `DealSpot` + street-deal minigame (passerby spawning, built)
+- Path `Marker2D`s + street-deal minigame (customer walk-paths, reversible — one authored path yields both directions)
+- Counter-slot `Marker2D`s + bar minigame (customer standing positions, slot count caps concurrency)
+
+Future systems should follow the same pattern.
+
+### Materialize-on-room-enter
+
+Pattern proven by `MeetingSpawner`, `CarSpawner`, and `NPCDirector`. Generic shape:
+1. Manager owns state about what should exist in which scene
+2. Listens to `RoomManager.room_changed`
+3. On room enter, queries own state for "what belongs here?" and instantiates
+4. On room exit, despawns or persists state back
+
+### ItemDef tool framework
+
+Items can declare active-use behavior via fields on the ItemDef:
+
+- `tool_id: StringName` — empty for passive items; non-empty triggers a tool dispatch in player's `try_tool` path when interact is pressed while the item is in the active slot
+- `movement_speed: float` — for movement-mode tools, the speed when this tool is the active mode
+
+Used today by:
+- Watering can (active item + interact on a Plant → water plant)
+- Skateboard (active item + interact in open space → enter skate mode, drains stamina, plays skate animations, auto-dismounts on certain scene types)
+
+Used forthcoming by:
+- **Pager** — active item + interact in open space → activate PagerSystem, consume item. Same dispatch path, new `tool_id` value.
+
+The framework's the right home for any item that needs to do something when "used from the hotbar." New tools are new `tool_id` values plus a dispatch arm in player's tool handler.
+
+### Alt-interact dispatch
+
+`Interactable` defines two signal/method pairs: `interacted` / `interact()` for the primary action (E), and `alt_interacted` / `alt_interact()` for the alternate (F). NPCs override `alt_interact` to open the gift panel; future interactables can use it for context-appropriate secondary actions.
+
+### Event scene pattern
+
+A "ducked-out-of-the-world" pattern for any system that needs to take over the screen for an authored sequence. The event scene is a regular .tscn the RoomManager swaps to, the real player is disabled, puppet sprites do the on-screen work, the room state survives unchanged. Useful for cutscenes (built), arrest flows (future), interrogation scenes (future).
+
+### Inline reaction dialogue pattern
+
+A "transactional" interaction (gift given, deal closed, quest turned in) immediately triggers DialogueRuntime with a single-line entry rather than queuing dialogue for later. Used by GiftSystem and by **vendor interaction** (v1.1 — vendors play the owner's contextual line before the panel opens, via the shared `DialogueRuntime.trigger(npc_id, display_name)` helper that both NPCs and vendors now use). Intended also for street-deal interaction beats, deal-completion lines, quest-turn-in reactions.
+
+### Y-sort and chunking
+
+Outdoor scenes use a YSortedContent parent for everything dynamic (wall tops, decoration with height, NPCs, player). Floor and wall-base TileMapLayers stay outside the y-sort group as flat backgrounds. z_index manipulation is reserved for vault arc state.
+
+---
+
+## 18. Open Questions
+
+- Hank's debt amount + late penalty exact tuning (playtest)
+- Street-deal bust roll curve (per-spot use count → bust chance)
+- Eyeball-tax magnitude (current placeholder: 0-15% random per deal)
+- Whether baggies sold by bodega or Hank
+- Bruce's character depth
+- The neighbor's real name and work name
+- Daughter's name
+- Whether "post up at spot" needs an explicit verb or is just standing on the marker
+- Time-of-day passerby weights per spot (school corner especially)
+- How "you've been here too long" feedback surfaces if it should at all
+- Detective knock as scripted event vs. state shift
+- Patrol cop max count scaling
+- Skill caps
+- Bartending tuning: customer patience, per-drink prep times, SHIFT_TIME_SCALE, tip ceiling, flat wage, whether 4h shifts feel right with time-accel
+- Whether the DEX-tier-up customer wave is retained alongside the referral chain (§6.6) or removed
+- Customer-roster knobs: trust threshold (45), max referral tier (4), roster cap (12), per-tier quantity bands
+- Whether evicting a customer with an active page/meeting needs protection (§6.6)
+- How the strike count surfaces to the player (currently only on miss/fire notifications)
+- Laundering rate — the number that makes clean/dirty cash a paced decision (needs economy instrumentation, §25.3)
+- Which legit job is the right *second* build (delivery vs. fronts) once map/ambient-NPC prerequisites exist
+
+---
+
+## 19. MVP Build Order
+
+### Stage 1: Spatial Foundation ✅ COMPLETE
+### Stage 2: Time and State ✅ COMPLETE
+### Stage 3: First Income Loop (Weed) ✅ COMPLETE
+### Stage 4: Dialogue & First NPC ✅ COMPLETE
+### Stage 5: Economy Closure ✅ COMPLETE
+### Stage 6: Pager & Buyers ✅ COMPLETE (now gated on pager acquisition — see Stage 14)
+### Stage 7: Criminal Track (Car Looting) ✅ COMPLETE
+### Stage 8: Player Skills ✅ COMPLETE
+### Stage 9: NPC Schedules ✅ FRAMEWORK COMPLETE, CONTENT IN PROGRESS
+### Stage 10: Cast Expansion 🚧 IN PROGRESS
+### Stage 11: Scripted Events ✅ COMPLETE
+### Stage 12: Heat System ✅ COMPLETE (light MVP — pursuit, witness, patrol)
+
+### Stage 13: Neighborhood Progression Foundation (not started)
+- Neighborhood drift tracking (community / criminal scores)
+- 2-3 slot locations with default/community/criminal states
+- 1-2 fully implemented end-to-end slot choices
+- Pawn shop with rotating stock + DEX gating (Felix's curation already exists at the flag-gating level — this is the rotating-stock layer on top)
+
+### Stage 14: Street Dealing + Opening Arc 🚧 IN PROGRESS
+**Implemented:**
+- ✅ Pager-as-equipment gate (PagerSystem + CustomerRoster pager_acquired wiring + HUD indicator gated)
+- ✅ DealSpot markers with full inspector config (spot_id, area_id, archetypes, weights, spawn/cop intervals)
+- ✅ Street deal minigame scene with puppet camera, idle-skip speedup, in-game-time spawn timers
+- ✅ CustomerArchetype resource pattern, three MVP archetypes (Pothead, Normal, Business Man)
+- ✅ DEX-gated archetype reveal label
+- ✅ Bust mechanic via CrimeSystem `weed_deal` crime + WitnessComponent during progress-bar action
+- ✅ SpotHeatTracker per-spot deal counting with 3-day rolling window
+- ✅ Eyeball tax (0-15% per sale, settled at session end)
+- ✅ DebtSystem for Hank (10%/week interest, vendor panel 3-mode integration)
+- ✅ Hank as authored vendor NPC with `offers_front` config
+- ✅ Hunger/Thirst/Collapse survival pipeline
+
+**Remaining:**
+- 🟡 Scale item + packaging (pre-packaged baggies, eyeball-tax bypass)
+- 🟡 Felix as authored vendor with curated equipment (skateboard, scale, pager pricing tuned)
+- 🟡 Opening-arc scripted events (Erik first encounter, Hank debt scene, Hank-debt-paid pivot)
+- 🟡 Three dealing-spot placements authored in the existing map (gas station, pawn alley, school corner)
+- 🟡 Tier-3 cast presences (Henry, daughter) at minimum
+- 🟡 Hospital scene for collapse wake (currently routes to apartment exterior)
+
+### Stage 15: Polish & MVP Definition of Done
+
+### Stage 16: Legit Axis — Bartending ✅ MINIGAME + SPINE COMPLETE (v1.1)
+First legit job and the reusable scheduling spine. Built outside the original MVP build order as a "meaningful gameplay shift" against playtest tedium. See §7.9.
+
+**Implemented:**
+- ✅ Bartending minigame: 3 drink stations (one script, exported type/prep_time), carry-one-drink constraint, patience-timed customers, speed-based tips, scoped prep-lock, time acceleration (push_speed) with real-delta gameplay timers
+- ✅ `can_interact`-driven interaction arbitration (eligibility by held-drink state)
+- ✅ `BarShiftSession` cross-scene handoff + `bar_customer.gd` + `drink_station.gd`
+- ✅ `EmploymentSystem` scheduling spine: `has_job`-flag hiring, 12-36h scheduling at legal hours (14:00-01:00), ±15-min clock-in grace, missed-shift detection, strikes (week-reset), two-strikes firing via `fired`/`has_job` flags
+- ✅ Appointment Panel shows next shift; player-set appointment times (time-picker panel) and roster overhaul (referral chain, cap) shipped alongside
+
+**Remaining:**
+- 🟡 Number tuning (patience, prep times, time-scale, tips, wage, shift length)
+- 🟡 Bar layout/art polish, order-icon final art
+- 🟡 Flat wage payout final wiring; re-hire dialogue
+- 🟡 Strike edge-case testing (week reset, full-completion no-strike)
+- 🟡 Bottle collection (§7.95) — trivial legit income, not started
+
+---
+
+## 20. MVP Definition of Done
+
+The MVP is "done" when a new player can:
+
+1. Wake up in the apartment, learn the basic loop in their first in-game day
+2. Encounter Erik on the way out and learn about Hank
+3. Accept Hank's fronted ounce and feel the week-1 debt timer
+4. Find a dealing spot, read passersby, complete street deals
+5. Get busted on a street deal at least once and feel the cumulative-heat consequence
+6. Buy a scale from Felix and feel the eyeball-tax-removed margin improvement
+7. Pay Hank back by Sunday end-of-day and trigger the pivot event
+8. Buy a pager from Felix (week 2)
+9. Receive a page, return the call, complete a deal, get paid at retail
+10. Develop a recurring buyer relationship over multiple successful pager deals
+11. Grow weed from seed to harvest over an in-game week
+12. Loot at least one car successfully
+13. Reach Tier 1 in each XP track (DealerExperience, CriminalExperience)
+14. Develop one player skill to a meaningful threshold and feel the capability change
+15. Build relationship with at least one of the named NPCs to a meaningful threshold
+16. Encounter Tyrone at the school corner spot and make the deal-or-don't choice; see Rosa's dialogue respond
+17. Survive (or fail to survive) a full in-game month including rent obligations
+18. Save and reload without state loss
+
+If all eighteen are achievable in a vertical slice, MVP is done and "is this loop fun?" can be answered with real playtest data.
+
+---
+
+## 21. Build Status & Architecture Decisions
+
+[Retained from v0.8 — vendor shadow inventories, pricing model, customer-roster-per-save scoping, page deadline waking-time accounting, meeting time rounding, car spawning laziness, car state keying, placement gating by group, animated doors, interactable collision separation, spawn point owner-scene-path resolution, schedule-data-in-files-not-code, activity-as-animation-name, transit-speed-implicit, vendor-vs-door-NPC-presence distinction, door locking composition, ItemDef tool framework, vault tween coordination.]
+
+---
+
+## 22. Gotchas & Conventions
+
+[Retained from v0.8 — Godot quirks, save/load patterns, outdoor chunking, tween coordination, asset pipeline conventions, input handling, animation naming, known minor bugs.]
+
+Additions in v0.9:
+- **Cross-autoload signal wiring** needs `call_deferred` in the listener's `_ready` if the emitter loads later. See §17. Symptom: "Identifier not declared" or null reference on the emitter during the listener's `_ready`.
+additions in V1.0:
+- **Typed arrays of Resource subclasses across script boundaries.** `Array[ItemDef]` won't accept `PlaceableItemDef` instances reliably in some contexts (typically vendor `initial_stock` arrays in the inspector). Same problem applies to `Array[CustomerArchetype]` parameters on autoload functions. Workaround: declare the parameter and storage var as plain `Array` (untyped) or `Array[Resource]` for inspector typing. Internal usage can still cast back to the subclass.
+
+additions in V1.1:
+- **Typed array param mismatch on `set_patrol`.** Passing an untyped `Array` to a function declared `Array[Vector2]` errors ("array of argument does not have the same element type"). Declare the local as `Array[Vector2]` before appending.
+- **Group lookup in `_ready` vs. node order.** A scene-root controller that `add_to_group()`s in its own `_ready` is registered *after* its children's `_ready` (children run first). Children that need the controller must resolve it lazily (on interact) or `call_deferred`, not cache it in their `_ready` — the cached lookup is null. (Hit by drink stations finding the bar controller.)
+- **Held-state interaction eligibility needs a manual re-arbitration poke.** `can_interact` filters work, but picking up/dropping a non-physical "held" item doesn't fire `state_changed` or a zone enter/exit, so the InteractionManager won't recompute. Call `InteractionManager.notify_player_state_changed()` after the state change. (Bar carry-one-drink.)
+- **Two clocks: game-time vs. real-delta.** Minigame *session length* should ride game-time (`total_minutes`, or `push_speed` to accelerate the world), but moment-to-moment *gameplay timers* (progress bars, patience) should run on raw `delta`. Keeping them separate is what lets a shift's world-time accelerate while drinks/patience stay at human pace.
+- **Id tokens vs. display text.** Keep internal ids clean tokens (`beer`) and map display names separately (`"Beer"`). Putting prompt/display text into an id field silently breaks equality matching elsewhere (e.g. `held_drink() == order` never matches). Hit when a station's `drink_type` inspector field was filled with the prompt string.
+- **`push_speed`/`pop_speed` must be paired across scene teardown.** Pop in `_exit_tree` (guarded by a `_pushed` bool) so an early scene exit can't leave the world running fast. Same discipline as the street minigame.
+- **`set_global_flag` only emits on actual change.** `RelationshipSystem.global_flag_changed` fires only when the value differs from before. A listener that needs to catch an already-set flag (e.g. set before the listener's `_ready` connected, or re-set to the same value) must also check the flag directly in its own `_ready`. (EmploymentSystem catches an already-true `has_job` this way.)
+- **Tilesets moved between folders break `ext_resource` paths / UIDs.** Reverting the file moves doesn't always restore the import cache. Symptom: scenes parse-error on a missing `.tres` at runtime though it's fine in-editor. Fix: close Godot, delete the `.godot/` folder (all derived data), reopen to force a clean reimport + UID rebuild.
+- **Inventory `slots` array sized from inspector, not from `max_slots` assignment.** When a Node assigns `inventory.max_slots = N` in its own `_ready`, the Inventory child's `_ready` has already run with whatever the *scene file* set max_slots to. The internal `slots` array doesn't resize on the int reassignment. Symptom: vendor with `stock_size = 24` only stocks the first 3 items. Fix: also call `stock.slots.clear()` and `stock.slots.resize(stock_size)` after the assignment, or override `max_slots` to resize on set.
+- **`TimeSkipSystem.skip_to` is async** — it awaits internal fade tweens and fires `time_skipped` while the screen is black. Listeners hook `time_skipped` to do their work during the dark window (position changes, stat restores). Callers that want to do post-skip work should either await skip_to (if they're also async) or hook the signal.
+- **Cop pursuit can fire on cops the caller thinks it's "detached" from.** `PoliceSystem.unregister_cop` only removes from PoliceSystem's dicts. The cop's `WitnessComponent` is still registered with `WitnessRegistry`, and `CrimeSystem.dispatch_pursuit` looks up cops via the witness pipeline, not PoliceSystem. To fully detach: also `WitnessRegistry.unregister(wc)` or destroy the WitnessComponent. Or — as we did in the street deal minigame — leave it active because the minigame *wants* witness-triggered busts, and accept that pursuit may briefly fire on the puppet cops (harmless since the scene tears down immediately on bust).
+- **Stamina sprint multiplier.** When wiring new multipliers onto velocity, use the locally-built `move_multiplier` (which already includes skill + sprint). Re-fetching `PlayerSkills.speed_multiplier()` in the final velocity assignment silently drops the sprint factor. Pattern: build `move_multiplier` up incrementally, use it once.
+
+---
+
+## 23. Neighborhood Progression System
+
+[Section retained from v0.4 — full content preserved. This is the overarching goal structure that gives the game's daily loop a direction. The community-vs-criminal drift mechanic, neighborhood slots, three timescales of feedback, and tier-gated content unlocks. Pawn shop (Felix) and catalogue stock gating happens here via DealerExperience tier. **This section is the next major content gap in the doc — the v0.4 source content should be inlined here in a future revision so the doc is fully self-contained.**]
+
+---
+
+## 23.5. Gameplay Progression Ladder — Housing (committed direction)
+
+The concrete long-arc spine: where the player is *physically* progressing toward, and the primary spend-sink the income tracks feed. This is the "what am I working toward" answer that gives the daily loop a destination, parallel to the neighborhood-drift goals in §23.
+
+**The ladder:**
+
+1. **Tent** — the absolute bottom. Pre- or post-eviction shanty fallback (ties to the eviction→shanty-town thread). The starting-from-nothing or fallen-from-grace state.
+2. **Apartment room 1** — the MVP starting apartment (single room, rented).
+3. **Apartment rooms 1 & 2** — expand into the adjacent room (more space: grow ops, storage, placement).
+4. **Apartment room 3 (1 & 2 combined / knocked through)** — the full floor-unit, the combined large space.
+5. **3rd-floor apartment** — moving up in the building; a better unit.
+6. **Buy the apartment complex** — ownership flips the player from tenant to landlord. Unlocks **roof access** (rooftop grow / vault-traversal payoff / rooftop-delivery questlines, §24) and a **weekly income** stream (rent from other units — the first passive/legit recurring income).
+7. **Buy a house on the right side of the tracks** — the aspirational endgame. Leaving the neighborhood. Thematically loaded given the game's "texture of place" commitments — the question of whether getting out is a victory or a betrayal of where you came from.
+
+**Design notes:**
+
+- Each rung is a major money gate. Renting→buying is the inflection point (tenant to owner), and ownership introduces recurring income rather than just being a bigger spend.
+- This ladder is the natural attach point for the **clean-cash gate** (§25): buying property and paying for upgrades should require *clean* money, while renting the early rungs can be paid dirty. "I can afford to buy the room but only in dirty cash, and that raises questions" is exactly the intended tension — a $3,000-clean wall that makes laundering matter.
+- Roof access (rung 6) cashes out the Athletics/vault traversal investment and opens rooftop content.
+- The complex's weekly income is the first taste of the legit/ownership endgame the legit axis (§25) builds toward — fronts and owned businesses generalize this "owned thing that pays weekly" pattern.
+
+This is committed *direction*, not yet built. The early rungs (tent, room 1) exist or are trivial; the expansion/purchase rungs are post-MVP content.
+
+---
+
+## 24. Player Skills ✅ STAGE 8 COMPLETE
+
+The capability-progression spine that complements the content-gating XP tracks (DEX, CRIM).
+
+### The distinction
+
+- **XP tracks (DEX, CRIM)** gate content. New customers, tools, contacts. Player feels progression through "I can now do X."
+- **Player skills** gate capability and access. Make moment-to-moment play feel better and slowly open up the world. Player feels progression through "I feel faster / I can carry more / I can reach places I couldn't before."
+
+### Visibility model
+
+- **No involuntary numbers.** No Skyrim "+1 Lockpicking" popups.
+- **One-time threshold notifications.** "You feel quicker on your feet" — once.
+- **Optional dedicated screen** (deferred). Stardew-style.
+
+### Initial skill set
+
+**Athletics (implemented)**
+- XP accrues per pixel moved. Speed scales `1.0 + level * 0.015`. L50 = 140 px/s.
+- Capability thresholds: `vault_low` at L10, `vault_medium` at L25, `vault_high` at L50.
+
+**Vault (loosely implemented)**
+- 1-tile-thick rule in traversal axis. Vaultable tiles in per-room `TileMap` named "Vaultables" with `vault_tier` custom data layer (0/1/2).
+- Per-tier tuning shipped: duration 0.6s/0.8s/1.3s, arc 15/18/32px, XP 5/10/20.
+- Single tween with parallel children for position + arc; chained callback for completion.
+- Stamina cost: 2 per vault.
+
+**Strength (loosely implemented)**
+- XP accrues on movement × filled inventory slots.
+- Inventory expands at L10/L20/L30/L40/L50: +6 slots each.
+
+**Lockpicking (loosely implemented)**
+- 3 XP per successful locked car loot.
+- Duration scaling: `max(0.1, 1.0 - level * 0.012)`.
+
+**Stealth (deferred until heat shipped — wait, heat is shipped; stealth is now the only deferred sub-piece of the heat surface, included in the deferred list §16)**
+- Trigger: XP per second in witness viewport without being detected; larger XP on completed undetected crime.
+- Effect: extends witness's "noticed" meter fill time.
+
+**Street Read (post-MVP, design only)**
+- Forthcoming skill, tied to street dealing. XP per deal initiated. Capability: passerby archetypes display visual tells more prominently.
+
+### Movement tools (skateboard)
+
+Athletics-track upgrade items that replace foot-speed with a flat speed from the item. Uses the existing tool framework (§17). Skateboard's `tool_id = &"skateboard"`, `movement_speed = 150.0`. Held active + interact in allowed scenes (outdoor neighborhoods) → enter skate mode. Drains stamina at 40% of walking rate. Auto-dismounts on room change to disallowed scenes. Persists across saves.
+
+Pattern extends to future bike, rollerblades, etc.
+
+### Vault
+
+Vaultable objects throughout outdoor scenes — low fences, mid-height walls, dumpsters, rooftop ledges. Tier-gated. Becomes traversal progression — the world feels more open as Athletics levels.
+
+### Cop pursuit vault interaction
+
+Cops can't vault medium until high pursuit aggression. Documented as design intent; implementation slot in the pursuit state machine.
+
+### Skill gates as content authoring lever
+
+The biggest payoff of skills: they become a content-gating axis for events and quests:
+- NPCs open up to high-stealth players (assumed-able-to-keep-secret)
+- Specific Hank offers require lockpicking tier
+- Rooftop-delivery questlines open at Athletics tier 3 (high vault unlock)
+- Neighbor mentions the basement burglary if forced-entry skill is high enough
+
+Players who skill into different things see different games.
+
+### Architecture
+
+- `PlayerSkills` autoload owns all skills via a single `SKILL_CONFIG` dict.
+- Adding a new skill = new config entry + trigger wiring in the source system.
+- One save dict, signals (`skill_changed`, `level_up`, `capability_unlocked`).
+- Skills distinct from XP tracks: skills gate capability, XP tracks gate content.
+
+### Open design questions
+
+- Skill caps: tentatively each skill caps at ~50 levels.
+- Whether to surface skills before first level-up or wait for threshold.
+
+---
+
+## §Z Inventory shorts
+
+### Click modifiers
+- Plain click: cursor pickup (inventory) / move-one (vendor, storage)
+- Shift+click: full-stack transfer to other inventory
+- Ctrl+click: same as plain in inventory; move-one in vendor/storage
+- Right-click: split-in-half (cursor takes half)
+
+Vendor and storage have a two-pile mental model; inventory has a cursor pickup model.
+
+### Capacity changes
+- `Inventory.capacity_changed(new_max: int)` signal fires on `expand_slots()` and `load_state()`.
+
+---
+
+## 25. Post-MVP Design Threads (captured, not built)
+
+Substantial design discussion that isn't implemented but is load-bearing for the game's identity. Captured here so a future instance has the reasoning, not just the feature names. None of this is in MVP scope.
+
+### 25.1 Two-meter trouble model: Heat vs. Scrutiny
+
+The current "personal heat" (§15.2) is underdefined. The intended resolution is **two distinct meters**, because they answer different player questions and are reduced by different actions:
+
+- **Heat** — "did someone see you commit a crime." The witnessed-crime axis (witness model, pursuit, area heat) already partly exists (§15). Reduced by laying low, not being seen. Feeds the courthouse (§25.2).
+- **Scrutiny / suspicion** — "does your money make sense." A *financial* pressure, separate from police heat. Reduced by laundering / spending less conspicuously / having clean income. Feeds the clean-cash gates (§25.3).
+
+Keep them separate even though both are "you're in trouble" states — conflating them muddies what the player should *do* about each. Court is "stop getting seen"; scrutiny is "clean up your money."
+
+### 25.2 Courthouse / Adjudication System
+
+When personal **heat** crosses a threshold, the player gets a **court date**. At court, a record of all witnessed crimes is tallied (this implies witnessed crimes need to **persist as a permanent ledger** — cleared at adjudication — in addition to feeding the decaying heat meter; design heat as "decaying meter + permanent rap sheet" from the start). Punishment ladder, all denominated in the game's true currency — **lost time/attention**, not just money:
+
+- **Fine** — near-zero time cost, just cash.
+- **Community service** — scheduled time-loss. Rides the *same scheduling spine as bartending* (§7.9) — a forced scheduled obligation that locks out your other activities. This is a direct reuse of the employment/scheduling system.
+- **Jail** — catastrophic block-time-loss. Several days gone. The cascade is the punishment: during jail, pages keep coming in and you flake on all of them (trust loss across the roster), and plants die from not being watered. You don't need bespoke jail pain — it borrows pain from every system that runs on the schedule clock.
+
+Design principle that makes this good: it's punishment in *time*, not money, so it cascades through plants/customers/jobs automatically. Tuned to be "weather you plan around," not a wall — this is a supplement-to-crime game, crime should stay the fun part, so the system shouldn't make players crime-averse. No game-over; consequences are state shifts (consistent with §15.5).
+
+### 25.3 Clean vs. Dirty Cash
+
+Architected via the multi-pool wallet (§5) but inert for MVP. The intended model:
+
+- Cash carries a **clean/dirty** tag. Most income (dealing, crime) is dirty.
+- **Dirty cash spends freely in the *informal* economy** — pawn shop (Felix), Hank, gas station, hardware store (Oliver). No friction on everyday spend. This is essential: the mechanic is only fun if dirty money is usefully spendable, just *restricted*, not a tax on every purchase.
+- **Clean cash is required only at *formal* gates** — rent, any property purchase/upgrade (the housing ladder §23.5), and **mail-order equipment** (planter beds, grow lights, mylar, furniture — the catalogue). Putting the grow op's *own scaling equipment* behind clean cash couples production growth to laundering: you can deal dirty all day, but you can't *expand the farm* without cleaning up. That coupling is the intended pressure.
+- The gate is the fun ("I can afford the $3,000 room but only in dirty cash, and that raises suspicion"); friction-on-everything is the failure mode to avoid.
+
+This is the thing that makes the legit jobs (§7.9, §25.4) matter long-term: a bar shift's $80 is laughable next to a tier-4 deal, but if it's *clean* it's not competing with the deal — it's enabling you to *spend* the deal money. Legit work becomes a laundering/access mechanism, not a parallel income track that has to be balanced against drug profit. That's why the legit axis is a **supplement**, not an alternative win condition.
+
+**Open question that gates the whole thing:** the laundering *rate*. How much dirty cash does a session generate, and therefore how fast must clean cash flow to make laundering a paced decision rather than a grind or a rubber-stamp? This needs playtest instrumentation on the (post-overhaul) economy before clean/dirty can be tuned. Don't build clean/dirty into a fresh, un-stabilized economy.
+
+### 25.4 The rest of the legit axis
+
+- **Delivery job** (planned) — pickup→dropoff on a timer, reuses meetspots/inventory/timers. Held *behind map work*: it's too similar to dealing's verb until the map has new areas with vaultable fences/shortcuts that make it a *spatial routing* puzzle. Building it now would lock in the boring version.
+- **Panhandling** (planned) — a low-risk reskin of the street-deal loop, no product, less money; heat/affinity loss if real NPCs walk by. Held *behind ambient-NPC work* — it's a ~1-day feature once that substrate exists, a 3-day feature if built just for it. The day-one desperation valve, not a career.
+- **Fronts / owned businesses** (planned) — the eventual clean-cash *firehose* and laundering endgame. Lemonade stand as the comedic first front (works as a plain small-income front pre-laundering, becomes funnier post-laundering — "a lemonade stand clearing $4k/week"), preferred over a laundromat (too on-the-nose, depends on clean/dirty existing to make sense). Generalizes the apartment-complex "owned thing that pays weekly" pattern (§23.5). This is where the legit and criminal paths converge — a front is both.
+
+**Sequencing intent:** legit jobs are the early-game clean trickle that bootstraps you toward affording a front; fronts are the late-game clean firehose. Legit stays a supplement throughout — no parallel tier ladder, no balancing legit income against drug income, because the value is laundering and access, not raw profit.
+
+---

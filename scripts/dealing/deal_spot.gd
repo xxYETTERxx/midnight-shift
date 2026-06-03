@@ -47,6 +47,7 @@ func _on_interacted(player: Node) -> void:
 	# Falls back to raw buds with tax penalty.
 	var product_id: StringName = &""
 	var count: int = _count_item(player.inventory, DIME_BAG_ID)
+	
 	if count > 0:
 		product_id = DIME_BAG_ID
 	else:

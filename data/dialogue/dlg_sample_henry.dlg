@@ -1,0 +1,112 @@
+# ============================================================
+#  henry.dlg  —  Henry, 62, lives in the camp. Opted out of Hank's path
+#  decades ago. Kind, dry, unhurried. Steers you off Hank without preaching.
+#
+#  This file is a REFERENCE — it deliberately uses as many .dlg features
+#  as possible. Real files won't need all of them. Cheatsheet at the bottom.
+#  Portrait codes used here: $h = Henry,  $p = player
+# ============================================================
+
+
+# --- EVENT: the signature first-visit-to-Hank beat ---------------------
+# Fired by the event director the first time the player heads to Hank's.
+event:henry_warns_about_hank
+  $h Heading back past the camp, huh.
+  $h ...You going to see Hank.
+  $b
+  $h I knew that man when we were young. Younger than you, near enough.
+  $h Hard to refuse a fella with money in a world like this. I get it.
+  $h Just — be careful with that man. That's all. Be careful.
+
+
+# --- Most specific: player owes Hank AND it's gotten bad ---------------
+# Two entry preconditions, both must pass (';' between them).
+owes_hank | hank_debt >= 200 ; !henry_warned_debt
+  $h You've got that look. The one I had, oh, thirty-odd years back.
+  $h Hank's numbers, they don't add up the way he says they do.
+  $b
+  $q
+    --> "How would you know?" | set henry_warned_debt ; trust +3
+      $h Because I ran them myself. For him. Long time ago.
+      $h Walked away owing more than I started with. Walked away anyway.
+    --> "I've got it handled." | trust -2
+      $h Sure you do. Sure.
+      $h I'm here either way.
+  $r
+
+
+# --- Specific: player is doing well, Henry's glad but wary -------------
+owes_nothing | trust >= 40
+  $h Look at you. Eating, by the look of it. Good.
+  $h $p
+  $h Don't let it make you stupid, is all. Money's got a pull to it.
+
+
+# --- Branching reputation check via a $q with mixed clauses -----------
+# Shows: response preconditions, local flags, global flags, stat deltas,
+# has_item gating, and follow-up bodies of different lengths.
+day.camp
+  $h Afternoon. Sit a while if you want, the crate's free.
+  $q
+    --> "Brought you something." | has_item burrito ; set gave_henry_food ; affinity +8
+      $h ...You didn't have to do that.
+      $h Thank you. Truly.
+    --> "You knew Hank back when?" | event_done henry_warns_about_hank ; trust +2
+      $h Mm. We came up together. Two kids with the same bad options.
+      $b
+      $h He took the one that paid. I took the one that let me sleep.
+      $h Neither of us got rich, mind you. Just — different kinds of broke.
+    --> "Seen Erik around?"
+      $h That boy. Off chasing his medicine, most likely.
+      $h He's alright. Keep an eye on him when you can.
+    --> "Just passing through." | trust < 0
+      $h ...Right. Mind how you go, then.
+  $r
+
+
+# --- A 'matches always' entry, lower priority than tagged ones --------
+* | gave_henry_food
+  $h The one who feeds an old man. Good to see you.
+
+
+# --- Default fallback: when nothing above matches ---------------------
+default
+  $h Evening.
+  $h Cold one coming, I think. You can feel it.
+
+
+# ============================================================
+#  .dlg QUICK REFERENCE   (everything after # is a comment)
+# ============================================================
+#
+# ENTRY KEYS (one block each; pick the matching entry by tags)
+#   default            # fallback when nothing else matches (lowest priority)
+#   *                  # matches always (priority 0)
+#   mon.bodega         # tags joined by '.' — needs BOTH 'mon' AND 'bodega' in context
+#   event:intro_scene  # an event block, run by the event director
+#
+# ENTRY PRECONDITIONS  (after a '|', separated by ';' — ALL must pass)
+#   mon.bodega | has_pager ; !has_job          # flag set ; flag NOT set
+#   * | trust >= 50                            # compare a stat (ops: >= <= == != > <)
+#   * | event_done met_hank ; has_item slim_jim
+#
+# BODY (indented under the key; tabs or spaces, must be deeper than key)
+#   $h Hey there.          # $<code> = portrait/speaker code, rest = text
+#   And welcome.           # continuation line (appends to previous text)
+#   $b                     # page break (next text is a new box)
+#
+# QUESTIONS / CHOICES
+#   $q                                         # start a choice block
+#     --> "Sure thing." | set global:has_job   # response | clauses
+#     --> "Not now." | trust < 20              # response shown only if clause passes
+#       $h Suit yourself.                      # indented = follow-up after picking
+#   $r                                         # END the question block (required!)
+#
+# RESPONSE CLAUSES  (after '|', ';'-separated — preconditions AND effects mix freely)
+#   EFFECTS:   set NAME      # set flag true   (NPC-local unless 'global:' prefix)
+#              clear NAME     # set flag false
+#              set global:has_job   # GLOBAL flag (autoloads listen to these!)
+#              trust +5       # stat delta (trust / affinity), +N or -N
+#              affinity -2
+#   PRECONDS:  same forms as entry preconditions (flags, compare, has_item, event_done)
+# ============================================================
