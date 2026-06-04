@@ -123,6 +123,6 @@ func _refresh() -> void:
 	cash_label.text = "Cash: %s" % Wallet.format_balance(Wallet.POOL_CASH)
 	bank_label.text = "Bank: %s" % Wallet.format_balance(Wallet.POOL_CLEAN)
 	if _atm != null:
-		feedback_label.text = "Weekly deposit limit: $%d (%d left). Exceeding may flag your account." % [
+		feedback_label.text = "Weekly deposit limit: $%d ($%d left). Exceeding may flag your account." % [
 			_atm.weekly_cap(), _atm.remaining_capacity(),
 		]

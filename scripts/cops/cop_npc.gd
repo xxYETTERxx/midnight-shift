@@ -51,6 +51,7 @@ func _ready() -> void:
 	super._ready()
 	print("[CopNPC] %s ready, profile=%s" % [name, profile.profile_id if profile else "<NONE>"])
 	PoliceSystem.register_cop(self)
+	State.ROUTINE
 	if profile != null and profile.sprite_frames != null:
 		sprite_frames = profile.sprite_frames
 

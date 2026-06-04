@@ -9,6 +9,7 @@
 script = ExtResource("1_bnv0t")
 
 [node name="Sprite" type="Sprite2D" parent="." unique_id=2098923008]
+scale = Vector2(0.8, 0.8)
 
 [node name="Interactable" parent="." unique_id=702434313 instance=ExtResource("2_d3gfk")]
 prompt_text = "Pick Up"

@@ -12,7 +12,7 @@ extends Node2D
 # expose facing_vec via a property. Falls back to Vector2.DOWN.
 
 # Cone width for the FOV check.
-@export var fov_degrees: float = 110.0
+@export var fov_degrees: float = 130.0
 
 # Per-crime-type reaction weight. Missing keys default to 1.0.
 # Civilian defaults are usually fine; cops override via CopProfile.

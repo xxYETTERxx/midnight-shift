@@ -1,13 +1,11 @@
 Todo:
 Street deal alley - update waypoints
-BarMinigame
-- progress bars
-- patience time
-- drink time
-- layout
-- station artwork
-
+Bar - Beth Placement
 Collapsing at work
+
+eyeball tax calculation
+
+progressbar depth
 
 
 New:

@@ -38,14 +38,13 @@
 [ext_resource type="Resource" uid="uid://bx0o1rt8wingx" path="res://data/items/Weed_stuff/weed_oz.tres" id="28_q6yq0"]
 [ext_resource type="PackedScene" uid="uid://hw82pd7bflqo" path="res://scenes/components/payphone.tscn" id="29_dcube"]
 [ext_resource type="PackedScene" uid="uid://ctijaiye5o1y2" path="res://scenes/components/meet_spot.tscn" id="33_qstjl"]
-[ext_resource type="PackedScene" uid="uid://d0kkcujya3o5i" path="res://scenes/npcs/cop_patrol.tscn" id="36_6v2lt"]
 [ext_resource type="PackedScene" uid="uid://yollthfbii5t" path="res://scenes/components/bottle_region.tscn" id="38_kkplr"]
 [ext_resource type="PackedScene" uid="uid://b04necycv535f" path="res://scenes/components/atm.tscn" id="40_q6y08"]
 
 [sub_resource type="NavigationPolygon" id="NavigationPolygon_cq4bk"]
-vertices = PackedVector2Array(169.03125, 91.9375, 2067.8516, 102.96094, 2115.7031, 197, 154.11719, 197, 39.9375, 183.14844, -393.89844, 965.21094, -508.03125, 967.77344, -510.96094, 75.921875, -385.89844, 176.85156, 39.960938, 71.92969, 145.10938, 973.2422, 44.929688, 975.7422, 41.960938, -489, 167.03125, -489)
-polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3, 4), PackedInt32Array(5, 6, 7, 8), PackedInt32Array(4, 8, 7, 9, 0), PackedInt32Array(10, 11, 4, 3), PackedInt32Array(12, 13, 0, 9)])
-outlines = Array[PackedVector2Array]([PackedVector2Array(2074, 93, 179, 82, 177, -499, 32, -499, 30, 62, -521, 66, -518, 978, -384, 975, -376, 187, 30, 193, 35, 986, 155, 983, 164, 207, 2132, 207)])
+vertices = PackedVector2Array(32.882813, 353.1328, -363.78906, 347.8672, -925, -627.0625, -932, -700, -474.1328, -700, 186.67969, -613.0469, -745.14844, 792.1328, -742.14844, 589.75, -359.3672, 618, 2128.039, 975, -368.78125, 585.4531, -602.8672, 572.53906, -600.8672, 419.21875, -1044.1406, 976.9922, -1046.8516, 788.1328, 36.117188, 618, 2135.9375, -597.0781, -759.8594, 558.0703, -988, 559.90625, -988, 20.367188, -757.8594, 415.78125, -1304.0469, 8.3671875, -1307.9297, -625.0469, -471.1328, -923.8594, 40.671875, -917.0781)
+polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3, 4, 5), PackedInt32Array(6, 7, 8, 9), PackedInt32Array(1, 10, 11, 12), PackedInt32Array(13, 14, 6, 9), PackedInt32Array(9, 8, 15), PackedInt32Array(5, 16, 9, 15, 0), PackedInt32Array(17, 18, 19, 20), PackedInt32Array(21, 22, 2, 19), PackedInt32Array(4, 23, 24, 5), PackedInt32Array(20, 19, 2, 1, 12)])
+outlines = Array[PackedVector2Array]([PackedVector2Array(2146, -607, 2138, 985, -1054, 987, -1057, 778, -755, 782, -752, 579, -359, 608, 26, 608, 23, 363, -354, 358, -359, 596, -613, 582, -611, 429, -748, 426, -750, 568, -998, 570, -998, 30, -1314, 18, -1318, -635, -936, -637, -943, -710, -484, -710, -481, -934, 47, -927, 193, -623)])
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_v2qp0"]
 texture = ExtResource("5_8y0ps")
@@ -1888,7 +1887,7 @@ daily_buy_budget = 160
 offers_front = true
 front_offer_item = ExtResource("12_6dlou")
 front_offer_count = 28
-front_offer_debt = 230
+front_offer_debt = 210
 rotating_pick_count = 0
 
 [node name="Deal_Spots" type="Node2D" parent="Interatctables" unique_id=1371200833]
@@ -1926,9 +1925,6 @@ position = Vector2(-168, 202)
 
 [node name="ATM" parent="Interatctables" unique_id=1479235893 instance=ExtResource("40_q6y08")]
 position = Vector2(-164, 504)
-
-[node name="CopNpc" parent="Interatctables" unique_id=1791349545 instance=ExtResource("36_6v2lt")]
-position = Vector2(15, 157)
 
 [node name="Doorways" type="Node2D" parent="." unique_id=2114661946]
 position = Vector2(0, 1)
@@ -2033,12 +2029,12 @@ facing = "north"
 
 [node name="meet_spot_2_corner" parent="Waypoints" unique_id=496420311 instance=ExtResource("7_1q30a")]
 position = Vector2(-447, 333)
-waypoint_id = &"hardware_w_junc"
+waypoint_id = &"meet_spot_2_corner"
 facing = "north"
 
 [node name="meet_spot_3_corner" parent="Waypoints" unique_id=189452530 instance=ExtResource("7_1q30a")]
 position = Vector2(-85, -38)
-waypoint_id = &"hardware_w_junc"
+waypoint_id = &"meet_spot_3_corner"
 facing = "north"
 
 [node name="oliver_home" parent="Waypoints" unique_id=1120979751 instance=ExtResource("7_1q30a")]

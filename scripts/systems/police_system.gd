@@ -36,6 +36,10 @@ func _ready() -> void:
 	_rng.randomize()
 	RoomManager.room_changed.connect(_on_room_changed)
 	TimeSystem.minute_tick.connect(_on_minute_tick)
+	var to_end: Array = _pursuers.values()
+	for cop in to_end:
+		if is_instance_valid(cop):
+			cop.end_pursuit()
 
 
 # --- Registration -------------------------------------------------------
@@ -74,7 +78,7 @@ func _on_cop_state_changed(new_state: int, cop: CopNPC) -> void:
 
 
 func _on_player_caught(cop: CopNPC) -> void:
-	CrimeSystem.execute_bust(&"pursuit", &"", cop)
+	CrimeSystem.execute_bust(&"pursuit", &"")
 	player_caught.emit(cop)
 
 

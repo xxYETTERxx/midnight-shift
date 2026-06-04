@@ -15,7 +15,7 @@ const BUST_FINE: int = 50
 const BUST_SKIP_HOURS: int = 2
 const BUST_WAKE_ROOM: String = "res://scenes/rooms/city_central.tscn"
 const BUST_WAKE_GROUP: StringName = &"default"   # spawn marker group
-const BUST_LIE_BEAT: float = 0.7   # seconds the lying-down pose shows before fade
+const BUST_LIE_BEAT: float = 2.0   # seconds the lying-down pose shows before fade
 
 
 signal crime_began(crime_id: int, crime_type: StringName, position: Vector2, area_id: StringName)
@@ -45,6 +45,7 @@ var _eval_timer: float = 0.0
 # reads status counts as severity. Persisted via save_state.
 var _bust_log: Array = []
 var _bust_pending_respawn: bool = false
+var _busted: bool = false
 # NPC witness report chance — a nosy straight who saw it tells someone.
 const NPC_REPORT_CHANCE: float = 0.35
 
@@ -92,7 +93,9 @@ func begin_crime(crime_type: StringName, source: Object, position: Vector2, area
 
 func end_crime(crime_id: int, outcome: Outcome) -> void:
 	if not _active.has(crime_id):
+		print("no crime IDd")
 		return
+	print("crimeID YES")
 	var entry: Dictionary = _active[crime_id]
 	_active.erase(crime_id)
 	for w in WitnessRegistry._witnesses.values():
@@ -120,7 +123,10 @@ func report_timed_crime(crime_type: StringName, position: Vector2, area_id: Stri
 
 # --- Busts & confiscation -----------------------------------------------
 
-func execute_bust(crime_type: StringName = &"pursuit", area_id: StringName = &"", cop: Node = null) -> void:
+func execute_bust(crime_type: StringName = &"pursuit", area_id: StringName = &"") -> void:
+	if _busted:
+		return
+	_busted = true
 	var player: Node = RoomManager.get_player()
 
 	# Beat 1 — lying-down pose, briefly, before the screen blacks out.
@@ -177,10 +183,11 @@ func _play_bust_pose(player: Node) -> void:
 	# overwrite the lie-down pose each frame, then play the pose if it exists.
 	player.set_process(false)
 	player.set_physics_process(false)
-	var sprite = player.get_node_or_null("Sprite")  # AnimatedSprite2D
+	var dir = player.last_direction
+	var sprite = player.get_node_or_null("AnimatedSprite2D")  # AnimatedSprite2D
 	if sprite != null and sprite.sprite_frames != null \
-			and sprite.sprite_frames.has_animation("lie_down"):
-		sprite.play("lie_down")
+			and sprite.sprite_frames.has_animation("fall_s"):
+		sprite.play("fall_" + dir)
 
 
 
@@ -193,6 +200,7 @@ func _on_time_skipped(_from: int, _to: int, context: Dictionary) -> void:
 
 	# change_room rebuilds the room (even if it's the same one) and positions
 	# the player at SpawnPoints/default itself — no manual placement needed.
+	_busted = false
 	RoomManager.change_room(BUST_WAKE_ROOM, "default")
 
 	# Re-enable player control now that they've been moved.
@@ -200,6 +208,9 @@ func _on_time_skipped(_from: int, _to: int, context: Dictionary) -> void:
 	if player != null:
 		player.set_process(true)
 		player.set_physics_process(true)
+
+func _on_room_changed(room_name: String) -> void:
+	end_crime(0,Outcome.COMPLETED)
 
 # Central bust handler. Confiscates all DRUG-category items from the player,
 # logs the bust for the courthouse ledger, and emits player_busted.
@@ -285,7 +296,7 @@ func _evaluate_one(crime_id: int, delta: float) -> void:
 		return
 	
 	if entry["source"] != null and not is_instance_valid(entry["source"]):
-		_active.erase(crime_id)
+		end_crime(crime_id, Outcome.CANCELLED)
 		return
 
 	var player: Node2D = RoomManager.get_player()

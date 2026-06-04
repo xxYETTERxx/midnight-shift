@@ -137,9 +137,14 @@ func _reconcile_npc(npc_id: StringName) -> void:
 	if not is_live:
 		_materialize(npc_id, window)
 	else:
-		var npc: ScheduledNPC = _live_npcs[key]
-		# Cops (and anyone else that opts into override) drive their own
-		# pose during pursuit/investigate. Skip schedule updates for them.
+		var raw = _live_npcs[key]   # untyped — never assign a freed node to a typed var
+		if raw == null or not is_instance_valid(raw):
+			# Entry points at a node that's been freed (room rebuilt during a
+			# bust/skip, etc.). Drop the stale ref and re-materialize fresh.
+			_live_npcs.erase(key)
+			_materialize(npc_id, window)
+			return
+		var npc: ScheduledNPC = raw
 		if npc.has_method("is_overridden") and npc.call("is_overridden"):
 			return
 		_apply_pose(npc, entry, window)
