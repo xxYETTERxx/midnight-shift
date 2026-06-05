@@ -56,6 +56,9 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
+	_prune_dead_sources()
+	if _active.is_empty():
+		return
 	if _active.is_empty():
 		return
 	if int(Time.get_ticks_msec() / 1000) % 2 == 0 and _eval_timer == 0.0:
@@ -66,6 +69,12 @@ func _process(delta: float) -> void:
 	var elapsed: float = _eval_timer
 	_eval_timer = 0.0
 	_evaluate_all(elapsed)
+
+func _prune_dead_sources() -> void:
+	for crime_id in _active.keys():
+		var src = _active[crime_id]["source"]
+		if src != null and (not is_instance_valid(src) or (src is Node and src.is_queued_for_deletion())):
+			end_crime(crime_id, Outcome.CANCELLED)
 
 
 # --- Public API ---------------------------------------------------------
@@ -291,11 +300,12 @@ func _evaluate_one(crime_id: int, delta: float) -> void:
 	if not _active.has(crime_id):
 		return
 	var entry: Dictionary = _active[crime_id]
-	if entry.has("expires_at") and Time.get_ticks_msec() / 1000.0 >= entry["expires_at"]:
-		end_crime(crime_id, Outcome.COMPLETED)
-		return
-	
-	if entry["source"] != null and not is_instance_valid(entry["source"]):
+	var src = entry["source"]
+	# A sustained crime whose source node has been freed (or is queued to
+	# free this frame — room change, day rollover, minigame exit) can never
+	# be ended by that source's own code path. End it CANCELLED here so heat
+	# config, notice-clear, and crime_ended listeners all run exactly once.
+	if src != null and (not is_instance_valid(src) or (src is Node and src.is_queued_for_deletion())):
 		end_crime(crime_id, Outcome.CANCELLED)
 		return
 
@@ -310,7 +320,6 @@ func _evaluate_one(crime_id: int, delta: float) -> void:
 	if not entry["witnessed"]:
 		entry["witnessed"] = true
 		crime_witnessed.emit(crime_id, entry["type"], entry["position"], entry["area_id"], witness)
-		_record_witness(crime_id, entry["type"], entry["area_id"], witness)
 
 	var owner_node: Node = witness.get_witness_owner()
 	if owner_node is CopNPC:

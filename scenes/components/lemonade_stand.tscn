@@ -1,0 +1,41 @@
+[gd_scene format=3 uid="uid://dw4fo8yf7buuq"]
+
+[ext_resource type="Script" uid="uid://bycsl0bhcgiiy" path="res://scripts/components/front.gd" id="1_qmkes"]
+[ext_resource type="PackedScene" uid="uid://l6jfg123c1fw" path="res://scenes/components/interactable.tscn" id="2_bnb25"]
+[ext_resource type="Texture2D" uid="uid://c2i31dm032efx" path="res://art/objects/Interactables/Fronts/lemonade_stand2.png" id="2_c7ao8"]
+[ext_resource type="Texture2D" uid="uid://1pbmb3cyi21u" path="res://art/objects/Interactables/Fronts/lemonade_stand3.png" id="3_rru4w"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_c7ao8"]
+size = Vector2(67.5, 20)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_py2mf"]
+size = Vector2(74.25001, 27.749989)
+
+[node name="LemonadeStand" type="Node2D" unique_id=2042810441]
+y_sort_enabled = true
+scale = Vector2(0.7, 0.7)
+script = ExtResource("1_qmkes")
+front_id = &"lemonade_stand"
+max_limit = 500
+purchase_price = 1000
+unowned_texture = ExtResource("2_c7ao8")
+owned_texture = ExtResource("3_rru4w")
+
+[node name="Sprite" type="Sprite2D" parent="." unique_id=2130959709]
+y_sort_enabled = true
+texture = ExtResource("2_c7ao8")
+
+[node name="Interactable" parent="." unique_id=702434313 instance=ExtResource("2_bnb25")]
+prompt_text = "Clean Money"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Interactable" unique_id=759146932]
+position = Vector2(-3.576278e-06, -1.2499994)
+scale = Vector2(0.9999998, 0.9999998)
+shape = SubResource("RectangleShape2D_c7ao8")
+
+[node name="StaticBody2D" type="StaticBody2D" parent="." unique_id=1056779814]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D" unique_id=1034454541]
+position = Vector2(0.37500256, 30.124983)
+scale = Vector2(0.9999995, 0.9999995)
+shape = SubResource("RectangleShape2D_py2mf")

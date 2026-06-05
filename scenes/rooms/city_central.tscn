@@ -40,6 +40,7 @@
 [ext_resource type="PackedScene" uid="uid://ctijaiye5o1y2" path="res://scenes/components/meet_spot.tscn" id="33_qstjl"]
 [ext_resource type="PackedScene" uid="uid://yollthfbii5t" path="res://scenes/components/bottle_region.tscn" id="38_kkplr"]
 [ext_resource type="PackedScene" uid="uid://b04necycv535f" path="res://scenes/components/atm.tscn" id="40_q6y08"]
+[ext_resource type="PackedScene" uid="uid://dw4fo8yf7buuq" path="res://scenes/components/lemonade_stand.tscn" id="41_6v2lt"]
 
 [sub_resource type="NavigationPolygon" id="NavigationPolygon_cq4bk"]
 vertices = PackedVector2Array(32.882813, 353.1328, -363.78906, 347.8672, -925, -627.0625, -932, -700, -474.1328, -700, 186.67969, -613.0469, -745.14844, 792.1328, -742.14844, 589.75, -359.3672, 618, 2128.039, 975, -368.78125, 585.4531, -602.8672, 572.53906, -600.8672, 419.21875, -1044.1406, 976.9922, -1046.8516, 788.1328, 36.117188, 618, 2135.9375, -597.0781, -759.8594, 558.0703, -988, 559.90625, -988, 20.367188, -757.8594, 415.78125, -1304.0469, 8.3671875, -1307.9297, -625.0469, -471.1328, -923.8594, 40.671875, -917.0781)
@@ -1798,6 +1799,7 @@ tile_map_data = PackedByteArray("AABgAPH/AgAxAAIAAABgAPL/AgAxAAMAAABgAPP/AgAxAAQ
 tile_set = ExtResource("1_ijt6s")
 
 [node name="NavRegion" type="NavigationRegion2D" parent="." unique_id=249366370]
+visible = false
 position = Vector2(52, -96)
 navigation_polygon = SubResource("NavigationPolygon_cq4bk")
 
@@ -2292,3 +2294,6 @@ position = Vector2(-646, 799)
 piles_min = 0
 piles_max = 6
 region_id = &"hardware"
+
+[node name="LemonadeStand" parent="." unique_id=2042810441 instance=ExtResource("41_6v2lt")]
+position = Vector2(266, -73)

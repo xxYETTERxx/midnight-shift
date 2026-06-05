@@ -395,7 +395,6 @@ func _spawn_cop() -> void:
 		return
 
 	var path: PackedVector2Array = _paths[_rng.randi() % _paths.size()]
-
 	# Patrol points are stored in customer_layer space; cops want global.
 	var patrol_points: Array[Vector2] = []
 	for p in path:

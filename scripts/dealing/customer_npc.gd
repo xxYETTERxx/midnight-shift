@@ -5,7 +5,6 @@ extends Node2D
 # Walks an authored route to the meet spot at WALK_SPEED, then idles.
 # Sale completes through _on_interacted once they've arrived.
 
-const RAW_BUD_ID: StringName = &"dime_bag_full"
 const RETAIL_MULTIPLIER: float = 1.0
 
 # Source of truth for walk speed. MeetingManager reads this when computing
@@ -27,6 +26,7 @@ const PREP_TIME_MIN: float = 1.7
 @onready var _progress_bar: ProgressBar = $ProgressBar
 
 var meeting_id: StringName = &""
+var RAW_BUD_ID: StringName = &"weed_buds"
 
 # Walk state
 var _route: Array[Vector2] = []
@@ -51,6 +51,7 @@ func _ready() -> void:
 	_progress_bar.min_value = 0.0
 	_progress_bar.max_value = 1.0
 	_progress_bar.value = 0.0
+	var player := get_tree().get_first_node_in_group("player")
 
 
 # Called by the spawner right after instantiation to hook this NPC up to
@@ -152,7 +153,6 @@ func _on_interacted(player_node: Node) -> void:
 		return
 
 	if not _arrived:
-		print("[Deal] %s is still on the way." % customer.display_name)
 		return
 
 	var player := get_tree().get_first_node_in_group("player")
@@ -160,10 +160,11 @@ func _on_interacted(player_node: Node) -> void:
 		return
 	var inv: Inventory = player.inventory
 
+	if inv.has_item(&"dime_bag_full"):
+		RAW_BUD_ID = &"dime_bag_full"
 	var have: int = _count_item(inv, RAW_BUD_ID)
 	if have < meeting.quantity_requested:
-		print("[Deal] %s: \"You're short. Come back when you've got %d.\"" %
-			[customer.display_name, meeting.quantity_requested])
+		NotificationSystem.info("You're short. Come back when you've got")
 		return
 
 	# Validation passed — open the timed deal window. The sale itself happens
@@ -177,19 +178,6 @@ func _on_interacted(player_node: Node) -> void:
 	var area_id: StringName = _current_area_id()
 	_crime_id = CrimeSystem.begin_crime(CRIME_TYPE, self, global_position, area_id)
 
-	# Deduct product, pay out at retail margin.
-	_consume_item(inv, RAW_BUD_ID, meeting.quantity_requested)
-	var item: ItemDef = ItemRegistry.get_item(RAW_BUD_ID)
-	var unit_price: int = 0
-	if item != null:
-		unit_price = int(round(item.base_value * RETAIL_MULTIPLIER))
-	var payout: int = unit_price * meeting.quantity_requested
-	Wallet.add(payout)
-
-	print("[Deal] %s paid $%d for %d units" %
-		[customer.display_name, payout, meeting.quantity_requested])
-	MeetingManager.mark_completed(meeting.id)
-	# MeetingSpawner listens for meeting_completed and despawns us.
 
 
 func _resolve_meeting() -> Meeting:
@@ -249,6 +237,7 @@ func _complete_action() -> void:
 		return
 	var customer: Customer = meeting.get_customer()
 	var player := get_tree().get_first_node_in_group("player")
+	_crime_id = -1
 	if player == null or customer == null:
 		return
 	var inv: Inventory = player.inventory
@@ -308,3 +297,8 @@ func _current_area_id() -> StringName:
 	if RoomManager.current_room == null:
 		return &""
 	return StringName(RoomManager.current_room.scene_file_path.get_file().get_basename())
+	
+func _exit_tree() -> void:
+	if _crime_id != -1:
+		CrimeSystem.end_crime(_crime_id, CrimeSystem.Outcome.CANCELLED)
+		_crime_id = -1

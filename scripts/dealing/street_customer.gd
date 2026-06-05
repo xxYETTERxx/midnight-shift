@@ -288,3 +288,12 @@ func player_cancel() -> void:
 	if _action_player == null:
 		return
 	_cancel_action()
+	
+func _exit_tree() -> void:
+	# Safety net: if we're freed mid-deal (room change, day rollover, scene
+	# teardown) none of the normal ending paths ran. End the crime CANCELLED
+	# so it can't linger in CrimeSystem._active and re-dispatch pursuit
+	# against every cop that later sees the player.
+	if _crime_id != -1:
+		CrimeSystem.end_crime(_crime_id, CrimeSystem.Outcome.CANCELLED)
+		_crime_id = -1

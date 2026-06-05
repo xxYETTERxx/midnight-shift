@@ -8,7 +8,13 @@ eyeball tax calculation
 progressbar depth
 
 
+
+fix hardware store dealspot
+
+
+
 New:
-Personal Heat Mechanics
+add new dealspot
+Awareness skill
 Courtdates
 Busted Tally = reporting hooks in place

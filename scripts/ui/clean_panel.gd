@@ -4,8 +4,7 @@ extends Control
 # (capped, suspicion on overage); withdraw bank -> cash directly (unmetered).
 
 @onready var amount_field: LineEdit = $PanelContainer/VBoxContainer/AmountField
-@onready var deposit_button: Button = $PanelContainer/VBoxContainer/DepositButton
-@onready var withdraw_button: Button = $PanelContainer/VBoxContainer/WithdrawButton
+@onready var clean_button: Button = $PanelContainer/VBoxContainer/CleanButton
 @onready var cancel_button: Button = $PanelContainer/VBoxContainer/CancelButton
 @onready var cash_label: Label = $PanelContainer/VBoxContainer/CashLabel
 @onready var bank_label: Label = $PanelContainer/VBoxContainer/BankLabel
@@ -15,10 +14,9 @@ var _is_open: bool = false
 
 
 func _ready() -> void:
-	add_to_group("atm_panel")
+	add_to_group("clean_panel")
 	visible = false
-	deposit_button.pressed.connect(_on_deposit)
-	withdraw_button.pressed.connect(_on_withdraw)
+	clean_button.pressed.connect(_on_deposit)
 	cancel_button.pressed.connect(_on_cancel)
 	amount_field.text_changed.connect(_on_amount_changed)
 	Wallet.balance_changed.connect(_on_wallet_changed)
@@ -62,34 +60,18 @@ func _on_deposit() -> void:
 		feedback_label.text = "Not enough cash on hand."
 		return
 
-	var result: Dictionary = LaunderingSystem.clean_through_bank(amount)
+	var result: Dictionary = LaunderingSystem.clean_through_front("lemonade_stand",amount)
 	if not result["ok"]:
 		feedback_label.text = "Deposit failed."
 		return
 
 	amount_field.text = ""
 	if result["overage"] > 0:
-		NotificationSystem.info("Deposited $%d. That's a lot to bank at once." % amount)
+		NotificationSystem.info("Deposited $%d. That's a lot to clean at once." % amount)
 	else:
 		feedback_label.text = "Deposited $%d." % amount
 		NotificationSystem.info("Deposited $%d to the bank." % amount)
 	_refresh()
-
-
-func _on_withdraw() -> void:
-	var amount := _parse_amount()
-	if amount <= 0:
-		feedback_label.text = "Enter a valid amount."
-		return
-	if not Wallet.can_afford(amount, Wallet.POOL_CLEAN):
-		feedback_label.text = "Not enough in the bank."
-		return
-	if Wallet.withdraw(amount):
-		feedback_label.text = "Withdrew $%d." % amount
-		amount_field.text = ""
-		NotificationSystem.info("Withdrew $%d from the bank." % amount)
-	_refresh()
-
 
 
 func _on_amount_changed(_new_text: String) -> void:
@@ -115,5 +97,5 @@ func _refresh() -> void:
 	cash_label.text = "Cash: %s" % Wallet.format_balance(Wallet.POOL_CASH)
 	bank_label.text = "Bank: %s" % Wallet.format_balance(Wallet.POOL_CLEAN)
 	feedback_label.text = "Weekly deposit limit: $%d (%d left). Exceeding may flag your account." % [
-		LaunderingSystem.bank_weekly_cap(), LaunderingSystem.bank_remaining_capacity(),
+		LaunderingSystem.front_cap("lemonade_stand"), LaunderingSystem.front_remaining_capacity("lemonade_stand"),
 	]

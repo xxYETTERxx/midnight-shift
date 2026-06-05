@@ -316,7 +316,7 @@ func mark_completed(meeting_id: StringName) -> void:
 	var c: Customer = m.get_customer()
 	if c != null:
 		c.times_dealt += 1
-		c.trust = min(c.trust + 5, 100)
+		c.trust = min(c.trust + 8, 100)
 		c.affinity = min(c.affinity + 2, 100)
 		var referred: Customer = CustomerRoster.try_referral_from(c)
 		if referred != null:
@@ -328,7 +328,6 @@ func mark_completed(meeting_id: StringName) -> void:
 	var spot_info: Dictionary = get_spot_info(m.spot_id)
 	var pos: Vector2 = spot_info.get("position", Vector2.ZERO)
 	var area: StringName = StringName(String(spot_info.get("scene_path", "")).get_file().get_basename())
-	CrimeSystem.report_instant_crime(&"weed_deal", pos, area)
 
 func get_meeting(id: StringName) -> Meeting:
 	return _meetings.get(String(id), null)

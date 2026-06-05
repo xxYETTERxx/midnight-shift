@@ -67,6 +67,7 @@ BarShiftSession="*uid://d2iivsrdado2u"
 EmploymentSystem="*uid://bjbd2owl55jm0"
 SuspicionSystem="*uid://dcgrwnuqx23kb"
 CourtSummons="*uid://dyf6nn6xtx3hw"
+LaunderingSystem="*uid://b5udixi6mj6u5"
 
 [display]
 
@@ -78,6 +79,10 @@ window/stretch/scale_mode="integer"
 [dotnet]
 
 project/assembly_name="Midnight Shift"
+
+[global_group]
+
+clean_panel=""
 
 [input]
 
