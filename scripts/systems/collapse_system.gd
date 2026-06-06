@@ -67,7 +67,7 @@ func _next_wake_minute() -> int:
 	var minutes_per_day: int = 24 * 60
 	var current: int = TimeSystem.total_minutes
 	var days_passed: int = current / minutes_per_day
-	return (days_passed + 1) * minutes_per_day + (16 * 60)
+	return (days_passed + 1) * minutes_per_day + (0 * 60)
 
 
 # --- Penalties ---------------------------------------------------------

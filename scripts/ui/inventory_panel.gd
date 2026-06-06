@@ -1,7 +1,7 @@
 extends Control
 
 const SLOT_SCENE := preload("res://scenes/ui/hotbar_slot.tscn")
-const HOTBAR_SLOT_COUNT: int = 6
+const HOTBAR_SLOT_COUNT: int = 12
 const DROPPED_ITEM_SCENE := preload("res://scenes/components/dropped_item.tscn")
 
 @onready var hotbar_row: HBoxContainer = $PanelContainer/VBoxContainer/HotbarRow

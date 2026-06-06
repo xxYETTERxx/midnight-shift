@@ -3925,15 +3925,15 @@ text = "Leave"
 [node name="Path1" type="Node2D" parent="Paths" unique_id=1035100720]
 
 [node name="entry" type="Marker2D" parent="Paths/Path1" unique_id=496833306]
-position = Vector2(-162, 24)
+position = Vector2(-164, 20)
 
 [node name="exit" type="Marker2D" parent="Paths/Path1" unique_id=1503427771]
-position = Vector2(162, 22)
+position = Vector2(163, 19)
 
 [node name="Path2" type="Node2D" parent="Paths" unique_id=509608235]
 
 [node name="entry" type="Marker2D" parent="Paths/Path2" unique_id=767045534]
-position = Vector2(-163, 24)
+position = Vector2(-163, 20)
 
 [node name="pivot" type="Marker2D" parent="Paths/Path2" unique_id=887261543]
 position = Vector2(37, 20)
@@ -3944,10 +3944,10 @@ position = Vector2(38, -67)
 [node name="Path3" type="Node2D" parent="Paths" unique_id=380624184]
 
 [node name="entry" type="Marker2D" parent="Paths/Path3" unique_id=1453166091]
-position = Vector2(162, 22)
+position = Vector2(162, 19)
 
 [node name="pivot" type="Marker2D" parent="Paths/Path3" unique_id=1404492455]
-position = Vector2(37, 20)
+position = Vector2(37, 19)
 
 [node name="exit" type="Marker2D" parent="Paths/Path3" unique_id=2126600914]
 position = Vector2(38, -67)

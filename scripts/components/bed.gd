@@ -5,20 +5,22 @@ extends Node2D
 @onready var interactable: Interactable = $Interactable
 @onready var wake_spot: Marker2D = $WakeSpot
 
+@export var restore_to: float = -1.0   # -1 = full (bed); set 80 for a bedroll
+
 
 func _ready() -> void:
 	interactable.interacted.connect(_on_interacted)
 
 
 func _on_interacted(player: Node) -> void:
-	# Connect one-shot so we only handle this specific skip
-	print("[bed] interact, connecting one-shot. in_tree=", is_inside_tree())
 	TimeSkipSystem.time_skipped.connect(_on_time_skipped, CONNECT_ONE_SHOT)
 	var wake_minute: int = player.call("_next_wake_minute")
+	var cap: float = restore_to if restore_to >= 0.0 else StaminaSystem.maximum()
 	TimeSkipSystem.skip_to(wake_minute, {
 		"kind": "sleep",
 		"safe": true,
 		"voluntary": true,
+		"restore_to": cap,
 	})
 
 

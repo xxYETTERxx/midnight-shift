@@ -7,7 +7,7 @@ extends Node
 # Tunables — see design notes in chat.
 const MAX_VALUE: float = 100.0
 const DECAY_PER_HOUR: float = 4.5
-const SLEEP_DECAY_MULT: float = 0.3   
+const SLEEP_DECAY_MULT: float = 0.1
 const SLEEP_DECAY_CAP: float = 40.0   # NEW
 
 # Threshold bands (current >= threshold means we're in that band).

@@ -5,6 +5,7 @@ extends CanvasLayer
 @onready var cash_label: Label = $CashLabel
 @onready var bank_label: Label = $BankLabel
 @onready var debt_label: Label = $DebtLabel
+@onready var weekly_label: Label = $WeeklyLabel
 @onready var skill_debug: Label = $SkillDebug
 
 @onready var stamina_bar: ProgressBar = $StaminaBar
@@ -19,6 +20,7 @@ func _ready() -> void:
 	Wallet.balance_changed.connect(_on_balance_changed)
 	_refresh_cash()
 	_refresh_debt()
+	_refresh_weekly()
 
 	StaminaSystem.stamina_changed.connect(_on_stamina_changed)
 	_on_stamina_changed(StaminaSystem.current_value(), StaminaSystem.maximum())
@@ -35,6 +37,8 @@ func _ready() -> void:
 	_on_winner_changed(InteractionManager.active)
 	
 	DebtSystem.debt_changed.connect(_on_debt_changed)
+	
+	LedgerSystem.net_changed.connect(_on_weekly_changed)
 
 func _on_winner_changed(interactable: Node) -> void:
 	if interactable == null:
@@ -103,6 +107,8 @@ func _on_thirst_changed(current: float, maximum: float) -> void:
 		thirst_bar.modulate = Color(0.7, 0.7, 1.0)
 	else:
 		thirst_bar.modulate = Color.WHITE
+		
+
 
 
 func _on_thirst_threshold(band: String) -> void:
@@ -120,11 +126,17 @@ func _refresh_cash() -> void:
 func _refresh_debt() -> void:
 	debt_label.text = "Debt: " + str(DebtSystem.amount("hank"))
 
+func _refresh_weekly() -> void:
+	weekly_label.text = "Income/Expenses: " + str(LedgerSystem.net_weekly())
+
 func _on_balance_changed(_pool: String, _new_balance: int) -> void:
 	_refresh_cash()
 
 func _on_debt_changed(_vendor_id: StringName, _new_amount: int) -> void:
 	_refresh_debt()
+	
+func _on_weekly_changed(_net: int) -> void:
+	_refresh_weekly()
 
 func _on_skill_debug_refresh(_skill_id: StringName, _new_xp: int) -> void:
 	_refresh_skill_debug()

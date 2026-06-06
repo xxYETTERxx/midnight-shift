@@ -11,11 +11,15 @@ extends Placeable
 @onready var storage: Inventory = $Inventory
 
 var is_open: bool = false
-
+@export var persistent_id: StringName = &""
 
 func _ready() -> void:
 	interactable.interacted.connect(_on_interacted)
 	_refresh_visual()
+	if persistent_id != &"":
+		var saved: Dictionary = WorldStateSystem.get_fixture_inventory(persistent_id)
+		if not saved.is_empty():
+			storage.load_state(saved)
 
 
 func _on_interacted(player: Node) -> void:
@@ -38,6 +42,8 @@ func _open(player: Node) -> void:
 func _close() -> void:
 	is_open = false
 	_refresh_visual()
+	if persistent_id != &"":
+		WorldStateSystem.set_fixture_inventory(persistent_id, storage.save_state())
 	var panel := _find_inventory_panel()
 	if panel != null:
 		panel.close()
@@ -55,6 +61,8 @@ func _refresh_visual() -> void:
 func notify_panel_closed() -> void:
 	is_open = false
 	_refresh_visual()
+	if persistent_id != &"":
+		WorldStateSystem.set_fixture_inventory(persistent_id, storage.save_state())
 
 
 func _find_inventory_panel() -> Node:
@@ -62,6 +70,8 @@ func _find_inventory_panel() -> Node:
 	return get_tree().get_first_node_in_group("inventory_panel")
 
 func can_pickup() -> bool:
+	if persistent_id != &"":
+		return false
 	for stack in storage.slots:
 		if stack != null:
 			return false

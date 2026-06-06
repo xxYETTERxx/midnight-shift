@@ -1,15 +1,16 @@
 extends Node
+# RentSystem — housing facade over LedgerSystem. Owns the "housing" category:
+# registers apartment rent entries, tracks eviction, and re-emits the legacy
+# rent_* signals the HUD already listens to. Real settlement happens in the
+# ledger; this just reacts to housing-category results.
 
-# Rent due day-of-week. 0=Mon, 6=Sun (matches TimeSystem.day_of_week()).
-const RENT_DAY_OF_WEEK: int = 6   # Sunday
-const WARN_DAY_OF_WEEK: int = 5   # Saturday — heads-up the day before
+const HOUSING_CATEGORY: StringName = &"housing"
+const APT1_ENTRY: StringName = &"apartment_1"
+const APT2_ENTRY: StringName = &"apartment_2"
 
-@export var weekly_rent: int = 100
+@export var weekly_rent: int = 100   # per-apartment weekly rent
 
-# Strikes accumulate when the player can't pay on Sunday. 2 strikes = evicted.
-# Eviction is wired but a no-op for MVP — just emits the signal and logs.
-# Post-MVP: kicks player to shanty-town tent (per design doc §5).
-var strikes: int = 0
+var strikes: int = 0   # mirrors ledger's housing strikes for HUD/eviction
 
 signal rent_paid(amount: int)
 signal rent_missed(amount_owed: int, total_strikes: int)
@@ -19,39 +20,53 @@ signal evicted()
 
 func _ready() -> void:
 	SaveSystem.register_savable("rent_system", self)
-	TimeSystem.day_rolled.connect(_on_day_rolled)
+	LedgerSystem.week_due_warning.connect(_on_week_due_warning)
+	LedgerSystem.expense_paid.connect(_on_expense_paid)
+	LedgerSystem.expense_missed.connect(_on_expense_missed)
 
 
-func _on_day_rolled(dow: int, _dom: int) -> void:
-	if dow == WARN_DAY_OF_WEEK:
-		if RelationshipSystem.get_global_flag("apartment_rented"): 
-			rent_due_warning.emit(weekly_rent)
-			print("[Rent] Due tomorrow: $%d" % weekly_rent)
-	elif dow == RENT_DAY_OF_WEEK:
-		_collect()
+# --- Apartment ownership (progression flags) ----------------------------
+
+func rent_first_apartment() -> void:
+	LedgerSystem.set_entry(APT1_ENTRY, HOUSING_CATEGORY, -weekly_rent, "Apartment rent")
 
 
-func _collect() -> void:
-	if Wallet.can_afford(weekly_rent, Wallet.POOL_CLEAN):
-		Wallet.spend(weekly_rent, Wallet.POOL_CLEAN)
-		strikes = 0  # paying clears the slate
-		rent_paid.emit(weekly_rent)
-		print("[Rent] Paid $%d (clean)" % weekly_rent)
-	else:
-		strikes += 1
-		rent_missed.emit(weekly_rent, strikes)
-		print("[Rent] MISSED. Strikes: %d/2" % strikes)
-		if strikes >= 2:
-			evicted.emit()
-			print("[Rent] EVICTED (MVP: no consequence wired yet)")
+func rent_second_apartment() -> void:
+	LedgerSystem.set_entry(APT2_ENTRY, HOUSING_CATEGORY, -weekly_rent, "Second apartment rent")
+
+
+# --- Ledger reactions ---------------------------------------------------
+
+func _on_week_due_warning(_expense_total: int, _income_total: int, by_category: Dictionary) -> void:
+	var housing: int = by_category.get(String(HOUSING_CATEGORY), 0)
+	if housing < 0:
+		rent_due_warning.emit(-housing)
+		print("[Rent] Due tomorrow: $%d" % -housing)
+
+
+func _on_expense_paid(category: StringName, amount: int) -> void:
+	if category != HOUSING_CATEGORY:
+		return
+	strikes = 0
+	rent_paid.emit(amount)
+	print("[Rent] Paid $%d" % amount)
+
+
+func _on_expense_missed(category: StringName, amount_owed: int, total_strikes: int) -> void:
+	if category != HOUSING_CATEGORY:
+		return
+	strikes = total_strikes
+	rent_missed.emit(amount_owed, strikes)
+	print("[Rent] MISSED. Strikes: %d/2" % strikes)
+	if strikes >= 2:
+		evicted.emit()
+		print("[Rent] EVICTED (MVP: no consequence wired yet)")
+
 
 # --- Save/load ---
 
 func save_state() -> Dictionary:
-	return {
-		"strikes": strikes,
-		"weekly_rent": weekly_rent,
-	}
+	return { "strikes": strikes, "weekly_rent": weekly_rent }
 
 
 func load_state(data: Dictionary) -> void:

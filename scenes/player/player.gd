@@ -472,6 +472,7 @@ func _try_use_tool(item: ItemDef) -> bool:
 		&"pager":
 			PagerSystem.activate()
 			RelationshipSystem.set_global_flag("has_pager")
+			LedgerSystem.set_entry(&"pager", &"pager", -10, "Pager service")
 			inventory.consume_active(1)
 			return true
 		&"lottery_scratchers":

@@ -60,15 +60,20 @@ offset_bottom = 108.0
 
 [node name="BankLabel" type="Label" parent="HUD" unique_id=2039296282]
 offset_left = 2.0
-offset_top = 107.45
+offset_top = 105.0
 offset_right = 42.0
-offset_bottom = 130.45001
+offset_bottom = 128.00002
 
 [node name="DebtLabel" type="Label" parent="HUD" unique_id=564621292]
 offset_left = 2.0
-offset_top = 133.605
+offset_top = 125.0
 offset_right = 42.0
-offset_bottom = 156.60509
+offset_bottom = 148.00009
+
+[node name="WeeklyLabel" type="Label" parent="HUD" unique_id=284896658]
+offset_top = 145.0
+offset_right = 40.0
+offset_bottom = 168.0
 
 [node name="PagerIndicator" parent="HUD" unique_id=2099724978 instance=ExtResource("7_8job4")]
 offset_left = 576.0
@@ -172,6 +177,10 @@ offset_bottom = -112.0
 grow_vertical = 0
 
 [node name="TimePickerPanel" parent="HUD" unique_id=573805165 instance=ExtResource("11_jhx03")]
+offset_left = 3.0
+offset_top = 4.0
+offset_right = 3.0
+offset_bottom = 4.0
 
 [node name="NotificationLabel" type="VBoxContainer" parent="HUD" unique_id=1468322041]
 custom_minimum_size = Vector2(200, 0)

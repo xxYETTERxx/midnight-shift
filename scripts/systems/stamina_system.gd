@@ -100,8 +100,17 @@ func _on_time_skipped(_from_min: int, _to_min: int, context: Dictionary) -> void
 	if context.get("kind", "") != "sleep":
 		return
 	var safe: bool = context.get("safe", true)
-	var frac: float = SLEEP_RESTORE_SAFE_FRAC if safe else SLEEP_RESTORE_UNSAFE_FRAC
-	restore(_max * frac)
+	# A sleep source can cap how much it restores TO (bed = full, sleeping
+	# bag = 80). Absent a cap, default to full max. Unsafe sleep still halves
+	# the *gain*, layered on top of whatever the source allows.
+	var restore_cap: float = float(context.get("restore_to", _max))
+	restore_cap = clampf(restore_cap, 0.0, _max)
+	if current >= restore_cap:
+		return  # already at or above what this sleep can give
+	var gain: float = restore_cap - current
+	if not safe:
+		gain *= SLEEP_RESTORE_UNSAFE_FRAC
+	restore(gain)
 
 
 # --- Save / load ---

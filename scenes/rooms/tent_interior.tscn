@@ -1,11 +1,12 @@
 [gd_scene format=4 uid="uid://dc1jpnw162kwj"]
 
 [ext_resource type="TileSet" uid="uid://ctiqnhm16fty4" path="res://data/tilesets/Interiors.tres" id="1_3fvwx"]
-[ext_resource type="PackedScene" uid="uid://yyg1vmqtao4e" path="res://scenes/components/bed.tscn" id="2_7l35j"]
 [ext_resource type="PackedScene" uid="uid://cu0qiy18mj116" path="res://scenes/components/doorway.tscn" id="3_sdwy1"]
 [ext_resource type="PackedScene" uid="uid://cr7eet210fpob" path="res://scenes/components/crafting_station.tscn" id="4_7tqlq"]
+[ext_resource type="PackedScene" uid="uid://dxeydgr1b31tr" path="res://scenes/components/small_stash_box.tscn" id="5_7l35j"]
+[ext_resource type="PackedScene" uid="uid://eo2iftv6se1" path="res://scenes/components/sleeping_bag.tscn" id="5_sdwy1"]
 
-[node name="Tent" type="Node2D" unique_id=818993673 groups=["placement_allowed"]]
+[node name="Tent" type="Node2D" unique_id=818993673]
 y_sort_enabled = true
 
 [node name="Floor" type="TileMapLayer" parent="." unique_id=458429205]
@@ -15,6 +16,7 @@ tile_set = ExtResource("1_3fvwx")
 
 [node name="Walls" type="TileMapLayer" parent="." unique_id=942859512]
 y_sort_enabled = true
+tile_map_data = PackedByteArray("AAACAP3/AQABAAIAAAACAP7/AQABAAMAAAA=")
 tile_set = ExtResource("1_3fvwx")
 
 [node name="CeilingBorder" type="TileMapLayer" parent="." unique_id=1509919357]
@@ -24,18 +26,24 @@ tile_set = ExtResource("1_3fvwx")
 [node name="Interactables" type="Node2D" parent="." unique_id=1630356666]
 y_sort_enabled = true
 
-[node name="Bed" parent="Interactables" unique_id=1771853149 instance=ExtResource("2_7l35j")]
-position = Vector2(-33, 1)
-
 [node name="Doorway" parent="Interactables" unique_id=2084805160 instance=ExtResource("3_sdwy1")]
 position = Vector2(0, 60)
 target_room = "uid://ksdfvpuee8e8"
 target_spawn = "from_tent"
 
 [node name="CraftingStation" parent="Interactables" unique_id=1774684420 instance=ExtResource("4_7tqlq")]
-position = Vector2(36, -28)
+position = Vector2(36, -22)
+
+[node name="Bed" parent="Interactables" unique_id=1771853149 instance=ExtResource("5_sdwy1")]
+position = Vector2(-35, 11)
+scale = Vector2(0.8, 0.8)
 
 [node name="SpawnPoints" type="Node2D" parent="." unique_id=605545023]
 
 [node name="from_outside" type="Marker2D" parent="SpawnPoints" unique_id=1194040583]
 position = Vector2(0, 32)
+
+[node name="Placeables" type="Node2D" parent="." unique_id=1155053077]
+
+[node name="Small_Stash_Box" parent="Placeables" unique_id=1895804887 instance=ExtResource("5_7l35j")]
+position = Vector2(39.999996, 38.999996)

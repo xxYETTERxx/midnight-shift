@@ -113,9 +113,7 @@ func _exit_tree() -> void:
 
 
 func _process(delta: float) -> void:
-	if _bud_left <= 0:
-		# Auto-exit when out of product. Pop speed first so we don't leave
-		# the stack dirty.
+	if _sellable_bud() <= 0:
 		if _speed_active:
 			TimeSystem.pop_speed()
 			_speed_active = false
@@ -264,12 +262,13 @@ func _on_customer_offer_resolved(willing: bool, completed: bool, _customer: Node
 	var qty: int
 	var cash: int
 	if is_raw:
-		# Raw bud: customer buys 1-2 grams, eyeball tax accrues.
-		qty = _rng.randi_range(1, 2)
-		qty = min(qty, _bud_left)
-		if qty <= 0:
-			NotificationSystem.warn("Out of product.")
+		var sellable: int = _sellable_bud()
+		if sellable <= 0:
+			# Everything left is owed to tax — force settle-and-exit.
+			_request_exit()
 			return
+		qty = _rng.randi_range(1, 2)
+		qty = min(qty, sellable)
 		cash = qty * CASH_PER_GRAM
 		_eyeball_loss += float(qty) * _rng.randf_range(0.0, EYEBALL_TAX_MAX_PCT)
 	else:
@@ -300,6 +299,9 @@ func _on_customer_offer_resolved(willing: bool, completed: bool, _customer: Node
 
 # Conversion chance lerps from CONVERT_CHANCE_EMPTY (empty roster) down to
 # CONVERT_CHANCE_FULL (roster at cap), based on current fill fraction.
+func _sellable_bud() -> int:
+	return _bud_left - int(ceil(_eyeball_loss))
+
 func _conversion_chance() -> float:
 	var cap: int = CustomerRoster.MAX_ROSTER_SIZE
 	if cap <= 0:

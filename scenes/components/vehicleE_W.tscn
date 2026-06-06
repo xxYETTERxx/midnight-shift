@@ -34,5 +34,6 @@ position = Vector2(-288, 50)
 shape = SubResource("RectangleShape2D_7a6hb")
 
 [node name="ProgressBar" type="ProgressBar" parent="." unique_id=392351955]
+z_index = 10
 offset_right = 4.0
 offset_bottom = 27.0

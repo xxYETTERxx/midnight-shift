@@ -6,7 +6,7 @@ extends Node
 
 @export var grows_with_strength: bool = false
 
-
+const HOTBAR_DISPLAY_WIDTH: int = 12
 const HOTBAR_SLOT_COUNT: int = 12
 var hotbar_offset: int = 0  # 0 = first row is hotbar, 12 = second row is hotbar
 
@@ -68,6 +68,9 @@ func is_full() -> bool:
 func get_size() -> int:
 	return max_slots
 
+func hotbar_row_width() -> int:
+	var remaining: int = max_slots - hotbar_offset
+	return clampi(remaining, 0, HOTBAR_DISPLAY_WIDTH)
 
 # --- Adding items ---
 
@@ -126,7 +129,7 @@ func consume_active(count: int = 1) -> bool:
 # --- Hotbar selection ---
 
 func set_active_slot(slot: int) -> void:
-	if slot < 0 or slot >= HOTBAR_SLOT_COUNT:
+	if slot < 0 or slot >= hotbar_row_width():
 		return
 	if slot == active_slot:
 		return
@@ -135,10 +138,12 @@ func set_active_slot(slot: int) -> void:
 
 
 func cycle_active_slot(direction: int) -> void:
-	# direction: +1 = next, -1 = previous. Wraps around.
-	var new_slot := (active_slot + direction) % HOTBAR_SLOT_COUNT
+	var width: int = hotbar_row_width()
+	if width <= 0:
+		return
+	var new_slot := (active_slot + direction) % width
 	if new_slot < 0:
-		new_slot += HOTBAR_SLOT_COUNT
+		new_slot += width
 	set_active_slot(new_slot)
 
 
@@ -187,6 +192,9 @@ func expand_slots(new_max: int) -> void:
 		slots[i] = null
 		slot_changed.emit(i)
 	capacity_changed.emit(max_slots)
+	if active_slot >= hotbar_row_width():
+		active_slot = max(hotbar_row_width() - 1, 0)
+		active_slot_changed.emit(active_slot)
 
 
 func _on_skill_level_up(skill_id: StringName, _new_level: int) -> void:
@@ -231,7 +239,7 @@ func load_state(data: Dictionary) -> void:
 			slots[i] = null
 		slot_changed.emit(i)
 	capacity_changed.emit(max_slots)
-	active_slot = data.get("active_slot", 0)
+	active_slot = clampi(active_slot, 0, max(hotbar_row_width() - 1, 0))
 	active_slot_changed.emit(active_slot)
 
 func add_with_data(item: ItemDef, count: int, data: Dictionary) -> int:

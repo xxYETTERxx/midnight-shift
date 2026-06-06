@@ -10,7 +10,7 @@ extends Node
 const WAVE_SIZE_PER_TIER: Array[int] = [0, 1, 1, 1, 1]
 
 # Trust a customer must reach to refer a new buyer into the roster (one-shot).
-const REFERRAL_TRUST_THRESHOLD: int = 45
+const REFERRAL_TRUST_THRESHOLD: int = 35
 
 # Referral chain caps here. Beyond this, escalation is the wholesale track
 # (oz-based, gated separately via Hank) — not this grams chain.
@@ -85,12 +85,14 @@ func active_customers() -> Array:
 # floor; trust 100 unlocks the full range. Capped at ABSOLUTE_MAX_QUANTITY.
 func roll_page_quantity(c: Customer, rng: RandomNumberGenerator) -> int:
 	var trust_norm: float = clamp(c.trust, 0, 100) / 100.0
-	var effective_max: int = int(round(lerp(
+	# Trust raises the FLOOR toward the ceiling. At trust 0 the full band is
+	# open; at trust 100 the floor meets quantity_max, so min == max and the
+	# roll collapses to a guaranteed full order.
+	var effective_min: int = int(round(lerp(
 		float(c.quantity_min), float(c.quantity_max), trust_norm
 	)))
-	if effective_max < c.quantity_min:
-		effective_max = c.quantity_min
-	var rolled: int = rng.randi_range(c.quantity_min, effective_max)
+	effective_min = clamp(effective_min, c.quantity_min, c.quantity_max)
+	var rolled: int = rng.randi_range(effective_min, c.quantity_max)
 	return min(rolled, ABSOLUTE_MAX_QUANTITY)
 
 func roster_size() -> int:

@@ -4,6 +4,7 @@ extends Node2D
 @export var front_id: StringName = &""
 @export var max_limit: int = 4000
 @export var purchase_price: int = 5000   # paid in clean cash (it's a legit asset)
+@export var weekly_upkeep: int = 50
 
 @export var unowned_texture: Texture2D
 @export var owned_texture: Texture2D
@@ -36,6 +37,8 @@ func _on_interacted(player: Node) -> void:
 func _offer_purchase(player):
 	Wallet.spend(purchase_price)
 	LaunderingSystem.register_front(front_id,max_limit)
+	LaunderingSystem.register_front(front_id, max_limit)
+	LedgerSystem.set_entry(front_id, &"laundering_upkeep", -weekly_upkeep, "Front upkeep")
 	_refresh_visual()
 	
 	

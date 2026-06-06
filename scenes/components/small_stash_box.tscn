@@ -1,0 +1,38 @@
+[gd_scene format=3 uid="uid://dxeydgr1b31tr"]
+
+[ext_resource type="Script" uid="uid://d1mo2bc7lu034" path="res://scripts/components/storage_container.gd" id="1_jnaxq"]
+[ext_resource type="Texture2D" uid="uid://da87xnnvco8pq" path="res://art/objects/Placeables/Interactable/stash_boxes/stash_box11.png" id="2_tswr4"]
+[ext_resource type="PackedScene" uid="uid://l6jfg123c1fw" path="res://scenes/components/interactable.tscn" id="4_38weg"]
+[ext_resource type="Script" uid="uid://c40xv63xv46i2" path="res://scripts/items/inventory.gd" id="5_mc1cc"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ljanh"]
+size = Vector2(38, 39)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_jhbcq"]
+size = Vector2(26, 2.75)
+
+[node name="Small_Stash_Box" type="Node2D" unique_id=1895804887]
+scale = Vector2(0.7, 0.7)
+script = ExtResource("1_jnaxq")
+closed_texture = ExtResource("2_tswr4")
+open_texture = ExtResource("2_tswr4")
+
+[node name="ContainerSprite" type="Sprite2D" parent="." unique_id=216935804]
+texture = ExtResource("2_tswr4")
+
+[node name="Interactable" parent="." unique_id=101593171 instance=ExtResource("4_38weg")]
+prompt_text = "Open"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Interactable" unique_id=493495382]
+position = Vector2(0, 2.5)
+shape = SubResource("RectangleShape2D_ljanh")
+
+[node name="StaticBody2D" type="StaticBody2D" parent="." unique_id=404395638]
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D" unique_id=1312047347]
+position = Vector2(0, -6)
+shape = SubResource("RectangleShape2D_jhbcq")
+
+[node name="Inventory" type="Node2D" parent="." unique_id=1110328950]
+script = ExtResource("5_mc1cc")

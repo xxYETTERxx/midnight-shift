@@ -8,13 +8,18 @@ extends Node
 const SLEEP_WINDOW_START: int = 6
 const SLEEP_WINDOW_END: int = 14
 
-const COOLDOWN_MINUTES: int = 60 * 24
+# Per-customer cooldown is rolled randomly in this range (in days) each time
+# they page, so contacts don't all sync to the same cadence.
+const COOLDOWN_DAYS_MIN: int = 2
+const COOLDOWN_DAYS_MAX: int = 3
+const MINUTES_PER_DAY: int = 1440
 const CALLBACK_DEADLINE_HOURS: int = 6
 
 @export var base_page_chance_per_minute: float = 0.01
 @export var tier_chance_multiplier: float = 1.15
 
 var _last_page_minute: Dictionary = {}
+var _page_cooldown: Dictionary = {}   # customer id (String) -> rolled cooldown in minutes
 var _pending: Array[PendingPage] = []
 var _rng: RandomNumberGenerator = RandomNumberGenerator.new()
 var has_pager: bool = false
@@ -132,7 +137,8 @@ func _is_on_cooldown(c: Customer) -> bool:
 	if not _last_page_minute.has(key):
 		return false
 	var last: int = _last_page_minute[key]
-	return TimeSystem.total_minutes - last < COOLDOWN_MINUTES
+	var cd: int = _page_cooldown.get(key, COOLDOWN_DAYS_MIN * MINUTES_PER_DAY)
+	return TimeSystem.total_minutes - last < cd
 
 
 func _create_page(customer: Customer) -> void:
@@ -143,8 +149,9 @@ func _create_page(customer: Customer) -> void:
 	page.minutes_remaining = CALLBACK_DEADLINE_HOURS * 60
 	_pending.append(page)
 	_last_page_minute[String(customer.id)] = TimeSystem.total_minutes
-	print("[Pager] %s paged for %d (queue=%d)" %
-		[customer.display_name, page.quantity_requested, _pending.size()])
+	_page_cooldown[String(customer.id)] = _rng.randi_range(
+		COOLDOWN_DAYS_MIN, COOLDOWN_DAYS_MAX
+	) * MINUTES_PER_DAY
 	page_received.emit(page)
 	queue_changed.emit()
 
@@ -157,6 +164,7 @@ func save_state() -> Dictionary:
 		pending_data.append(p.to_dict())
 	return {
 		"last_page_minute": _last_page_minute.duplicate(),
+		"page_cooldown": _page_cooldown.duplicate(),
 		"pending": pending_data,
 		"has_pager": has_pager,
 	}
@@ -164,6 +172,7 @@ func save_state() -> Dictionary:
 
 func load_state(data: Dictionary) -> void:
 	_last_page_minute = data.get("last_page_minute", {}).duplicate()
+	_page_cooldown = data.get("page_cooldown", {}).duplicate()
 	_pending.clear()
 	var pending_data: Array = data.get("pending", [])
 	has_pager = data.get("has_pager")

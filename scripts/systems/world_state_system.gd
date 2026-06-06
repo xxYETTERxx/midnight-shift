@@ -17,6 +17,7 @@ extends Node
 # }
 var _room_states: Dictionary = {}
 
+var _fixture_inventories: Dictionary = {}
 
 func _ready() -> void:
 	SaveSystem.register_savable("world_state", self)
@@ -104,20 +105,25 @@ func restore_room(room: Node) -> void:
 
 		instance.load_state(state)
 
+func get_fixture_inventory(id: StringName) -> Dictionary:
+	return _fixture_inventories.get(String(id), {})
+
+func set_fixture_inventory(id: StringName, data: Dictionary) -> void:
+	_fixture_inventories[String(id)] = data
 
 # --- SaveSystem integration ---
 
 func save_state() -> Dictionary:
-	# The dictionary is already serializable (only contains strings, numbers,
-	# bools, and nested dicts/arrays of the same). Just return a copy.
 	if RoomManager.current_room != null:
 		snapshot_room(RoomManager.current_room)
-	return { "room_states": _room_states.duplicate(true) }
-
+	return {
+		"room_states": _room_states.duplicate(true),
+		"fixture_inventories": _fixture_inventories.duplicate(true),
+	}
 
 func load_state(data: Dictionary) -> void:
-	var loaded: Dictionary = data.get("room_states", {})
-	_room_states = loaded
+	_room_states = data.get("room_states", {})
+	_fixture_inventories = data.get("fixture_inventories", {})
 
 
 # --- Debug / utility ---

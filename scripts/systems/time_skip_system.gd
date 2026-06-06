@@ -28,10 +28,6 @@ func skip_to(target_minute: int, context: Dictionary = {}) -> void:
 		return
 
 	var landing_tod: int = (target_minute + TimeSystem.START_HOUR * 60) % 1440
-	print("[skip] target=%d landing_tod=%d (%dh%02d) window_hit=%s" % [
-		target_minute, landing_tod, landing_tod / 60, landing_tod % 60,
-		(landing_tod >= 360 and landing_tod < 840),
-	])     # minute-of-day, 0..1439
 	if landing_tod > 6 * 60 and landing_tod < 14 * 60:
 		target_minute = _next_wake_minute()
 	var fade_duration: float = context.get("fade_duration", DEFAULT_FADE_DURATION)

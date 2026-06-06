@@ -32,8 +32,14 @@ const STRENGTH_XP_PER_PIXEL_PER_SLOT: float = 0.001
 
 # Inventory progression — strength level thresholds and starting size.
 const STARTING_INVENTORY_SLOTS: int = 6
-const STRENGTH_SLOT_THRESHOLDS: Array[int] = [3, 10, 20, 30, 40, 50]
-const SLOTS_PER_THRESHOLD: int = 6
+const STRENGTH_SLOT_TABLE: Array[Vector2i] = [
+	Vector2i(3, 9),
+	Vector2i(10, 12),
+	Vector2i(20, 18),
+	Vector2i(30, 24),
+	Vector2i(40, 30),
+	Vector2i(50, 36),
+]
 
 const LOCKPICK_DURATION_REDUCTION_PER_LEVEL: float = 0.012
 
@@ -177,11 +183,12 @@ func speed_multiplier() -> float:
 	
 func inventory_slot_count() -> int:
 	var lvl: int = tier(&"strength")
-	var bonus: int = 0
-	for threshold in STRENGTH_SLOT_THRESHOLDS:
-		if lvl >= threshold:
-			bonus += SLOTS_PER_THRESHOLD
-	return STARTING_INVENTORY_SLOTS + bonus
+	var slots: int = STARTING_INVENTORY_SLOTS
+	# Walk the table; the highest threshold whose level we've reached wins.
+	for entry in STRENGTH_SLOT_TABLE:
+		if lvl >= entry.x:
+			slots = entry.y
+	return slots
 
 func lockpick_duration_multiplier() -> float:
 	return maxf(0.1, 1.0 - tier(&"lockpicking") * LOCKPICK_DURATION_REDUCTION_PER_LEVEL)
