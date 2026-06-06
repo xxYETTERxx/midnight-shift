@@ -16,6 +16,7 @@ scale = Vector2(0.7, 0.7)
 script = ExtResource("1_jnaxq")
 closed_texture = ExtResource("2_tswr4")
 open_texture = ExtResource("2_tswr4")
+persistent_id = &"tent_starter_stash"
 
 [node name="ContainerSprite" type="Sprite2D" parent="." unique_id=216935804]
 texture = ExtResource("2_tswr4")

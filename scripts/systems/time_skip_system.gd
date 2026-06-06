@@ -1,7 +1,7 @@
 extends Node
 
 # Default fade duration. Callers can override per-skip via context.
-const DEFAULT_FADE_DURATION: float = 0.5
+const DEFAULT_FADE_DURATION: float = 1.5
 
 # Emitted after time has advanced and listeners should react.
 # from: total_minutes before the skip

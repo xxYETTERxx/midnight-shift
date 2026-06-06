@@ -37,6 +37,8 @@ const ARCHETYPE_REVEAL_TIER: int = 1
 
 var _cop_spawn_timer: float = 0.0
 var _live_cops: Array = []
+var _pursuit_active: bool = false
+var _pursuing_cop: CopNPC = null
 
 # Notice window: seconds a cop must hold LOS on an in-progress deal before
 # it busts. Mirrors CopProfile.notice_delay — a per-encounter threshold is
@@ -48,6 +50,7 @@ const NOTICE_DELAY_MAX: float = 0.65   # tier 5 — just barely longer than old 
 # cop instance_id -> { "elapsed": float, "threshold": float }
 var _cop_notice: Dictionary = {}
 var _busted: bool = false
+var _exiting: bool = false   # re-entry guard: catch and exit-zone can race
 
 var _gained_customer_this_session: bool = false
 
@@ -86,9 +89,15 @@ var _live_customers: Array = []
 var _speed_active: bool = false
 
 
+
+
 func _ready() -> void:
 	_rng.seed = Time.get_ticks_usec()
 	_bud_left = StreetDealSession.bud_in_session
+	print("[Minigame] _ready bud_in_session=", StreetDealSession.bud_in_session, " active=", StreetDealSession.active)
+	var p := get_tree().get_first_node_in_group("player")
+	print("[Minigame] player found in _ready? ", p != null)
+	print("[Minigame] paths_root=", paths_root, " customer_layer=", customer_layer, " exit_button=", exit_button)
 	_collect_paths()
 	_cash_earned = 0
 	_lock_player(true)
@@ -101,6 +110,9 @@ func _ready() -> void:
 	var player := get_tree().get_first_node_in_group("player")
 	player.last_direction = "s"
 	CrimeSystem.crime_witnessed.connect(_on_crime_witnessed)
+	for zone in get_tree().get_nodes_in_group("minigame_exit"):
+		if zone is Area2D:
+			zone.body_entered.connect(_on_exit_zone_entered)
 
 
 func _exit_tree() -> void:
@@ -113,6 +125,8 @@ func _exit_tree() -> void:
 
 
 func _process(delta: float) -> void:
+	if _exiting:
+		return
 	if _sellable_bud() <= 0:
 		if _speed_active:
 			TimeSystem.pop_speed()
@@ -137,6 +151,13 @@ func _process(delta: float) -> void:
 		_try_spawn_cop()
 
 func _unhandled_input(event: InputEvent) -> void:
+	# During a pursued deal, interact (intercepted from the player) or Esc
+	# cancels the deal and frees the player to run.
+	if _pursuit_active and (event.is_action_pressed("interact") or event.is_action_pressed("ui_cancel")):
+		if _cancel_active_deal():
+			get_viewport().set_input_as_handled()
+		return
+	# Outside pursuit, Esc still backs off a deal (player is otherwise locked).
 	if event.is_action_pressed("ui_cancel"):
 		if _cancel_active_deal():
 			get_viewport().set_input_as_handled()
@@ -154,6 +175,11 @@ func _cancel_active_deal() -> bool:
 		if is_instance_valid(c) and c.has_method("is_dealing") and c.is_dealing():
 			c.player_cancel()
 			NotificationSystem.warn("Backed off.")
+			if _pursuit_active:
+				var player := get_tree().get_first_node_in_group("player")
+				if player != null:
+					player.deal_cancel_intercept = false
+				_lock_player(false)   # now free to run for the exit
 			return true
 	return false
 
@@ -323,6 +349,15 @@ func _refresh_speed() -> void:
 		TimeSystem.pop_speed()
 		_speed_active = false
 
+func _on_exit_zone_entered(body: Node) -> void:
+	# Reaching any exit zone during a pursuit = clean escape.
+	if not _pursuit_active:
+		return
+	if not body.is_in_group("player"):
+		return
+	NotificationSystem.warn("You lost them.")
+	_request_exit()
+
 # --- UI ---
 
 func _refresh_ui() -> void:
@@ -337,11 +372,18 @@ func _on_exit_pressed() -> void:
 
 
 func _request_exit() -> void:
+	if _exiting:
+		return
+	_exiting = true
+
+	var player := get_tree().get_first_node_in_group("player")
+	if player != null:
+		player.deal_cancel_intercept = false
+
 	if _speed_active:
 		TimeSystem.pop_speed()
 		_speed_active = false
 
-	# Free any live actors so they don't tween into a freed scene.
 	for c in _live_customers:
 		if is_instance_valid(c):
 			c.queue_free()
@@ -351,7 +393,6 @@ func _request_exit() -> void:
 			c.queue_free()
 	_live_cops.clear()
 
-	# Settle eyeball tax — deduct accumulated waste from leftover bud.
 	var lost: int = int(round(_eyeball_loss))
 	if lost > 0:
 		lost = min(lost, _bud_left)
@@ -430,6 +471,34 @@ func _on_crime_witnessed(_crime_id: int, crime_type: StringName, _pos: Vector2, 
 		return
 	_bust()
 	
+# Called from _tick_notice when a cop's notice threshold fills.
+func _begin_pursuit(cop: CopNPC) -> void:
+	if _pursuit_active:
+		return
+	_pursuit_active = true
+	_pursuing_cop = cop
+	
+
+	if _speed_active:
+		TimeSystem.pop_speed()
+		_speed_active = false
+
+	exit_button.disabled = true
+
+	cop.pursuit_speed_override = StreetDealSession.cop_chase_speed
+	cop.player_caught.connect(_on_player_caught, CONNECT_ONE_SHOT)
+	var player := get_tree().get_first_node_in_group("player")
+	cop.begin_pursuit(player)
+
+	if _deal_in_progress():
+		# Rooted until they break the deal. Interact (or Esc) cancels and frees.
+		if player != null:
+			player.deal_cancel_intercept = true
+		NotificationSystem.warn("Spotted! Break it off!")
+	else:
+		_lock_player(false)
+		NotificationSystem.warn("Spotted! Run!")
+	
 func _pick_archetype() -> CustomerArchetype:
 	var archetypes: Array = StreetDealSession.archetypes
 	var weights: Array = StreetDealSession.archetype_weights
@@ -472,7 +541,7 @@ func _tick_notice(delta: float) -> void:
 		var entry: Dictionary = _cop_notice[id]
 		entry["elapsed"] += delta
 		if entry["elapsed"] >= entry["threshold"]:
-			_bust()
+			_begin_pursuit(cop)
 			return
 
 
@@ -489,6 +558,9 @@ func _cop_sees_player(cop: Node, player: Node2D) -> bool:
 		return wc.can_witness(player)
 	# No WC — fall back to a simple radius so cops still function.
 	return cop.global_position.distance_to(player.global_position) < 200.0
+
+func _on_player_caught() -> void:
+	_bust()
 
 
 func _notice_delay_for(_cop: Node) -> float:

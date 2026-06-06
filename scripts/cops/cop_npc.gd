@@ -28,6 +28,7 @@ var _agent: NavigationAgent2D
 var _patrolling: bool = false
 var _patrol_points: Array[Vector2] = []
 var _patrol_index: int = 0
+var pursuit_speed_override: float = -1.0
 
 # Per-crime noticing state. Keyed by crime_id.
 #   { "elapsed": float, "threshold": float }
@@ -181,7 +182,8 @@ func _tick_pursuit(delta: float) -> void:
 			return
 
 	_agent.target_position = _last_seen_position
-	_step_along_nav(delta, profile.pursuit_speed)
+	var speed: float = pursuit_speed_override if pursuit_speed_override >= 0.0 else profile.pursuit_speed
+	_step_along_nav(delta, speed)
 
 	# Caught check — only if currently visible (don't "catch" through walls)
 	if visible_now and global_position.distance_to(_target.global_position) <= CATCH_RADIUS:

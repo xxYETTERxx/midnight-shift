@@ -3,6 +3,7 @@ extends Placeable
 
 @export var closed_texture: Texture2D
 @export var open_texture: Texture2D
+@export var persistent_id: StringName = &""
 
 @onready var sprite: Sprite2D = $ContainerSprite
 @onready var interactable: Interactable = $Interactable
@@ -11,7 +12,7 @@ extends Placeable
 @onready var storage: Inventory = $Inventory
 
 var is_open: bool = false
-@export var persistent_id: StringName = &""
+
 
 func _ready() -> void:
 	interactable.interacted.connect(_on_interacted)

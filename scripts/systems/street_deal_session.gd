@@ -28,6 +28,8 @@ var archetypes: Array = []
 var archetype_weights: Array = []
 var cop_check_interval_minutes: float = 30.0
 
+var cop_chase_speed: float = 105.0
+
 
 # Called by DealSpot on interact.
 # Caller already deducted bud_count from the player's real inventory.

@@ -14,7 +14,9 @@ const WAKE_ROOM_PATH: String = "res://scenes/rooms/city_central.tscn"
 const WAKE_DOOR_GROUP: StringName = &"apartment_exterior_anchor"
 const WAKE_FALLBACK: Vector2 = Vector2.ZERO
 
-enum Cause { EXHAUSTION, HUNGER, THIRST }
+var _collapsing: bool = false
+
+enum Cause { EXHAUSTION, HUNGER, THIRST, TIME }
 
 signal collapsed(cause: int, summary: String)
 
@@ -23,6 +25,7 @@ func _ready() -> void:
 	HungerSystem.collapsed.connect(_on_hunger_collapsed)
 	ThirstSystem.collapsed.connect(_on_thirst_collapsed)
 	StaminaSystem.collapsed.connect(_on_stamina_collapsed)
+	TimeSystem.hour_tick.connect(_on_hour_tick)
 
 
 func _on_stamina_collapsed() -> void:
@@ -38,28 +41,54 @@ func _on_hunger_collapsed() -> void:
 func _on_thirst_collapsed() -> void:
 	_collapse(Cause.THIRST)
 
+func on_time_collapsed()-> void:
+	_collapse(Cause.TIME)
+	
+func _on_hour_tick(hour: int, _dow: int, _dom: int) -> void:
+	if hour == 6:
+		on_time_collapsed()
+
 
 # --- Core flow ---------------------------------------------------------
 
 func _collapse(cause: int) -> void:
+	if _collapsing:
+		return
+	_collapsing = true
+
+	var player := _get_player()
+	if player != null and player.has_method("play_collapse"):
+		var fall_time: float = player.play_collapse()
+		if fall_time > 0.0:
+			await get_tree().create_timer(fall_time).timeout
+
 	var penalties: Array[String] = _apply_penalties(cause)
 	var summary: String = _build_summary(cause, penalties)
 
-	# Skip to tomorrow 16:00 — TimeSkipSystem handles fade + advance.
-	TimeSkipSystem.skip_to(_next_wake_minute(), {
-		"kind": "sleep",  # treated as sleep so survival decay halves
+	# Place + restore DURING the fade (while the screen is black), not after
+	# skip_to returns — by then the screen has already faded back in.
+	TimeSkipSystem.time_skipped.connect(
+		_on_collapse_skipped.bind(cause), CONNECT_ONE_SHOT
+	)
+
+	await TimeSkipSystem.skip_to(_next_wake_minute(), {
+		"kind": "sleep",
 		"safe": false,
 		"voluntary": false,
 	})
 
-	# After the skip resolves, place the player and restore stats.
-	# skip_to runs synchronously through its own fade; by the time the
-	# next line runs the world has advanced.
-	_place_player_at_wake()
-	_restore_post_collapse(cause)
-
+	# skip_to has now fully resolved (screen faded back in). Player is already
+	# placed and revived from the signal handler. Just finish up.
 	NotificationSystem.warn(summary)
 	collapsed.emit(cause, summary)
+	_collapsing = false
+	
+func _on_collapse_skipped(_from: int, _to: int, _context: Dictionary, cause: int) -> void:
+	_place_player_at_wake()
+	_restore_post_collapse(cause)
+	var player := _get_player()
+	if player != null and player.has_method("revive"):
+		player.revive()
 
 
 # Tomorrow at 16:00 in total_minutes.
@@ -88,6 +117,11 @@ func _apply_penalties(cause: int) -> Array[String]:
 			var drugs_lost: int = _confiscate_drugs()
 			if drugs_lost > 0:
 				lost.append("%dg of product" % drugs_lost)
+		Cause.TIME:
+			var cash_taken: int = int(Wallet.balance("cash") * 0.10)
+			if cash_taken > 0:
+				Wallet.spend(cash_taken)
+				lost.append("$%d" % cash_taken)
 	return lost
 
 
@@ -155,6 +189,8 @@ func _build_summary(cause: int, lost: Array[String]) -> String:
 			prefix = "You collapsed from hunger. Woke up at the hospital."
 		Cause.THIRST:
 			prefix = "You collapsed from dehydration. Woke up at the hospital."
+		Cause.TIME:
+			prefix = "You stayed up too long and passed out."
 
 	if lost.is_empty():
 		return prefix

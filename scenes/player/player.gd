@@ -28,6 +28,7 @@ const MOVEMENT_TOOL_SCENES: Array[String] = [
 ]
 
 var _is_vaulting: bool = false
+var _collapsed: bool = false
 
 var active_mode: StringName = &""
 var active_mode_speed: float = 0.0
@@ -40,10 +41,12 @@ var last_direction: String = "s"
 
 var has_pager: bool = false
 
+var deal_cancel_intercept: bool = false
+
+
 
 
 func _ready() -> void:
-	TimeSystem.hour_tick.connect(_on_hour_tick)
 	TimeSkipSystem.time_skipped.connect(_on_time_skipped)
 	RoomManager.room_changed.connect(_on_room_changed)
 	SaveSystem.register_savable("player", self)
@@ -57,6 +60,8 @@ func _physics_process(delta: float) -> void:
 	if not TimeSystem.is_running():
 		return
 	if _is_vaulting:
+		return
+	if _collapsed:
 		return
 	if input_locked:
 		velocity = Vector2.ZERO
@@ -90,6 +95,8 @@ func _physics_process(delta: float) -> void:
 	if _is_sprinting:
 		move_multiplier *= sprint_multiplier
 		StaminaSystem.spend(sprint_drain_per_second * delta)
+		if _collapsed:
+			return 
 
 	# Active modes (skateboard) override the base walk speed; otherwise use it.
 	var base_speed: float = active_mode_speed if on_skateboard else speed
@@ -111,6 +118,8 @@ func _physics_process(delta: float) -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("interact"):
+		if deal_cancel_intercept:
+			return
 		if _try_tool_interact():
 			return
 		if not InteractionManager.try_interact(self):
@@ -139,6 +148,8 @@ func _unhandled_input(event: InputEvent) -> void:
 			PlacementSystem.try_pickup_targeted(self)
 
 func _update_animation(input_vector: Vector2) -> void:
+	if _collapsed:
+		return
 	if input_vector == Vector2.ZERO:
 		sprite.pause()
 		sprite.frame = 0
@@ -159,7 +170,26 @@ func _update_animation(input_vector: Vector2) -> void:
 	elif not sprite.is_playing():
 		sprite.play()
 
-
+func play_collapse() -> float:
+	_collapsed = true
+	input_locked = true
+	velocity = Vector2.ZERO
+	var anim_name := "fall_" + last_direction
+	print(anim_name)
+	if sprite.sprite_frames != null and sprite.sprite_frames.has_animation(anim_name):
+		print("animation playing")
+		sprite.speed_scale = 1.0
+		sprite.play(anim_name)
+		var fps: float = sprite.sprite_frames.get_animation_speed(anim_name)
+		var frames: int = sprite.sprite_frames.get_frame_count(anim_name)
+		if fps > 0.0 and frames > 0:
+			return frames / fps
+	return 0.4
+	
+func revive() -> void:
+	_collapsed = false
+	input_locked = false
+	_settle_idle()
 
 
 func _survival_speed_multiplier() -> float:
@@ -174,10 +204,6 @@ func _on_time_skipped(_from: int, _to: int, _context: Dictionary) -> void:
 	# Stamina restore on sleep is handled by StaminaSystem itself.
 	pass
 
-
-func _on_hour_tick(hour: int, _dow: int, _dom: int) -> void:
-	if hour == 6:
-		_force_sleep()
 
 
 func _force_sleep() -> void:

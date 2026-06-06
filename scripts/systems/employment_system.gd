@@ -29,6 +29,7 @@ func _ready() -> void:
 	TimeSystem.week_rolled.connect(_on_week_rolled)
 	TimeSystem.minute_tick.connect(_on_minute_tick)
 	BarShiftSession.shift_ended.connect(on_shift_ended)
+	CollapseSystem.collapsed.connect(_collapsed)
 	# Catch the case where the flag was already set before we connected.
 	if RelationshipSystem.get_global_flag(JOB_FLAG) and next_shift_minute < 0:
 		_schedule_next_shift()
@@ -88,6 +89,10 @@ func record_strike() -> void:
 	else:
 		NotificationSystem.warn("Missed shift. Strike %d of %d." % [strikes, STRIKE_LIMIT + 1])
 
+func _collapsed(cause:int, sum: String ) -> void:
+	record_strike()
+	on_shift_ended(false)
+		
 
 func _fire() -> void:
 	strikes = 0
