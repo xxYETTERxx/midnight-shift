@@ -94,10 +94,7 @@ var _speed_active: bool = false
 func _ready() -> void:
 	_rng.seed = Time.get_ticks_usec()
 	_bud_left = StreetDealSession.bud_in_session
-	print("[Minigame] _ready bud_in_session=", StreetDealSession.bud_in_session, " active=", StreetDealSession.active)
 	var p := get_tree().get_first_node_in_group("player")
-	print("[Minigame] player found in _ready? ", p != null)
-	print("[Minigame] paths_root=", paths_root, " customer_layer=", customer_layer, " exit_button=", exit_button)
 	_collect_paths()
 	_cash_earned = 0
 	_lock_player(true)
@@ -109,6 +106,7 @@ func _ready() -> void:
 	_refresh_ui()
 	var player := get_tree().get_first_node_in_group("player")
 	player.last_direction = "s"
+	player.set_crime_view_active(true)
 	CrimeSystem.crime_witnessed.connect(_on_crime_witnessed)
 	for zone in get_tree().get_nodes_in_group("minigame_exit"):
 		if zone is Area2D:
@@ -309,6 +307,7 @@ func _on_customer_offer_resolved(willing: bool, completed: bool, _customer: Node
 	_cash_earned += cash
 	Wallet.add(cash)
 	DealerExperience.adjust(qty)
+	CriminalExperience.adjust(1)
 
 	SpotHeatTracker.record_deal(StreetDealSession.spot_id)
 
@@ -379,6 +378,7 @@ func _request_exit() -> void:
 	var player := get_tree().get_first_node_in_group("player")
 	if player != null:
 		player.deal_cancel_intercept = false
+		player.set_crime_view_active(false)
 
 	if _speed_active:
 		TimeSystem.pop_speed()

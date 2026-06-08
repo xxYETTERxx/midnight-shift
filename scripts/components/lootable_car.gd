@@ -90,12 +90,14 @@ func _on_interacted(player: Node) -> void:
 	_action_elapsed = 0.0
 	progress_bar.visible = true
 	progress_bar.value = 0.0
+	_action_player.set_crime_view_active(true)
 
 
 func _cancel_action() -> void:
 	if _active_crime_id != 0:
 		CrimeSystem.end_crime(_active_crime_id, CrimeSystem.Outcome.CANCELLED)
 		_active_crime_id = 0
+	_action_player.set_crime_view_active(false)
 	_action_player = null
 	_action_elapsed = 0.0
 	progress_bar.visible = false

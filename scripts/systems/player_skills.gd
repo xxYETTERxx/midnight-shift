@@ -43,6 +43,8 @@ const STRENGTH_SLOT_TABLE: Array[Vector2i] = [
 
 const LOCKPICK_DURATION_REDUCTION_PER_LEVEL: float = 0.012
 
+
+
 # --- Skill config ---
 # Each entry:
 #   max_level          — cap; levels are 0..max_level
@@ -90,6 +92,19 @@ const SKILL_CONFIG := {
 		"threshold_messages": {
 			15: "Your hands move faster on a lock now.",
 			35: "Locks barely slow you down.",
+		},
+		"per_day_cap": -1,
+	},
+		&"awareness": {
+		"max_level": 50,
+		"capabilities": {},
+		"threshold_messages": {
+			4: "You're starting to notice things on the edges.",
+			8: "Your senses are improving.",
+			15: "You're becoming more aware things more than most.",
+			20: "Spidey sense increased!",
+			25: "You catch movement before it reaches you.",
+			50: "Nothing in your periphery escapes you.",
 		},
 		"per_day_cap": -1,
 	},
@@ -240,6 +255,12 @@ func _check_day_rollover() -> void:
 		for k in _xp_today.keys():
 			_xp_today[k] = 0
 
+func awareness_fraction() -> float:
+	var lvl: int = tier(&"awareness")
+	var maxl: int = max_level(&"awareness")
+	if maxl <= 0:
+		return 0.0
+	return clampf(float(lvl) / float(maxl), 0.0, 1.0)
 
 # --- Save / load ---------------------------------------------------------
 

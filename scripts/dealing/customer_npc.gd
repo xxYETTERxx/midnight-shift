@@ -255,6 +255,8 @@ func _complete_action() -> void:
 		unit_price = int(round(item.base_value * RETAIL_MULTIPLIER))
 	var payout: int = unit_price * meeting.quantity_requested
 	Wallet.add(payout)
+	DealerExperience.adjust(meeting.quantity_requested)
+	CriminalExperience.adjust(1)
 
 	print("[Deal] %s paid $%d for %d units" %
 		[customer.display_name, payout, meeting.quantity_requested])

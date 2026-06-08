@@ -6,6 +6,8 @@ extends Node2D
 @export var purchase_price: int = 5000   # paid in clean cash (it's a legit asset)
 @export var weekly_upkeep: int = 50
 
+const LEMONADE_GAME: String = "res://scenes/minigames/lemonade_minigame.tscn"
+
 @export var unowned_texture: Texture2D
 @export var owned_texture: Texture2D
 
@@ -17,6 +19,7 @@ extends Node2D
 
 func _ready() -> void:
 	interactable.interacted.connect(_on_interacted)
+	interactable.alt_interacted.connect(_on_alt_interacted)
 	_refresh_visual()
 
 func _refresh_visual() -> void:
@@ -33,10 +36,19 @@ func _on_interacted(player: Node) -> void:
 		panel.open(player)
 	else:
 		_offer_purchase(player)
+		
+func _on_alt_interacted(player: Node) -> void:
+	if not LaunderingSystem.owns_front(front_id):
+		return
+	var room_path: String = ""
+	if RoomManager.current_room != null:
+		room_path = RoomManager.current_room.scene_file_path
+	LemonadeStandSession.begin_session(room_path, player.global_position, &"city_central")
 
 func _offer_purchase(player):
-	Wallet.spend(purchase_price)
-	LaunderingSystem.register_front(front_id,max_limit)
+	if not Wallet.spend(purchase_price, "clean"):
+		NotificationSystem.info("Not enough clean money.")
+		return
 	LaunderingSystem.register_front(front_id, max_limit)
 	LedgerSystem.set_entry(front_id, &"laundering_upkeep", -weekly_upkeep, "Front upkeep")
 	_refresh_visual()

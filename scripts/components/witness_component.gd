@@ -14,6 +14,8 @@ extends Node2D
 # Cone width for the FOV check.
 @export var fov_degrees: float = 130.0
 
+@export var notice_distance: float = 140.0   # fixed; NOT affected by camera
+
 # Per-crime-type reaction weight. Missing keys default to 1.0.
 # Civilian defaults are usually fine; cops override via CopProfile.
 @export var reaction_weights: Dictionary = {}
@@ -45,19 +47,19 @@ func _exit_tree() -> void:
 func can_witness(player: Node2D) -> bool:
 	if player == null:
 		return false
-	if _notifier != null and not _notifier.is_on_screen():
-		return false
 	var origin: Vector2 = global_position
 	var to_player: Vector2 = player.global_position - origin
-	if to_player.length_squared() < 1.0:
+	var dist_sq: float = to_player.length_squared()
+	if dist_sq > notice_distance * notice_distance:
+		return false                      # too far — fixed range, camera-independent
+	if dist_sq < 1.0:
 		return true
 	var facing: Vector2 = _resolve_facing().normalized()
 	if facing.length_squared() < 0.01:
-		return true  # no facing info — treat as omnidirectional
+		return true
 	var dir_to_player: Vector2 = to_player.normalized()
 	var dot: float = facing.dot(dir_to_player)
-	var half_fov_rad: float = deg_to_rad(fov_degrees * 0.5)
-	return dot >= cos(half_fov_rad)
+	return dot >= cos(deg_to_rad(fov_degrees * 0.5))
 
 
 # crime_id and delta are passed through so subclasses / parents can implement

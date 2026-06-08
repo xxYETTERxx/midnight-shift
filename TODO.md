@@ -1,13 +1,7 @@
-Todo:
-Collapsing at work
 
-eyeball tax calculation
-
+Update Dealspots for new gameplay
 
 New:
-Awareness skill
-
-add pursuit to minigame
 lemonade minigame
 add new dealspot
 

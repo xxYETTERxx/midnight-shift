@@ -20,8 +20,8 @@ extends Node
 const POOL_CASH: String = "cash"
 const POOL_CLEAN: String = "clean"
 
-const STARTING_CASH: int = 0
-const STARTING_CLEAN: int = 0
+const STARTING_CASH: int = 10000
+const STARTING_CLEAN: int = 10000
 
 var _pools: Dictionary = {
 	POOL_CASH: STARTING_CASH,

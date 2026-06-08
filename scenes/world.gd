@@ -56,6 +56,9 @@ func _input(event: InputEvent) -> void:
 			KEY_1: TimeSystem.advance_to(TimeSystem.total_minutes + 60)
 			KEY_F2: _debug_panel.toggle()
 			KEY_F3: SuspicionSystem._add(10.0)
+			KEY_F4: 
+				CriminalExperience.adjust(10)
+				print("CriminalXP: " + str(CriminalExperience.current_tier()))
 			KEY_F9:
 				SaveSystem.save_to_disk()
 			KEY_F11:  # bonus: wipe save

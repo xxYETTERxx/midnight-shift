@@ -1,0 +1,34 @@
+[gd_scene format=3 uid="uid://cq3fljgci56es"]
+
+[ext_resource type="Script" uid="uid://v1klwoy6k2r1" path="res://scripts/ui/timing_bar.gd" id="1_5dc3p"]
+
+[node name="TimingBar" type="Control" unique_id=546305961]
+layout_mode = 3
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -320.0
+offset_right = -320.0
+grow_horizontal = 2
+script = ExtResource("1_5dc3p")
+block_speed = 0.8
+target_width = 0.03
+
+[node name="Track" type="ColorRect" parent="." unique_id=2087604377]
+custom_minimum_size = Vector2(200, 20)
+layout_mode = 0
+offset_right = 200.0
+offset_bottom = 20.0
+color = Color(1, 1, 1, 0.8117647)
+
+[node name="Target" type="ColorRect" parent="Track" unique_id=1246911772]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 20.0
+color = Color(0.0885599, 0.0885599, 0.0885599, 1)
+
+[node name="Block" type="ColorRect" parent="Track" unique_id=1359508298]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 20.0
+color = Color(0.77974457, 0.115597256, 0.20175967, 1)

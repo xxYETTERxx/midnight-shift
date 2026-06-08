@@ -1,0 +1,166 @@
+[gd_scene format=3 uid="uid://d21hs0ncfywum"]
+
+[ext_resource type="Script" uid="uid://n3km3cx3re84" path="res://scripts/components/lemonade_customer.gd" id="1_wewsp"]
+[ext_resource type="Texture2D" uid="uid://c5blive5in7wg" path="res://art/sprites/NPCs/Random/Full/Normal/template2_walk_s .png" id="2_ps88x"]
+[ext_resource type="PackedScene" uid="uid://l6jfg123c1fw" path="res://scenes/components/interactable.tscn" id="3_871s0"]
+[ext_resource type="Texture2D" uid="uid://yhwje6f8s1eg" path="res://art/sprites/NPCs/Random/Full/Normal/normal1_walk_e.png" id="3_hoves"]
+[ext_resource type="Texture2D" uid="uid://bwwwyijkuy08e" path="res://art/sprites/NPCs/Random/Full/Normal/template2_walk_n.png" id="4_0an44"]
+[ext_resource type="Texture2D" uid="uid://bkg3du1lol7se" path="res://art/sprites/NPCs/Random/Full/Normal/normal1_walk_w.png" id="5_duwwi"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_xtuiv"]
+atlas = ExtResource("2_ps88x")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_uhy13"]
+atlas = ExtResource("3_hoves")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_vvgdw"]
+atlas = ExtResource("3_hoves")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_xo3vu"]
+atlas = ExtResource("3_hoves")
+region = Rect2(64, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_yeyv0"]
+atlas = ExtResource("3_hoves")
+region = Rect2(96, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_x50lc"]
+atlas = ExtResource("4_0an44")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1hps6"]
+atlas = ExtResource("4_0an44")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_hr7h7"]
+atlas = ExtResource("2_ps88x")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jkc2e"]
+atlas = ExtResource("2_ps88x")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_uosaj"]
+atlas = ExtResource("5_duwwi")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4ty27"]
+atlas = ExtResource("5_duwwi")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_n7s1u"]
+atlas = ExtResource("5_duwwi")
+region = Rect2(64, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_65lpn"]
+atlas = ExtResource("5_duwwi")
+region = Rect2(96, 0, 32, 32)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_vek5b"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_xtuiv")
+}],
+"loop": false,
+"name": &"idle",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_uhy13")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_vvgdw")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_xo3vu")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_yeyv0")
+}],
+"loop": true,
+"name": &"walk_e",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_x50lc")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1hps6")
+}],
+"loop": true,
+"name": &"walk_n",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_hr7h7")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_jkc2e")
+}],
+"loop": true,
+"name": &"walk_s",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_uosaj")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_4ty27")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_n7s1u")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_65lpn")
+}],
+"loop": true,
+"name": &"walk_w",
+"speed": 5.0
+}]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_vek5b"]
+size = Vector2(49, 47)
+
+[node name="LemonadeCustomer" type="Node2D" unique_id=274827478]
+script = ExtResource("1_wewsp")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=742524412]
+sprite_frames = SubResource("SpriteFrames_vek5b")
+animation = &"walk_n"
+
+[node name="OrderBubble" type="Node2D" parent="." unique_id=350060071]
+
+[node name="OrderIcon" type="TextureRect" parent="OrderBubble" unique_id=147641009]
+offset_left = -29.0
+offset_top = -11.0
+offset_right = 11.0
+offset_bottom = 29.0
+scale = Vector2(0.5, 0.5)
+
+[node name="PatienceBar" type="ProgressBar" parent="." unique_id=785667293]
+offset_left = -2.0
+offset_top = -38.0
+offset_right = 2.0
+offset_bottom = -11.0
+
+[node name="ServeBar" type="ProgressBar" parent="." unique_id=1815848039]
+offset_left = -2.0
+offset_top = 6.0
+offset_right = 2.0
+offset_bottom = 33.0
+
+[node name="Interactable" parent="." unique_id=702434313 instance=ExtResource("3_871s0")]
+prompt_text = "Serve Drink"
+interact_priority = 60
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Interactable" unique_id=490400314]
+position = Vector2(0, -22)
+shape = SubResource("RectangleShape2D_vek5b")

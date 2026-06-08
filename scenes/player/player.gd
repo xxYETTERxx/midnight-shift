@@ -4,6 +4,7 @@ extends CharacterBody2D
 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var inventory: Inventory = $Inventory
+@onready var _camera: Camera2D = $Camera2D
 
 # --- Stamina ---
 @export var stamina_max: float = 100.0
@@ -27,6 +28,12 @@ const MOVEMENT_TOOL_SCENES: Array[String] = [
 	"res://scenes/rooms/city_central.tscn",
 ]
 
+# On player.gd (it owns the Camera2D)
+const ZOOM_DEFAULT: float = 1.3          # normal play
+const ZOOM_CRIME_MIN_AWARE: float = 1.3  # crime at 0 awareness (= normal)
+const ZOOM_CRIME_MAX_AWARE: float = 0.6  # crime at full awareness (widest)
+const ZOOM_LERP_SPEED: float = 4.0       # how fast zoom eases to target
+
 var _is_vaulting: bool = false
 var _collapsed: bool = false
 
@@ -42,6 +49,8 @@ var last_direction: String = "s"
 var has_pager: bool = false
 
 var deal_cancel_intercept: bool = false
+
+var _target_zoom: float = ZOOM_DEFAULT
 
 
 
@@ -115,6 +124,10 @@ func _physics_process(delta: float) -> void:
 			PlayerSkills.adjust_f(&"strength", dist * load * PlayerSkills.STRENGTH_XP_PER_PIXEL_PER_SLOT)
 
 	_update_animation(input_vector)
+
+func _process(delta: float) -> void:
+	var z: float = lerpf(_camera.zoom.x, _target_zoom, clampf(ZOOM_LERP_SPEED * delta, 0.0, 1.0))
+	_camera.zoom = Vector2(z, z)
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("interact"):
@@ -249,6 +262,14 @@ func _debug_replay_event(event_id: String) -> void:
 	RelationshipSystem.mark_event_undone(event_id)
 	EventDirector.force_fire(event_id)
 
+func set_crime_view_active(active: bool, full_override: bool = false) -> void:
+	if not active:
+		_target_zoom = ZOOM_DEFAULT
+	elif full_override:
+		_target_zoom = ZOOM_CRIME_MAX_AWARE          # street-deal: max view regardless of skill
+	else:
+		var f: float = PlayerSkills.awareness_fraction()
+		_target_zoom = lerpf(ZOOM_CRIME_MIN_AWARE, ZOOM_CRIME_MAX_AWARE, f)  # car etc: scale by skill
 	
 #---- Save Systems ------------------------------------------------------
 

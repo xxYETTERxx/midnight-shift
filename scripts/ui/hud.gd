@@ -6,7 +6,6 @@ extends CanvasLayer
 @onready var bank_label: Label = $BankLabel
 @onready var debt_label: Label = $DebtLabel
 @onready var weekly_label: Label = $WeeklyLabel
-@onready var skill_debug: Label = $SkillDebug
 
 @onready var stamina_bar: ProgressBar = $StaminaBar
 @onready var hunger_bar: ProgressBar = $HungerBar
@@ -137,28 +136,3 @@ func _on_debt_changed(_vendor_id: StringName, _new_amount: int) -> void:
 	
 func _on_weekly_changed(_net: int) -> void:
 	_refresh_weekly()
-
-func _on_skill_debug_refresh(_skill_id: StringName, _new_xp: int) -> void:
-	_refresh_skill_debug()
-
-
-func _refresh_skill_debug() -> void:
-	if not skill_debug.visible:
-		return
-	skill_debug.text = "ATH xp=%d L=%d mult=%.3f  |  STR xp=%d L=%d slots=%d  |  LCK xp=%d L=%d mult=%.2f" % [
-		PlayerSkills.value(&"athletics"),
-		PlayerSkills.tier(&"athletics"),
-		PlayerSkills.speed_multiplier(),
-		PlayerSkills.value(&"strength"),
-		PlayerSkills.tier(&"strength"),
-		PlayerSkills.inventory_slot_count(),
-		PlayerSkills.value(&"lockpicking"),
-		PlayerSkills.tier(&"lockpicking"),
-		PlayerSkills.lockpick_duration_multiplier(),
-	]
-
-func _unhandled_input(event: InputEvent) -> void:
-	if event is InputEventKey and event.pressed and not event.echo:
-		if event.keycode == KEY_F10:
-			skill_debug.visible = not skill_debug.visible
-			_refresh_skill_debug()
